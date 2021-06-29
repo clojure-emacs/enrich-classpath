@@ -1,0 +1,104 @@
+[submodule "resolve-java-sources-and-javadocs/integration-testing/pallet"]
+	path = integration-testing/pallet
+	url = git@github.com:pallet/pallet.git
+	branch = master
+[submodule "resolve-java-sources-and-javadocs/integration-testing/riemann"]
+	path = integration-testing/riemann
+	url = git@github.com:riemann/riemann.git
+	branch = master
+[submodule "resolve-java-sources-and-javadocs/integration-testing/crux"]
+	path = integration-testing/crux
+	url = git@github.com:juxt/crux.git
+	branch = master
+[submodule "resolve-java-sources-and-javadocs/integration-testing/metabase"]
+	path = integration-testing/metabase
+	url = git@github.com:metabase/metabase.git
+	branch = master
+[submodule "resolve-java-sources-and-javadocs/integration-testing/sparkplug"]
+	path = integration-testing/sparkplug
+	url = git@github.com:amperity/sparkplug.git
+	branch = master
+[submodule "resolve-java-sources-and-javadocs/integration-testing/overtone"]
+	path = integration-testing/overtone
+	url = git@github.com:overtone/overtone.git
+	branch = master
+[submodule "resolve-java-sources-and-javadocs/integration-testing/jepsen"]
+	path = integration-testing/jepsen
+	url = git@github.com:jepsen-io/jepsen.git
+[submodule "resolve-java-sources-and-javadocs/integration-testing/pedestal"]
+	path = integration-testing/pedestal
+	url = git@github.com:pedestal/pedestal.git
+	branch = master
+[submodule "resolve-java-sources-and-javadocs/integration-testing/aleph"]
+	path = integration-testing/aleph
+	url = git@github.com:clj-commons/aleph.git
+	branch = master
+[submodule "resolve-java-sources-and-javadocs/integration-testing/incanter"]
+	path = integration-testing/incanter
+	url = git@github.com:incanter/incanter.git
+	branch = master
+[submodule "resolve-java-sources-and-javadocs/integration-testing/icepick"]
+	path = integration-testing/icepick
+	url = git@github.com:frankiesardo/icepick.git
+	branch = master
+[submodule "resolve-java-sources-and-javadocs/integration-testing/schema"]
+	path = integration-testing/schema
+	url = git@github.com:plumatic/schema.git
+	branch = master
+[submodule "resolve-java-sources-and-javadocs/integration-testing/amazonica"]
+	path = integration-testing/amazonica
+	url = git@github.com:mcohen01/amazonica.git
+	branch = master
+[submodule "resolve-java-sources-and-javadocs/integration-testing/quartzite"]
+	path = integration-testing/quartzite
+	url = git@github.com:michaelklishin/quartzite.git
+	branch = master
+[submodule "resolve-java-sources-and-javadocs/integration-testing/langohr"]
+	path = integration-testing/langohr
+	url = git@github.com:michaelklishin/langohr.git
+	branch = master
+[submodule "resolve-java-sources-and-javadocs/integration-testing/monger"]
+	path = integration-testing/monger
+	url = git@github.com:michaelklishin/monger.git
+	branch = master
+[submodule "resolve-java-sources-and-javadocs/integration-testing/cassaforte"]
+	path = integration-testing/cassaforte
+	url = git@github.com:clojurewerkz/cassaforte.git
+	branch = master
+[submodule "resolve-java-sources-and-javadocs/integration-testing/elastisch"]
+	path = integration-testing/elastisch
+	url = git@github.com:clojurewerkz/elastisch.git
+	branch = master
+[submodule "resolve-java-sources-and-javadocs/integration-testing/machine_head"]
+	path = integration-testing/machine_head
+	url = git@github.com:clojurewerkz/machine_head.git
+	branch = master
+[submodule "resolve-java-sources-and-javadocs/integration-testing/welle"]
+	path = integration-testing/welle
+	url = git@github.com:michaelklishin/welle.git
+	branch = master
+[submodule "resolve-java-sources-and-javadocs/integration-testing/carmine"]
+	path = integration-testing/carmine
+	url = git@github.com:ptaoussanis/carmine.git
+	branch = master
+[submodule "resolve-java-sources-and-javadocs/integration-testing/http-kit"]
+	path = integration-testing/http-kit
+	url = git@github.com:http-kit/http-kit.git
+	branch = master
+[submodule "resolve-java-sources-and-javadocs/integration-testing/trapperkeeper"]
+	path = integration-testing/trapperkeeper
+	url = git@github.com:puppetlabs/trapperkeeper.git
+[submodule "resolve-java-sources-and-javadocs/integration-testing/jackdaw"]
+	path = integration-testing/jackdaw
+	url = git@github.com:FundingCircle/jackdaw.git
+	branch = master
+[submodule "resolve-java-sources-and-javadocs/integration-testing/cider-nrepl"]
+	path = integration-testing/cider-nrepl
+	url = git@github.com:clojure-emacs/cider-nrepl.git
+	branch = master
+[submodule "integration-testing/trapperkeeper"]
+	path = integration-testing/trapperkeeper
+	url = git@github.com:puppetlabs/trapperkeeper.git
+[submodule "integration-testing/jepsen"]
+	path = integration-testing/jepsen
+	url = git@github.com:jepsen-io/jepsen.git

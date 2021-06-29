@@ -1,0 +1,1241 @@
+{[[org.apache.maven.resolver/maven-resolver-spi
+   "1.3.3"
+   :classifier
+   "sources"
+   :exclusions
+   [[*]]]]
+ {[org.apache.maven.resolver/maven-resolver-spi
+   "1.3.3"
+   :classifier
+   "sources"
+   :exclusions
+   [[*]]]
+  nil},
+ [[org.apache.maven/maven-builder-support
+   "3.6.1"
+   :classifier
+   "sources"
+   :exclusions
+   [[*]]]]
+ {[org.apache.maven/maven-builder-support
+   "3.6.1"
+   :classifier
+   "sources"
+   :exclusions
+   [[*]]]
+  nil},
+ [[org.slf4j/slf4j-api
+   "1.7.25"
+   :classifier
+   "sources"
+   :exclusions
+   [[*]]]]
+ {[org.slf4j/slf4j-api
+   "1.7.25"
+   :classifier
+   "sources"
+   :exclusions
+   [[*]]]
+  nil},
+ [[org.apache.maven/maven-resolver-provider
+   "3.6.1"
+   :classifier
+   "sources"]]
+ {[org.codehaus.plexus/plexus-utils "3.2.0"] nil,
+  [org.apache.maven/maven-model "3.6.1"] nil,
+  [org.apache.maven/maven-builder-support "3.6.1"] nil,
+  [org.slf4j/slf4j-api "1.7.25"] nil,
+  [org.apache.commons/commons-lang3 "3.8.1"] nil,
+  [org.codehaus.plexus/plexus-component-annotations
+   "1.7.1"
+   :exclusions
+   [[junit]]]
+  nil,
+  [org.apache.maven.resolver/maven-resolver-spi "1.3.3"] nil,
+  [javax.inject "1"] nil,
+  [org.apache.maven.resolver/maven-resolver-impl "1.3.3"] nil,
+  [org.apache.maven.resolver/maven-resolver-util "1.3.3"] nil,
+  [org.apache.maven/maven-model-builder "3.6.1"]
+  #{[org.apache.maven/maven-builder-support "3.6.1"]
+    [org.codehaus.plexus/plexus-component-annotations
+     "1.7.1"
+     :exclusions
+     [[junit]]]
+    [org.codehaus.plexus/plexus-interpolation "1.25"]
+    [org.apache.maven/maven-artifact "3.6.1"]},
+  [org.apache.maven.resolver/maven-resolver-api "1.3.3"] nil,
+  [org.codehaus.plexus/plexus-interpolation "1.25"] nil,
+  [org.apache.maven/maven-artifact "3.6.1"]
+  #{[org.apache.commons/commons-lang3 "3.8.1"]},
+  [org.apache.maven/maven-repository-metadata "3.6.1"] nil,
+  [org.apache.maven/maven-resolver-provider
+   "3.6.1"
+   :classifier
+   "sources"]
+  #{[org.codehaus.plexus/plexus-utils "3.2.0"]
+    [org.apache.maven/maven-model "3.6.1"]
+    [org.slf4j/slf4j-api "1.7.25"]
+    [org.apache.maven.resolver/maven-resolver-spi "1.3.3"]
+    [javax.inject "1"]
+    [org.apache.maven.resolver/maven-resolver-impl "1.3.3"]
+    [org.apache.maven.resolver/maven-resolver-util "1.3.3"]
+    [org.apache.maven/maven-model-builder "3.6.1"]
+    [org.apache.maven.resolver/maven-resolver-api "1.3.3"]
+    [org.apache.maven/maven-repository-metadata "3.6.1"]}},
+ [[org.apache.maven.resolver/maven-resolver-impl
+   "1.3.3"
+   :scope
+   "test"]]
+ {[org.apache.maven.resolver/maven-resolver-api "1.3.3" :scope "test"]
+  nil,
+  [org.apache.maven.resolver/maven-resolver-impl "1.3.3" :scope "test"]
+  #{[org.apache.maven.resolver/maven-resolver-spi
+     "1.3.3"
+     :scope
+     "test"]
+    [org.apache.maven.resolver/maven-resolver-api
+     "1.3.3"
+     :scope
+     "test"]
+    [org.apache.maven.resolver/maven-resolver-util
+     "1.3.3"
+     :scope
+     "test"]
+    [org.slf4j/slf4j-api "1.7.25" :scope "test"]},
+  [org.apache.maven.resolver/maven-resolver-spi "1.3.3" :scope "test"]
+  nil,
+  [org.apache.maven.resolver/maven-resolver-util "1.3.3" :scope "test"]
+  nil,
+  [org.slf4j/slf4j-api "1.7.25" :scope "test"] nil},
+ [[org.apache.httpcomponents/httpclient
+   "4.5.8"
+   :classifier
+   "sources"
+   :exclusions
+   [[*]]]]
+ {[org.apache.httpcomponents/httpclient
+   "4.5.8"
+   :classifier
+   "sources"
+   :exclusions
+   [[*]]]
+  nil},
+ [[org.apache.maven.resolver/maven-resolver-connector-basic
+   "1.3.3"
+   :classifier
+   "sources"]]
+ {[org.apache.maven.resolver/maven-resolver-api "1.3.3"] nil,
+  [org.apache.maven.resolver/maven-resolver-spi "1.3.3"] nil,
+  [org.apache.maven.resolver/maven-resolver-util "1.3.3"] nil,
+  [org.slf4j/slf4j-api "1.7.25"] nil,
+  [org.apache.maven.resolver/maven-resolver-connector-basic
+   "1.3.3"
+   :classifier
+   "sources"]
+  #{[org.slf4j/slf4j-api "1.7.25"]
+    [org.apache.maven.resolver/maven-resolver-spi "1.3.3"]
+    [org.apache.maven.resolver/maven-resolver-util "1.3.3"]
+    [org.apache.maven.resolver/maven-resolver-api "1.3.3"]}},
+ [[org.apache.maven/maven-model "3.6.1" :classifier "sources"]]
+ {[org.codehaus.plexus/plexus-utils "3.2.0"] nil,
+  [org.apache.maven/maven-model "3.6.1" :classifier "sources"]
+  #{[org.codehaus.plexus/plexus-utils "3.2.0"]}},
+ [[org.tcrawley/dynapath "1.0.0" :scope "test"]]
+ {[org.tcrawley/dynapath "1.0.0" :scope "test"] nil},
+ [[org.apache.maven/maven-builder-support "3.6.1" :scope "test"]]
+ {[org.apache.maven/maven-builder-support "3.6.1" :scope "test"] nil},
+ [[org.apache.maven.resolver/maven-resolver-impl
+   "1.3.3"
+   :classifier
+   "sources"
+   :exclusions
+   [[*]]]]
+ {[org.apache.maven.resolver/maven-resolver-impl
+   "1.3.3"
+   :classifier
+   "sources"
+   :exclusions
+   [[*]]]
+  nil},
+ [[org.apache.httpcomponents/httpcore
+   "4.4.11"
+   :classifier
+   "sources"
+   :exclusions
+   [[*]]]]
+ {[org.apache.httpcomponents/httpcore
+   "4.4.11"
+   :classifier
+   "sources"
+   :exclusions
+   [[*]]]
+  nil},
+ [[org.apache.maven.wagon/wagon-http "3.3.2" :classifier "sources"]]
+ {[org.slf4j/slf4j-api "1.7.25"] nil,
+  [org.apache.maven.wagon/wagon-provider-api "3.3.2"] nil,
+  [org.codehaus.plexus/plexus-utils "3.1.0"] nil,
+  [org.apache.maven.wagon/wagon-http-shared "3.3.2"]
+  #{[org.slf4j/slf4j-api "1.7.25"] [commons-io "2.6"]
+    [org.jsoup/jsoup "1.11.3"]},
+  [commons-io "2.6"] nil,
+  [commons-codec "1.11"] nil,
+  [org.apache.httpcomponents/httpclient
+   "4.5.7"
+   :exclusions
+   [[commons-logging]]]
+  #{[commons-codec "1.11"]},
+  [org.slf4j/jcl-over-slf4j "1.7.25" :scope "runtime"] nil,
+  [org.apache.httpcomponents/httpcore "4.4.11"] nil,
+  [org.jsoup/jsoup "1.11.3"] nil,
+  [org.apache.maven.wagon/wagon-http "3.3.2" :classifier "sources"]
+  #{[org.apache.maven.wagon/wagon-provider-api "3.3.2"]
+    [org.codehaus.plexus/plexus-utils "3.1.0"]
+    [org.apache.maven.wagon/wagon-http-shared "3.3.2"]
+    [org.apache.httpcomponents/httpclient
+     "4.5.7"
+     :exclusions
+     [[commons-logging]]]
+    [org.slf4j/jcl-over-slf4j "1.7.25" :scope "runtime"]
+    [org.apache.httpcomponents/httpcore "4.4.11"]}},
+ [[org.apache.maven.wagon/wagon-http-shared "3.3.2" :scope "test"]]
+ {[commons-io "2.6" :scope "test"] nil,
+  [org.apache.httpcomponents/httpcore "4.4.11" :scope "test"] nil,
+  [org.jsoup/jsoup "1.11.3" :scope "test"] nil,
+  [org.apache.httpcomponents/httpclient
+   "4.5.7"
+   :scope
+   "test"
+   :exclusions
+   [[commons-logging]]]
+  #{[commons-codec "1.11" :scope "test"]},
+  [org.apache.maven.wagon/wagon-http-shared "3.3.2" :scope "test"]
+  #{[commons-io "2.6" :scope "test"]
+    [org.apache.httpcomponents/httpcore "4.4.11" :scope "test"]
+    [org.jsoup/jsoup "1.11.3" :scope "test"]
+    [org.apache.httpcomponents/httpclient
+     "4.5.7"
+     :scope
+     "test"
+     :exclusions
+     [[commons-logging]]]
+    [org.apache.maven.wagon/wagon-provider-api "3.3.2" :scope "test"]
+    [org.slf4j/slf4j-api "1.7.25" :scope "test"]},
+  [org.codehaus.plexus/plexus-utils "3.1.0" :scope "test"] nil,
+  [org.apache.maven.wagon/wagon-provider-api "3.3.2" :scope "test"]
+  #{[org.codehaus.plexus/plexus-utils "3.1.0" :scope "test"]},
+  [org.slf4j/slf4j-api "1.7.25" :scope "test"] nil,
+  [commons-codec "1.11" :scope "test"] nil},
+ [[commons-codec "1.11" :classifier "sources" :exclusions [[*]]]]
+ {[commons-codec "1.11" :classifier "sources" :exclusions [[*]]] nil},
+ [[org.jsoup/jsoup "1.11.3" :classifier "sources"]]
+ {[org.jsoup/jsoup "1.11.3" :classifier "sources"] nil},
+ [[org.codehaus.plexus/plexus-interpolation
+   "1.25"
+   :classifier
+   "sources"
+   :exclusions
+   [[*]]]]
+ {[org.codehaus.plexus/plexus-interpolation
+   "1.25"
+   :classifier
+   "sources"
+   :exclusions
+   [[*]]]
+  nil},
+ [[org.codehaus.plexus/plexus-component-annotations
+   "1.7.1"
+   :classifier
+   "sources"
+   :exclusions
+   [[*]]]]
+ {[org.codehaus.plexus/plexus-component-annotations
+   "1.7.1"
+   :classifier
+   "sources"
+   :exclusions
+   [[*]]]
+  nil},
+ [[lein-subscribable-urls "0.1.0-alpha2"]]
+ {[lein-subscribable-urls "0.1.0-alpha2"] nil},
+ [[org.clojure/tools.nrepl
+   "0.2.12"
+   :classifier
+   "sources"
+   :exclusions
+   [[*]]]]
+ {[org.clojure/tools.nrepl
+   "0.2.12"
+   :classifier
+   "sources"
+   :exclusions
+   [[*]]]
+  nil},
+ [[commons-logging "1.2" :classifier "sources" :exclusions [[*]]]]
+ {[commons-logging "1.2" :classifier "sources" :exclusions [[*]]] nil},
+ [[clj-commons/pomegranate "1.2.0" :scope "test"]]
+ {[org.tcrawley/dynapath "1.0.0" :scope "test"] nil,
+  [commons-io "2.6" :scope "test"] nil,
+  [org.apache.maven/maven-repository-metadata "3.6.1" :scope "test"]
+  nil,
+  [org.apache.httpcomponents/httpclient "4.5.8" :scope "test"]
+  #{[commons-logging "1.2" :scope "test"]
+    [commons-codec "1.11" :scope "test"]},
+  [org.apache.maven.resolver/maven-resolver-spi "1.3.3" :scope "test"]
+  nil,
+  [org.codehaus.plexus/plexus-utils "3.2.0" :scope "test"] nil,
+  [org.apache.httpcomponents/httpcore "4.4.11" :scope "test"] nil,
+  [org.apache.maven.resolver/maven-resolver-transport-http
+   "1.3.3"
+   :scope
+   "test"]
+  #{[org.slf4j/jcl-over-slf4j "1.7.25" :scope "test"]},
+  [org.clojure/clojure "1.3.0" :scope "test"] nil,
+  [org.jsoup/jsoup "1.11.3" :scope "test"] nil,
+  [org.apache.maven/maven-resolver-provider "3.6.1" :scope "test"]
+  #{[org.apache.maven/maven-repository-metadata "3.6.1" :scope "test"]
+    [org.codehaus.plexus/plexus-utils "3.2.0" :scope "test"]
+    [org.apache.maven/maven-model-builder "3.6.1" :scope "test"]
+    [javax.inject "1" :scope "test"]
+    [org.apache.maven/maven-model "3.6.1" :scope "test"]
+    [org.slf4j/slf4j-api "1.7.25" :scope "test"]},
+  [org.apache.maven.wagon/wagon-http "3.3.2" :scope "test"]
+  #{[org.apache.maven.wagon/wagon-http-shared "3.3.2" :scope "test"]},
+  [org.apache.maven.resolver/maven-resolver-api "1.3.3" :scope "test"]
+  nil,
+  [org.apache.maven/maven-model-builder "3.6.1" :scope "test"]
+  #{[org.codehaus.plexus/plexus-component-annotations
+     "1.7.1"
+     :scope
+     "test"
+     :exclusions
+     [[junit]]]
+    [org.codehaus.plexus/plexus-interpolation "1.25" :scope "test"]
+    [org.apache.maven/maven-artifact "3.6.1" :scope "test"]
+    [org.apache.maven/maven-builder-support "3.6.1" :scope "test"]},
+  [org.apache.maven.wagon/wagon-http-shared "3.3.2" :scope "test"]
+  #{[commons-io "2.6" :scope "test"]
+    [org.jsoup/jsoup "1.11.3" :scope "test"]},
+  [org.apache.maven.resolver/maven-resolver-transport-file
+   "1.3.3"
+   :scope
+   "test"]
+  nil,
+  [org.codehaus.plexus/plexus-component-annotations
+   "1.7.1"
+   :scope
+   "test"
+   :exclusions
+   [[junit]]]
+  nil,
+  [org.codehaus.plexus/plexus-interpolation "1.25" :scope "test"] nil,
+  [clj-commons/pomegranate "1.2.0" :scope "test"]
+  #{[org.tcrawley/dynapath "1.0.0" :scope "test"]
+    [org.apache.httpcomponents/httpclient "4.5.8" :scope "test"]
+    [org.apache.maven.resolver/maven-resolver-spi
+     "1.3.3"
+     :scope
+     "test"]
+    [org.apache.httpcomponents/httpcore "4.4.11" :scope "test"]
+    [org.apache.maven.resolver/maven-resolver-transport-http
+     "1.3.3"
+     :scope
+     "test"]
+    [org.clojure/clojure "1.3.0" :scope "test"]
+    [org.apache.maven/maven-resolver-provider "3.6.1" :scope "test"]
+    [org.apache.maven.wagon/wagon-http "3.3.2" :scope "test"]
+    [org.apache.maven.resolver/maven-resolver-api
+     "1.3.3"
+     :scope
+     "test"]
+    [org.apache.maven.resolver/maven-resolver-transport-file
+     "1.3.3"
+     :scope
+     "test"]
+    [org.apache.maven.resolver/maven-resolver-impl
+     "1.3.3"
+     :scope
+     "test"]
+    [org.apache.maven.resolver/maven-resolver-util
+     "1.3.3"
+     :scope
+     "test"]
+    [org.apache.maven.resolver/maven-resolver-connector-basic
+     "1.3.3"
+     :scope
+     "test"]
+    [org.apache.maven.wagon/wagon-provider-api "3.3.2" :scope "test"]
+    [org.apache.maven.resolver/maven-resolver-transport-wagon
+     "1.3.3"
+     :scope
+     "test"]},
+  [org.apache.commons/commons-lang3 "3.8.1" :scope "test"] nil,
+  [org.slf4j/jcl-over-slf4j "1.7.25" :scope "test"] nil,
+  [commons-logging "1.2" :scope "test"] nil,
+  [org.apache.maven.resolver/maven-resolver-impl "1.3.3" :scope "test"]
+  nil,
+  [org.apache.maven/maven-artifact "3.6.1" :scope "test"]
+  #{[org.apache.commons/commons-lang3 "3.8.1" :scope "test"]},
+  [javax.inject "1" :scope "test"] nil,
+  [org.apache.maven.resolver/maven-resolver-util "1.3.3" :scope "test"]
+  nil,
+  [org.apache.maven/maven-model "3.6.1" :scope "test"] nil,
+  [org.apache.maven.resolver/maven-resolver-connector-basic
+   "1.3.3"
+   :scope
+   "test"]
+  nil,
+  [org.apache.maven/maven-builder-support "3.6.1" :scope "test"] nil,
+  [org.apache.maven.wagon/wagon-provider-api "3.3.2" :scope "test"]
+  nil,
+  [org.slf4j/slf4j-api "1.7.25" :scope "test"] nil,
+  [commons-codec "1.11" :scope "test"] nil,
+  [org.apache.maven.resolver/maven-resolver-transport-wagon
+   "1.3.3"
+   :scope
+   "test"]
+  nil},
+ [[org.clojure/clojure "1.3.0" :classifier "sources"]]
+ {[org.clojure/clojure "1.3.0" :classifier "sources"] nil},
+ [[org.apache.maven.resolver/maven-resolver-api "1.3.3" :scope "test"]]
+ {[org.apache.maven.resolver/maven-resolver-api "1.3.3" :scope "test"]
+  nil},
+ [[org.apache.maven.resolver/maven-resolver-connector-basic
+   "1.3.3"
+   :scope
+   "test"]]
+ {[org.apache.maven.resolver/maven-resolver-api "1.3.3" :scope "test"]
+  nil,
+  [org.apache.maven.resolver/maven-resolver-connector-basic
+   "1.3.3"
+   :scope
+   "test"]
+  #{[org.apache.maven.resolver/maven-resolver-spi
+     "1.3.3"
+     :scope
+     "test"]
+    [org.apache.maven.resolver/maven-resolver-api
+     "1.3.3"
+     :scope
+     "test"]
+    [org.apache.maven.resolver/maven-resolver-util
+     "1.3.3"
+     :scope
+     "test"]
+    [org.slf4j/slf4j-api "1.7.25" :scope "test"]},
+  [org.apache.maven.resolver/maven-resolver-spi "1.3.3" :scope "test"]
+  nil,
+  [org.apache.maven.resolver/maven-resolver-util "1.3.3" :scope "test"]
+  nil,
+  [org.slf4j/slf4j-api "1.7.25" :scope "test"] nil},
+ [[commons-codec "1.11" :scope "test"]]
+ {[commons-codec "1.11" :scope "test"] nil},
+ [[org.apache.httpcomponents/httpclient "4.5.8" :classifier "sources"]]
+ {[commons-codec "1.11"] nil,
+  [commons-logging "1.2"] nil,
+  [org.apache.httpcomponents/httpcore "4.4.11"] nil,
+  [org.apache.httpcomponents/httpclient "4.5.8" :classifier "sources"]
+  #{[commons-codec "1.11"]
+    [org.apache.httpcomponents/httpcore "4.4.11"]
+    [commons-logging "1.2"]}},
+ [[org.apache.commons/commons-lang3 "3.8.1" :scope "test"]]
+ {[org.apache.commons/commons-lang3 "3.8.1" :scope "test"] nil},
+ [[org.apache.maven.wagon/wagon-http-shared
+   "3.3.2"
+   :classifier
+   "sources"]]
+ {[org.slf4j/slf4j-api "1.7.25"] nil,
+  [org.apache.maven.wagon/wagon-provider-api "3.3.2"]
+  #{[org.codehaus.plexus/plexus-utils "3.1.0"]},
+  [org.codehaus.plexus/plexus-utils "3.1.0"] nil,
+  [commons-io "2.6"] nil,
+  [commons-codec "1.11"] nil,
+  [org.apache.maven.wagon/wagon-http-shared
+   "3.3.2"
+   :classifier
+   "sources"]
+  #{[org.slf4j/slf4j-api "1.7.25"]
+    [org.apache.maven.wagon/wagon-provider-api "3.3.2"]
+    [commons-io "2.6"]
+    [org.apache.httpcomponents/httpclient
+     "4.5.7"
+     :exclusions
+     [[commons-logging]]]
+    [org.apache.httpcomponents/httpcore "4.4.11"]
+    [org.jsoup/jsoup "1.11.3"]},
+  [org.apache.httpcomponents/httpclient
+   "4.5.7"
+   :exclusions
+   [[commons-logging]]]
+  #{[commons-codec "1.11"]},
+  [org.apache.httpcomponents/httpcore "4.4.11"] nil,
+  [org.jsoup/jsoup "1.11.3"] nil},
+ [[org.apache.maven/maven-artifact "3.6.1" :classifier "sources"]]
+ {[org.apache.commons/commons-lang3 "3.8.1"] nil,
+  [org.codehaus.plexus/plexus-utils "3.2.0"] nil,
+  [org.apache.maven/maven-artifact "3.6.1" :classifier "sources"]
+  #{[org.codehaus.plexus/plexus-utils "3.2.0"]
+    [org.apache.commons/commons-lang3 "3.8.1"]}},
+ [[org.codehaus.plexus/plexus-utils "3.2.0" :scope "test"]]
+ {[org.codehaus.plexus/plexus-utils "3.2.0" :scope "test"] nil},
+ [[org.slf4j/slf4j-api "1.7.25" :classifier "sources"]]
+ {[org.slf4j/slf4j-api "1.7.25" :classifier "sources"] nil},
+ [[org.slf4j/slf4j-api "1.7.25" :scope "test"]]
+ {[org.slf4j/slf4j-api "1.7.25" :scope "test"] nil},
+ [[clojure-complete "0.2.4" :classifier "sources"]] [],
+ [[org.jsoup/jsoup "1.11.3" :scope "test"]]
+ {[org.jsoup/jsoup "1.11.3" :scope "test"] nil},
+ [[org.apache.commons/commons-lang3
+   "3.8.1"
+   :classifier
+   "sources"
+   :exclusions
+   [[*]]]]
+ {[org.apache.commons/commons-lang3
+   "3.8.1"
+   :classifier
+   "sources"
+   :exclusions
+   [[*]]]
+  nil},
+ [[commons-codec "1.11" :classifier "sources"]]
+ {[commons-codec "1.11" :classifier "sources"] nil},
+ [[org.apache.maven/maven-repository-metadata
+   "3.6.1"
+   :classifier
+   "sources"]]
+ {[org.codehaus.plexus/plexus-utils "3.2.0"] nil,
+  [org.apache.maven/maven-repository-metadata
+   "3.6.1"
+   :classifier
+   "sources"]
+  #{[org.codehaus.plexus/plexus-utils "3.2.0"]}},
+ [[org.slf4j/jcl-over-slf4j "1.7.25" :classifier "sources"]]
+ {[org.slf4j/slf4j-api "1.7.25"] nil,
+  [org.slf4j/jcl-over-slf4j "1.7.25" :classifier "sources"]
+  #{[org.slf4j/slf4j-api "1.7.25"]}},
+ [[javax.inject "1" :classifier "sources" :exclusions [[*]]]]
+ {[javax.inject "1" :classifier "sources" :exclusions [[*]]] nil},
+ [[org.apache.maven.wagon/wagon-http-shared
+   "3.3.2"
+   :classifier
+   "sources"
+   :exclusions
+   [[*]]]]
+ {[org.apache.maven.wagon/wagon-http-shared
+   "3.3.2"
+   :classifier
+   "sources"
+   :exclusions
+   [[*]]]
+  nil},
+ [[commons-io "2.6" :classifier "sources" :exclusions [[*]]]]
+ {[commons-io "2.6" :classifier "sources" :exclusions [[*]]] nil},
+ [[org.clojure/tools.nrepl
+   "0.2.12"
+   :exclusions
+   [[org.clojure/clojure]]]]
+ {[org.clojure/tools.nrepl
+   "0.2.12"
+   :exclusions
+   [[org.clojure/clojure]]]
+  nil},
+ [[org.apache.maven/maven-model-builder
+   "3.6.1"
+   :classifier
+   "sources"
+   :exclusions
+   [[*]]]]
+ {[org.apache.maven/maven-model-builder
+   "3.6.1"
+   :classifier
+   "sources"
+   :exclusions
+   [[*]]]
+  nil},
+ [[clojure-complete "0.2.4" :exclusions [[org.clojure/clojure]]]]
+ {[clojure-complete "0.2.4" :exclusions [[org.clojure/clojure]]] nil},
+ [[org.apache.httpcomponents/httpclient "4.5.8" :scope "test"]]
+ {[commons-codec "1.11" :scope "test"] nil,
+  [commons-logging "1.2" :scope "test"] nil,
+  [org.apache.httpcomponents/httpclient "4.5.8" :scope "test"]
+  #{[org.apache.httpcomponents/httpcore "4.4.11" :scope "test"]
+    [commons-logging "1.2" :scope "test"]
+    [commons-codec "1.11" :scope "test"]},
+  [org.apache.httpcomponents/httpcore "4.4.11" :scope "test"] nil},
+ [[javax.inject "1" :classifier "sources"]]
+ {[javax.inject "1" :classifier "sources"] nil},
+ [[commons-io "2.6" :scope "test"]]
+ {[commons-io "2.6" :scope "test"] nil},
+ [[org.apache.maven.resolver/maven-resolver-transport-file
+   "1.3.3"
+   :classifier
+   "sources"]]
+ {[org.apache.maven.resolver/maven-resolver-api "1.3.3"] nil,
+  [org.apache.maven.resolver/maven-resolver-spi "1.3.3"] nil,
+  [org.slf4j/slf4j-api "1.7.25"] nil,
+  [org.apache.maven.resolver/maven-resolver-transport-file
+   "1.3.3"
+   :classifier
+   "sources"]
+  #{[org.slf4j/slf4j-api "1.7.25"]
+    [org.apache.maven.resolver/maven-resolver-spi "1.3.3"]
+    [org.apache.maven.resolver/maven-resolver-api "1.3.3"]}},
+ [[org.codehaus.plexus/plexus-component-annotations
+   "1.7.1"
+   :scope
+   "test"
+   :exclusions
+   [[junit]]]]
+ {[org.codehaus.plexus/plexus-component-annotations
+   "1.7.1"
+   :scope
+   "test"
+   :exclusions
+   [[junit]]]
+  nil},
+ [[org.clojure/clojure "1.3.0" :scope "test"]]
+ {[org.clojure/clojure "1.3.0" :scope "test"] nil},
+ [[org.apache.maven.resolver/maven-resolver-util
+   "1.3.3"
+   :classifier
+   "sources"
+   :exclusions
+   [[*]]]]
+ {[org.apache.maven.resolver/maven-resolver-util
+   "1.3.3"
+   :classifier
+   "sources"
+   :exclusions
+   [[*]]]
+  nil},
+ [[org.apache.maven.resolver/maven-resolver-transport-wagon
+   "1.3.3"
+   :classifier
+   "sources"
+   :exclusions
+   [[*]]]]
+ {[org.apache.maven.resolver/maven-resolver-transport-wagon
+   "1.3.3"
+   :classifier
+   "sources"
+   :exclusions
+   [[*]]]
+  nil},
+ [[lein-subscribable-urls/lein-subscribable-urls "0.1.0-alpha2"]]
+ {[lein-subscribable-urls "0.1.0-alpha2"] nil},
+ [[org.apache.httpcomponents/httpcore "4.4.11" :scope "test"]]
+ {[org.apache.httpcomponents/httpcore "4.4.11" :scope "test"] nil},
+ [[org.apache.maven.resolver/maven-resolver-transport-wagon
+   "1.3.3"
+   :scope
+   "test"]]
+ {[org.apache.maven.resolver/maven-resolver-api "1.3.3" :scope "test"]
+  nil,
+  [org.apache.maven.resolver/maven-resolver-spi "1.3.3" :scope "test"]
+  nil,
+  [org.apache.maven.resolver/maven-resolver-transport-wagon
+   "1.3.3"
+   :scope
+   "test"]
+  #{[org.apache.maven.resolver/maven-resolver-spi
+     "1.3.3"
+     :scope
+     "test"]
+    [org.apache.maven.resolver/maven-resolver-api
+     "1.3.3"
+     :scope
+     "test"]
+    [org.apache.maven.resolver/maven-resolver-util
+     "1.3.3"
+     :scope
+     "test"]
+    [org.apache.maven.wagon/wagon-provider-api "3.0.0" :scope "test"]
+    [org.slf4j/slf4j-api "1.7.25" :scope "test"]},
+  [org.apache.maven.resolver/maven-resolver-util "1.3.3" :scope "test"]
+  nil,
+  [org.apache.maven.wagon/wagon-provider-api "3.0.0" :scope "test"]
+  #{[org.codehaus.plexus/plexus-utils "3.0.24" :scope "test"]},
+  [org.codehaus.plexus/plexus-utils "3.0.24" :scope "test"] nil,
+  [org.slf4j/slf4j-api "1.7.25" :scope "test"] nil},
+ [[org.codehaus.plexus/plexus-component-annotations
+   "1.7.1"
+   :classifier
+   "sources"]]
+ {[org.codehaus.plexus/plexus-component-annotations
+   "1.7.1"
+   :classifier
+   "sources"]
+  nil},
+ [[org.apache.commons/commons-lang3 "3.8.1" :classifier "sources"]]
+ {[org.apache.commons/commons-lang3 "3.8.1" :classifier "sources"]
+  nil},
+ [[org.apache.maven/maven-model
+   "3.6.1"
+   :classifier
+   "sources"
+   :exclusions
+   [[*]]]]
+ {[org.apache.maven/maven-model
+   "3.6.1"
+   :classifier
+   "sources"
+   :exclusions
+   [[*]]]
+  nil},
+ [[javax.inject "1" :scope "test"]]
+ {[javax.inject "1" :scope "test"] nil},
+ [[org.jsoup/jsoup "1.11.3" :classifier "sources" :exclusions [[*]]]]
+ {[org.jsoup/jsoup "1.11.3" :classifier "sources" :exclusions [[*]]]
+  nil},
+ [[org.apache.maven.resolver/maven-resolver-api
+   "1.3.3"
+   :classifier
+   "sources"
+   :exclusions
+   [[*]]]]
+ {[org.apache.maven.resolver/maven-resolver-api
+   "1.3.3"
+   :classifier
+   "sources"
+   :exclusions
+   [[*]]]
+  nil},
+ [[org.apache.maven/maven-model-builder "3.6.1" :scope "test"]]
+ {[org.apache.commons/commons-lang3 "3.8.1" :scope "test"] nil,
+  [org.apache.maven/maven-artifact "3.6.1" :scope "test"]
+  #{[org.apache.commons/commons-lang3 "3.8.1" :scope "test"]},
+  [org.apache.maven/maven-builder-support "3.6.1" :scope "test"] nil,
+  [org.apache.maven/maven-model "3.6.1" :scope "test"] nil,
+  [org.apache.maven/maven-model-builder "3.6.1" :scope "test"]
+  #{[org.codehaus.plexus/plexus-utils "3.2.0" :scope "test"]
+    [org.codehaus.plexus/plexus-component-annotations
+     "1.7.1"
+     :scope
+     "test"
+     :exclusions
+     [[junit]]]
+    [org.codehaus.plexus/plexus-interpolation "1.25" :scope "test"]
+    [org.apache.maven/maven-artifact "3.6.1" :scope "test"]
+    [org.apache.maven/maven-model "3.6.1" :scope "test"]
+    [org.apache.maven/maven-builder-support "3.6.1" :scope "test"]},
+  [org.codehaus.plexus/plexus-interpolation "1.25" :scope "test"] nil,
+  [org.codehaus.plexus/plexus-utils "3.2.0" :scope "test"] nil,
+  [org.codehaus.plexus/plexus-component-annotations
+   "1.7.1"
+   :scope
+   "test"
+   :exclusions
+   [[junit]]]
+  nil},
+ [[org.apache.maven/maven-resolver-provider
+   "3.6.1"
+   :classifier
+   "sources"
+   :exclusions
+   [[*]]]]
+ {[org.apache.maven/maven-resolver-provider
+   "3.6.1"
+   :classifier
+   "sources"
+   :exclusions
+   [[*]]]
+  nil},
+ [[clojure-complete/clojure-complete
+   "0.2.4"
+   :exclusions
+   [[org.clojure/clojure]]]]
+ {[clojure-complete "0.2.4" :exclusions [[org.clojure/clojure]]] nil},
+ [[org.apache.httpcomponents/httpcore "4.4.11" :classifier "sources"]]
+ {[org.apache.httpcomponents/httpcore "4.4.11" :classifier "sources"]
+  nil},
+ [[org.apache.maven.resolver/maven-resolver-util
+   "1.3.3"
+   :classifier
+   "sources"]]
+ {[org.apache.maven.resolver/maven-resolver-api "1.3.3"] nil,
+  [org.apache.maven.resolver/maven-resolver-util
+   "1.3.3"
+   :classifier
+   "sources"]
+  #{[org.apache.maven.resolver/maven-resolver-api "1.3.3"]}},
+ [[org.apache.maven.resolver/maven-resolver-api
+   "1.3.3"
+   :classifier
+   "sources"]]
+ {[org.apache.maven.resolver/maven-resolver-api
+   "1.3.3"
+   :classifier
+   "sources"]
+  nil},
+ [[org.apache.maven.resolver/maven-resolver-transport-http
+   "1.3.3"
+   :scope
+   "test"]]
+ {[org.apache.httpcomponents/httpclient
+   "4.5.6"
+   :scope
+   "test"
+   :exclusions
+   [[commons-logging]]]
+  #{[commons-codec "1.10" :scope "test"]},
+  [org.apache.maven.resolver/maven-resolver-spi "1.3.3" :scope "test"]
+  nil,
+  [org.apache.maven.resolver/maven-resolver-transport-http
+   "1.3.3"
+   :scope
+   "test"]
+  #{[org.apache.httpcomponents/httpclient
+     "4.5.6"
+     :scope
+     "test"
+     :exclusions
+     [[commons-logging]]]
+    [org.apache.maven.resolver/maven-resolver-spi
+     "1.3.3"
+     :scope
+     "test"]
+    [org.apache.maven.resolver/maven-resolver-api
+     "1.3.3"
+     :scope
+     "test"]
+    [org.slf4j/jcl-over-slf4j "1.7.25" :scope "test"]
+    [org.apache.maven.resolver/maven-resolver-util
+     "1.3.3"
+     :scope
+     "test"]
+    [org.slf4j/slf4j-api "1.7.25" :scope "test"]
+    [org.apache.httpcomponents/httpcore "4.4.10" :scope "test"]},
+  [org.apache.maven.resolver/maven-resolver-api "1.3.3" :scope "test"]
+  nil,
+  [org.slf4j/jcl-over-slf4j "1.7.25" :scope "test"] nil,
+  [org.apache.maven.resolver/maven-resolver-util "1.3.3" :scope "test"]
+  nil,
+  [commons-codec "1.10" :scope "test"] nil,
+  [org.slf4j/slf4j-api "1.7.25" :scope "test"] nil,
+  [org.apache.httpcomponents/httpcore "4.4.10" :scope "test"] nil},
+ [[org.apache.maven/maven-model-builder "3.6.1" :classifier "sources"]]
+ {[org.apache.commons/commons-lang3 "3.8.1"] nil,
+  [org.apache.maven/maven-artifact "3.6.1"]
+  #{[org.apache.commons/commons-lang3 "3.8.1"]},
+  [org.apache.maven/maven-builder-support "3.6.1"] nil,
+  [org.apache.maven/maven-model "3.6.1"] nil,
+  [org.codehaus.plexus/plexus-interpolation "1.25"] nil,
+  [org.codehaus.plexus/plexus-utils "3.2.0"] nil,
+  [org.apache.maven/maven-model-builder "3.6.1" :classifier "sources"]
+  #{[org.codehaus.plexus/plexus-utils "3.2.0"]
+    [org.apache.maven/maven-model "3.6.1"]
+    [org.apache.maven/maven-builder-support "3.6.1"]
+    [org.codehaus.plexus/plexus-component-annotations
+     "1.7.1"
+     :exclusions
+     [[junit]]]
+    [org.codehaus.plexus/plexus-interpolation "1.25"]
+    [org.apache.maven/maven-artifact "3.6.1"]},
+  [org.codehaus.plexus/plexus-component-annotations
+   "1.7.1"
+   :exclusions
+   [[junit]]]
+  nil},
+ [[org.apache.maven/maven-artifact
+   "3.6.1"
+   :classifier
+   "sources"
+   :exclusions
+   [[*]]]]
+ {[org.apache.maven/maven-artifact
+   "3.6.1"
+   :classifier
+   "sources"
+   :exclusions
+   [[*]]]
+  nil},
+ [[clj-commons/pomegranate "1.2.0" :classifier "sources"]] [],
+ [[org.apache.maven.wagon/wagon-provider-api
+   "3.3.2"
+   :classifier
+   "sources"]]
+ {[org.codehaus.plexus/plexus-utils "3.1.0"] nil,
+  [org.apache.maven.wagon/wagon-provider-api
+   "3.3.2"
+   :classifier
+   "sources"]
+  #{[org.codehaus.plexus/plexus-utils "3.1.0"]}},
+ [[org.codehaus.plexus/plexus-utils "3.2.0" :classifier "sources"]]
+ {[org.codehaus.plexus/plexus-utils "3.2.0" :classifier "sources"]
+  nil},
+ [[org.slf4j/jcl-over-slf4j
+   "1.7.25"
+   :classifier
+   "sources"
+   :exclusions
+   [[*]]]]
+ {[org.slf4j/jcl-over-slf4j
+   "1.7.25"
+   :classifier
+   "sources"
+   :exclusions
+   [[*]]]
+  nil},
+ [[org.apache.maven/maven-repository-metadata
+   "3.6.1"
+   :classifier
+   "sources"
+   :exclusions
+   [[*]]]]
+ {[org.apache.maven/maven-repository-metadata
+   "3.6.1"
+   :classifier
+   "sources"
+   :exclusions
+   [[*]]]
+  nil},
+ [[org.apache.maven/maven-resolver-provider "3.6.1" :scope "test"]]
+ {[org.apache.maven/maven-repository-metadata "3.6.1" :scope "test"]
+  nil,
+  [org.apache.maven.resolver/maven-resolver-spi "1.3.3" :scope "test"]
+  nil,
+  [org.codehaus.plexus/plexus-utils "3.2.0" :scope "test"] nil,
+  [org.apache.maven/maven-resolver-provider "3.6.1" :scope "test"]
+  #{[org.apache.maven/maven-repository-metadata "3.6.1" :scope "test"]
+    [org.apache.maven.resolver/maven-resolver-spi
+     "1.3.3"
+     :scope
+     "test"]
+    [org.codehaus.plexus/plexus-utils "3.2.0" :scope "test"]
+    [org.apache.maven.resolver/maven-resolver-api
+     "1.3.3"
+     :scope
+     "test"]
+    [org.apache.maven/maven-model-builder "3.6.1" :scope "test"]
+    [org.apache.maven.resolver/maven-resolver-impl
+     "1.3.3"
+     :scope
+     "test"]
+    [javax.inject "1" :scope "test"]
+    [org.apache.maven.resolver/maven-resolver-util
+     "1.3.3"
+     :scope
+     "test"]
+    [org.apache.maven/maven-model "3.6.1" :scope "test"]
+    [org.slf4j/slf4j-api "1.7.25" :scope "test"]},
+  [org.apache.maven.resolver/maven-resolver-api "1.3.3" :scope "test"]
+  nil,
+  [org.apache.maven/maven-model-builder "3.6.1" :scope "test"]
+  #{[org.codehaus.plexus/plexus-component-annotations
+     "1.7.1"
+     :scope
+     "test"
+     :exclusions
+     [[junit]]]
+    [org.codehaus.plexus/plexus-interpolation "1.25" :scope "test"]
+    [org.apache.maven/maven-artifact "3.6.1" :scope "test"]
+    [org.apache.maven/maven-builder-support "3.6.1" :scope "test"]},
+  [org.codehaus.plexus/plexus-component-annotations
+   "1.7.1"
+   :scope
+   "test"
+   :exclusions
+   [[junit]]]
+  nil,
+  [org.codehaus.plexus/plexus-interpolation "1.25" :scope "test"] nil,
+  [org.apache.commons/commons-lang3 "3.8.1" :scope "test"] nil,
+  [org.apache.maven.resolver/maven-resolver-impl "1.3.3" :scope "test"]
+  nil,
+  [org.apache.maven/maven-artifact "3.6.1" :scope "test"]
+  #{[org.apache.commons/commons-lang3 "3.8.1" :scope "test"]},
+  [javax.inject "1" :scope "test"] nil,
+  [org.apache.maven.resolver/maven-resolver-util "1.3.3" :scope "test"]
+  nil,
+  [org.apache.maven/maven-model "3.6.1" :scope "test"] nil,
+  [org.apache.maven/maven-builder-support "3.6.1" :scope "test"] nil,
+  [org.slf4j/slf4j-api "1.7.25" :scope "test"] nil},
+ [[org.apache.maven/maven-builder-support
+   "3.6.1"
+   :classifier
+   "sources"]]
+ {[org.apache.maven/maven-builder-support
+   "3.6.1"
+   :classifier
+   "sources"]
+  nil},
+ [[org.apache.maven.wagon/wagon-http
+   "3.3.2"
+   :classifier
+   "sources"
+   :exclusions
+   [[*]]]]
+ {[org.apache.maven.wagon/wagon-http
+   "3.3.2"
+   :classifier
+   "sources"
+   :exclusions
+   [[*]]]
+  nil},
+ [[org.clojure/tools.nrepl "0.2.12" :classifier "sources"]]
+ {[org.clojure/clojure "1.2.0"] nil,
+  [org.clojure/tools.nrepl "0.2.12" :classifier "sources"]
+  #{[org.clojure/clojure "1.2.0"]}},
+ [[org.codehaus.plexus/plexus-interpolation "1.25" :scope "test"]]
+ {[org.codehaus.plexus/plexus-interpolation "1.25" :scope "test"] nil},
+ [[commons-io "2.6" :classifier "sources"]]
+ {[commons-io "2.6" :classifier "sources"] nil},
+ [[org.clojure/clojure
+   "1.3.0"
+   :classifier
+   "sources"
+   :exclusions
+   [[*]]]]
+ {[org.clojure/clojure "1.3.0" :classifier "sources" :exclusions [[*]]]
+  nil},
+ [[org.codehaus.plexus/plexus-utils
+   "3.2.0"
+   :classifier
+   "sources"
+   :exclusions
+   [[*]]]]
+ {[org.codehaus.plexus/plexus-utils
+   "3.2.0"
+   :classifier
+   "sources"
+   :exclusions
+   [[*]]]
+  nil},
+ [[commons-logging "1.2" :classifier "sources"]]
+ {[commons-logging "1.2" :classifier "sources"] nil},
+ [[org.apache.maven.resolver/maven-resolver-util
+   "1.3.3"
+   :scope
+   "test"]]
+ {[org.apache.maven.resolver/maven-resolver-api "1.3.3" :scope "test"]
+  nil,
+  [org.apache.maven.resolver/maven-resolver-util "1.3.3" :scope "test"]
+  #{[org.apache.maven.resolver/maven-resolver-api
+     "1.3.3"
+     :scope
+     "test"]}},
+ [[lein-subscribable-urls "0.1.0-alpha2" :classifier "sources"]] [],
+ [[commons-logging "1.2" :scope "test"]]
+ {[commons-logging "1.2" :scope "test"] nil},
+ [[org.apache.maven.resolver/maven-resolver-transport-http
+   "1.3.3"
+   :classifier
+   "sources"
+   :exclusions
+   [[*]]]]
+ {[org.apache.maven.resolver/maven-resolver-transport-http
+   "1.3.3"
+   :classifier
+   "sources"
+   :exclusions
+   [[*]]]
+  nil},
+ [[org.slf4j/jcl-over-slf4j "1.7.25" :scope "test"]]
+ {[org.slf4j/jcl-over-slf4j "1.7.25" :scope "test"]
+  #{[org.slf4j/slf4j-api "1.7.25" :scope "test"]},
+  [org.slf4j/slf4j-api "1.7.25" :scope "test"] nil},
+ [[org.apache.maven.wagon/wagon-http "3.3.2" :scope "test"]]
+ {[commons-io "2.6" :scope "test"] nil,
+  [org.apache.httpcomponents/httpcore "4.4.11" :scope "test"] nil,
+  [org.jsoup/jsoup "1.11.3" :scope "test"] nil,
+  [org.apache.maven.wagon/wagon-http "3.3.2" :scope "test"]
+  #{[org.apache.httpcomponents/httpcore "4.4.11" :scope "test"]
+    [org.apache.httpcomponents/httpclient
+     "4.5.7"
+     :scope
+     "test"
+     :exclusions
+     [[commons-logging]]]
+    [org.apache.maven.wagon/wagon-http-shared "3.3.2" :scope "test"]
+    [org.slf4j/jcl-over-slf4j "1.7.25" :scope "test"]
+    [org.codehaus.plexus/plexus-utils "3.1.0" :scope "test"]
+    [org.apache.maven.wagon/wagon-provider-api "3.3.2" :scope "test"]},
+  [org.apache.httpcomponents/httpclient
+   "4.5.7"
+   :scope
+   "test"
+   :exclusions
+   [[commons-logging]]]
+  #{[commons-codec "1.11" :scope "test"]},
+  [org.apache.maven.wagon/wagon-http-shared "3.3.2" :scope "test"]
+  #{[commons-io "2.6" :scope "test"]
+    [org.jsoup/jsoup "1.11.3" :scope "test"]
+    [org.slf4j/slf4j-api "1.7.25" :scope "test"]},
+  [org.slf4j/jcl-over-slf4j "1.7.25" :scope "test"] nil,
+  [org.codehaus.plexus/plexus-utils "3.1.0" :scope "test"] nil,
+  [org.apache.maven.wagon/wagon-provider-api "3.3.2" :scope "test"]
+  nil,
+  [org.slf4j/slf4j-api "1.7.25" :scope "test"] nil,
+  [commons-codec "1.11" :scope "test"] nil},
+ [[org.apache.maven/maven-artifact "3.6.1" :scope "test"]]
+ {[org.apache.commons/commons-lang3 "3.8.1" :scope "test"] nil,
+  [org.apache.maven/maven-artifact "3.6.1" :scope "test"]
+  #{[org.codehaus.plexus/plexus-utils "3.2.0" :scope "test"]
+    [org.apache.commons/commons-lang3 "3.8.1" :scope "test"]},
+  [org.codehaus.plexus/plexus-utils "3.2.0" :scope "test"] nil},
+ [[org.apache.maven.resolver/maven-resolver-spi
+   "1.3.3"
+   :classifier
+   "sources"]]
+ {[org.apache.maven.resolver/maven-resolver-api "1.3.3"] nil,
+  [org.apache.maven.resolver/maven-resolver-spi
+   "1.3.3"
+   :classifier
+   "sources"]
+  #{[org.apache.maven.resolver/maven-resolver-api "1.3.3"]}},
+ [[org.apache.maven.wagon/wagon-provider-api "3.3.2" :scope "test"]]
+ {[org.apache.maven.wagon/wagon-provider-api "3.3.2" :scope "test"]
+  #{[org.codehaus.plexus/plexus-utils "3.1.0" :scope "test"]},
+  [org.codehaus.plexus/plexus-utils "3.1.0" :scope "test"] nil},
+ [[org.apache.maven/maven-model "3.6.1" :scope "test"]]
+ {[org.apache.maven/maven-model "3.6.1" :scope "test"]
+  #{[org.codehaus.plexus/plexus-utils "3.2.0" :scope "test"]},
+  [org.codehaus.plexus/plexus-utils "3.2.0" :scope "test"] nil},
+ [[org.apache.maven.resolver/maven-resolver-impl
+   "1.3.3"
+   :classifier
+   "sources"]]
+ {[org.apache.maven.resolver/maven-resolver-api "1.3.3"] nil,
+  [org.apache.maven.resolver/maven-resolver-spi "1.3.3"] nil,
+  [org.apache.maven.resolver/maven-resolver-util "1.3.3"] nil,
+  [org.slf4j/slf4j-api "1.7.25"] nil,
+  [org.apache.maven.resolver/maven-resolver-impl
+   "1.3.3"
+   :classifier
+   "sources"]
+  #{[org.slf4j/slf4j-api "1.7.25"]
+    [org.apache.maven.resolver/maven-resolver-spi "1.3.3"]
+    [org.apache.maven.resolver/maven-resolver-util "1.3.3"]
+    [org.apache.maven.resolver/maven-resolver-api "1.3.3"]}},
+ [[org.tcrawley/dynapath "1.0.0" :classifier "sources"]] [],
+ [[org.apache.maven/maven-repository-metadata "3.6.1" :scope "test"]]
+ {[org.apache.maven/maven-repository-metadata "3.6.1" :scope "test"]
+  #{[org.codehaus.plexus/plexus-utils "3.2.0" :scope "test"]},
+  [org.codehaus.plexus/plexus-utils "3.2.0" :scope "test"] nil},
+ [[org.apache.maven.resolver/maven-resolver-transport-file
+   "1.3.3"
+   :classifier
+   "sources"
+   :exclusions
+   [[*]]]]
+ {[org.apache.maven.resolver/maven-resolver-transport-file
+   "1.3.3"
+   :classifier
+   "sources"
+   :exclusions
+   [[*]]]
+  nil},
+ [[org.apache.maven.resolver/maven-resolver-spi "1.3.3" :scope "test"]]
+ {[org.apache.maven.resolver/maven-resolver-api "1.3.3" :scope "test"]
+  nil,
+  [org.apache.maven.resolver/maven-resolver-spi "1.3.3" :scope "test"]
+  #{[org.apache.maven.resolver/maven-resolver-api
+     "1.3.3"
+     :scope
+     "test"]}},
+ [[org.apache.maven.resolver/maven-resolver-transport-file
+   "1.3.3"
+   :scope
+   "test"]]
+ {[org.apache.maven.resolver/maven-resolver-api "1.3.3" :scope "test"]
+  nil,
+  [org.apache.maven.resolver/maven-resolver-spi "1.3.3" :scope "test"]
+  nil,
+  [org.apache.maven.resolver/maven-resolver-transport-file
+   "1.3.3"
+   :scope
+   "test"]
+  #{[org.apache.maven.resolver/maven-resolver-spi
+     "1.3.3"
+     :scope
+     "test"]
+    [org.apache.maven.resolver/maven-resolver-api
+     "1.3.3"
+     :scope
+     "test"]
+    [org.slf4j/slf4j-api "1.7.25" :scope "test"]},
+  [org.slf4j/slf4j-api "1.7.25" :scope "test"] nil},
+ [[org.apache.maven.resolver/maven-resolver-transport-http
+   "1.3.3"
+   :classifier
+   "sources"]]
+ {[org.apache.httpcomponents/httpclient
+   "4.5.6"
+   :exclusions
+   [[commons-logging]]]
+  #{[commons-codec "1.10"]},
+  [org.slf4j/slf4j-api "1.7.25"] nil,
+  [org.apache.httpcomponents/httpcore "4.4.10"] nil,
+  [org.apache.maven.resolver/maven-resolver-spi "1.3.3"] nil,
+  [org.apache.maven.resolver/maven-resolver-transport-http
+   "1.3.3"
+   :classifier
+   "sources"]
+  #{[org.apache.httpcomponents/httpclient
+     "4.5.6"
+     :exclusions
+     [[commons-logging]]]
+    [org.slf4j/slf4j-api "1.7.25"]
+    [org.apache.httpcomponents/httpcore "4.4.10"]
+    [org.apache.maven.resolver/maven-resolver-spi "1.3.3"]
+    [org.apache.maven.resolver/maven-resolver-util "1.3.3"]
+    [org.slf4j/jcl-over-slf4j "1.7.25" :scope "runtime"]
+    [org.apache.maven.resolver/maven-resolver-api "1.3.3"]},
+  [org.apache.maven.resolver/maven-resolver-util "1.3.3"] nil,
+  [org.slf4j/jcl-over-slf4j "1.7.25" :scope "runtime"] nil,
+  [org.apache.maven.resolver/maven-resolver-api "1.3.3"] nil,
+  [commons-codec "1.10"] nil},
+ [[org.apache.maven.resolver/maven-resolver-connector-basic
+   "1.3.3"
+   :classifier
+   "sources"
+   :exclusions
+   [[*]]]]
+ {[org.apache.maven.resolver/maven-resolver-connector-basic
+   "1.3.3"
+   :classifier
+   "sources"
+   :exclusions
+   [[*]]]
+  nil},
+ [[org.apache.maven.resolver/maven-resolver-transport-wagon
+   "1.3.3"
+   :classifier
+   "sources"]]
+ {[org.apache.maven.resolver/maven-resolver-api "1.3.3"] nil,
+  [org.apache.maven.resolver/maven-resolver-spi "1.3.3"] nil,
+  [org.apache.maven.resolver/maven-resolver-util "1.3.3"] nil,
+  [org.apache.maven.wagon/wagon-provider-api "3.0.0"]
+  #{[org.codehaus.plexus/plexus-utils "3.0.24"]},
+  [org.codehaus.plexus/plexus-utils "3.0.24"] nil,
+  [org.slf4j/slf4j-api "1.7.25"] nil,
+  [org.apache.maven.resolver/maven-resolver-transport-wagon
+   "1.3.3"
+   :classifier
+   "sources"]
+  #{[org.slf4j/slf4j-api "1.7.25"]
+    [org.apache.maven.wagon/wagon-provider-api "3.0.0"]
+    [org.apache.maven.resolver/maven-resolver-spi "1.3.3"]
+    [org.apache.maven.resolver/maven-resolver-util "1.3.3"]
+    [org.apache.maven.resolver/maven-resolver-api "1.3.3"]}},
+ [[org.codehaus.plexus/plexus-interpolation
+   "1.25"
+   :classifier
+   "sources"]]
+ {[org.codehaus.plexus/plexus-interpolation
+   "1.25"
+   :classifier
+   "sources"]
+  nil},
+ [[org.apache.maven.wagon/wagon-provider-api
+   "3.3.2"
+   :classifier
+   "sources"
+   :exclusions
+   [[*]]]]
+ {[org.apache.maven.wagon/wagon-provider-api
+   "3.3.2"
+   :classifier
+   "sources"
+   :exclusions
+   [[*]]]
+  nil}}
