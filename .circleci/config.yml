@@ -1,0 +1,107 @@
+version: 2.1
+
+orbs:
+  shellcheck: circleci/shellcheck@2.2.3
+  
+executor_defaults: &executor_defaults
+  # xlarge: use as many CPU cores as possible, to exercise parallelism as realistically as possible
+  # xlarge is only applied in paid accounts and gracefully degrades to a compatible resource_class in regular accounts
+  resource_class: xlarge
+  working_directory: ~/repo
+
+env_defaults: &env_defaults
+  LEIN_DEPS_COMMAND: "lein with-profile +test,+self-test,+eastwood deps"
+  LEIN_ROOT: "true"
+  no_eval_in_leiningen: "true"
+
+older_jdk_env_defaults: &older_jdk_env_defaults
+  JVM_OPTS: -Xmx3200m
+
+newer_jdk_env_defaults: &newer_jdk_env_defaults
+  JVM_OPTS: -Xmx3200m --illegal-access=deny
+
+# We exercise the following JVMs:
+# * those officially supported by Clojure (atm: 8 and 11)
+# * plus, whatever the latest version is.
+executors:
+  openjdk8:
+    docker:
+      - image: circleci/clojure:openjdk-8-lein-2.9.5
+    environment:
+      <<: *env_defaults
+      <<: *older_jdk_env_defaults
+    <<: *executor_defaults
+  openjdk11:
+    docker:
+      - image: circleci/clojure:openjdk-11-lein-2.9.5
+    environment:
+      <<: *env_defaults
+      <<: *newer_jdk_env_defaults
+    <<: *executor_defaults
+  openjdk16:
+    docker:
+      - image: circleci/clojure:openjdk-16-lein-2.9.5-buster
+    environment:
+      <<: *env_defaults
+      <<: *newer_jdk_env_defaults
+    <<: *executor_defaults
+
+jobs:
+  test:
+    parameters:
+      executor:
+        type: executor
+      integration_test_parallelism:
+        type: string
+    executor: << parameters.executor >>
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - v2-dependencies-{{ checksum "project.clj" }}
+
+      - run:
+          name: Fetch dependencies
+          command: "$LEIN_DEPS_COMMAND"
+
+      - run:
+          name: Lint
+          command: lein with-profile -user,+test,+eastwood eastwood
+          
+      - run:
+          name: Test
+          command: lein with-profile -user,-dev test
+
+      - run:
+          name: Install Clojure
+          command: |
+            wget -nc https://download.clojure.org/install/linux-install-1.10.3.855.sh
+            chmod +x linux-install-1.10.3.855.sh
+            sudo ./linux-install-1.10.3.855.sh
+
+      - run:
+         name: rm -rf ~/.gitconfig
+         command: rm -rf ~/.gitconfig
+
+      - run:
+         name: Pull submodules
+         command: git submodule update --init --recursive
+
+      - run:
+          name: Exercise the plugin over a variety of real-world projects
+          command: integration_test_parallelism=<< parameters.integration_test_parallelism >> lein integration-test
+
+      # The cache is saved as a last step so that the integration test's fetched dependencies are also cached:
+      - save_cache:
+          paths:
+            - ~/.m2
+          key: v2-dependencies-{{ checksum "project.clj" }}
+
+workflows:
+  default:
+    jobs:
+      - test:
+          matrix:
+            parameters:
+              executor: [openjdk8, openjdk11, openjdk16]
+              integration_test_parallelism: ["1", "8"]
