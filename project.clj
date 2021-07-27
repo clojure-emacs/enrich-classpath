@@ -1,4 +1,4 @@
-(defproject cider/enrich-classpath "1.3.0"
+(defproject mx.cider/enrich-classpath "1.4.0-alpha1"
   :description "Makes available .jars with Java sources and javadocs for a given project."
 
   :url "https://github.com/clojure-emacs/enrich-classpath"
@@ -9,6 +9,11 @@
   :dependencies [[fipp "0.6.24" :exclusions [org.clojure/clojure]]]
 
   :eval-in-leiningen ~(nil? (System/getenv "no_eval_in_leiningen"))
+
+  :deploy-repositories [["clojars" {:url "https://clojars.org/repo"
+                                    :username :env/clojars_username
+                                    :password :env/clojars_password
+                                    :sign-releases false}]]
 
   :profiles {;; Helps developing the plugin when (false? eval-in-leiningen):
              :test                {:dependencies [[clj-commons/pomegranate "1.2.0"]

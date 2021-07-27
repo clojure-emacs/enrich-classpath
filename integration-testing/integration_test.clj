@@ -48,7 +48,7 @@
            "with-profile" "-user"
 
            "update-in"
-           ":plugins" "conj" (str "[cider/enrich-classpath \""
+           ":plugins" "conj" (str "[mx.cider/enrich-classpath \""
                                   project-version
                                   "\"]")
            "--"
