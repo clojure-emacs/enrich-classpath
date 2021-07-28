@@ -54,7 +54,7 @@
            "--"
 
            "update-in"
-           ":" "assoc" ":resolve-java-sources-and-javadocs" "{:classifiers #{\"sources\"}}"
+           ":" "assoc" ":enrich-classpath" "{:classifiers #{\"sources\"}}"
            "--"
 
            "update-in"

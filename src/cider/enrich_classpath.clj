@@ -249,7 +249,7 @@
 (defn add [{:keys                                                      [repositories managed-dependencies]
             {:keys               [classifiers]
              plugin-repositories :repositories
-             :or                 {classifiers #{"javadoc" "sources"}}} :resolve-java-sources-and-javadocs
+             :or                 {classifiers #{"javadoc" "sources"}}} :enrich-classpath
             :as                                                        project}]
 
   (debug (str [::classifiers classifiers]))
@@ -331,7 +331,7 @@
 (defn middleware
   [{{:keys [failsafe timeout]
      :or   {failsafe true
-            timeout  215}} :resolve-java-sources-and-javadocs
+            timeout  215}} :enrich-classpath
     :as                    project}
    & args]
   (let [a (atom nil)
