@@ -1,4 +1,4 @@
-(defproject mx.cider/enrich-classpath "1.4.0-alpha1"
+(defproject mx.cider/enrich-classpath "1.4.0-alpha2"
   :description "Makes available .jars with Java sources and javadocs for a given project."
 
   :url "https://github.com/clojure-emacs/enrich-classpath"
