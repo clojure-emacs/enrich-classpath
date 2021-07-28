@@ -28,7 +28,6 @@ A great real-world lib that would be enhanced by this program is Orchard's [sour
 
 * If using cider-nrepl, the minimum required version is 0.26.0.
 * If using Orchard, the minimum required version is 0.7.1.
-* If using cider-nrepl or Orchard, please [disable Orchard's dynapath functionality](https://github.com/clojure-emacs/orchard/tree/v0.7.1#configuration-options).
 
 ## Installation and usage
 
