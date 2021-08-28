@@ -4,7 +4,7 @@
    [clojure.string :as string])
   (:import
    (java.io File)
-   (java.util.zip ZipEntry ZipInputStream)))
+   (java.util.zip ZipException ZipEntry ZipInputStream)))
 
 (defmacro while-let
   {:style/indent 1}
@@ -20,6 +20,7 @@
     (try
       (while-let [entry (-> zis .getNextEntry)]
         (conj! v (-> ^ZipEntry entry .getName)))
+      (catch ZipException _)
       (finally
         (-> zis .close)))
     (persistent! v)))
