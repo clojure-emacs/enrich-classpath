@@ -5,8 +5,8 @@
 
 (defn index [coll item]
   {:pre  [(vector? coll)]
-   :post [(or (pos? %) ;; note: there's no nat-int? in old versions of Lein
-              (zero? %))]}
+   :post [(or (-> % long pos?) ;; note: there's no nat-int? in old versions of Lein
+              (-> % long zero?))]}
   (->> coll
        (map-indexed (fn [i x]
                       (when (= x item)
@@ -30,7 +30,8 @@
                         (cond-> item
                           (and (vector? item)
                                (some #{:exclusions} item))
-                          (update (inc (index item :exclusions)) normalize-exclusions))))))
+                          (update (inc (long (index item :exclusions)))
+                                  normalize-exclusions))))))
 
 (def maybe-normalize (memoize maybe-normalize*))
 
@@ -107,14 +108,16 @@
   "Divides `coll` in `n` parts. The parts can have disparate sizes if the division isn't exact."
   {:author  "https://github.com/nedap/utils.collections"
    :license "Eclipse Public License 2.0"}
-  [n coll]
+  [^long n coll]
   (let [the-count (count coll)
         seed [(-> the-count double (/ n) Math/floor)
               (rem the-count n)
               []
               coll]
         recipe (iterate (fn [[quotient remainder output input]]
-                          (let [chunk-size (+ quotient (if (pos? remainder)
+                          (let [remainder (long remainder)
+                                quotient (long quotient)
+                                chunk-size (+ quotient (if (pos? remainder)
                                                          1
                                                          0))
                                 addition (take chunk-size input)

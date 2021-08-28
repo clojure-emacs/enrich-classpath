@@ -25,6 +25,8 @@
                                    ;; ensure that at least one dependency will fetch sources:
                                    :dependencies [[puppetlabs/trapperkeeper-webserver-jetty9 "4.1.0"]]}
 
-             :eastwood            {:plugins [[jonase/eastwood "0.7.1"]]}}
+             :eastwood            {:plugins [[jonase/eastwood "0.9.9"]]
+                                   :eastwood {:add-linters [:boxed-math
+                                                            :performance]}}}
 
   :aliases {"integration-test" ["with-profile" "-user,-dev,+test,+integration-testing" "run" "-m" "integration-test"]})

@@ -309,7 +309,7 @@
 
 (defn wrap-failsafe
   "Wraps `f` in a 'failsafe' way, protecting it against exceptions and overly slow executions."
-  [f timeout]
+  [f ^long timeout]
   {:pre [(ifn? f)
          (pos? timeout)
          (integer? timeout)]}
