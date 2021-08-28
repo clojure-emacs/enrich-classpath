@@ -115,6 +115,7 @@ The following entries can be possibly logged:
 * `:cider.enrich-classpath/found` - a source/jar artifact has been found, and will be added to the classpath.
 * `:cider.enrich-classpath/resolved` - a request has succeeded in resolving a specific dependency (of any kind: plain, source or javadoc) 
 * `:cider.enrich-classpath/timed-out` - a given dependency request has timed out, or the program as a whole has timed out (per the `:failsafe` option).
+* `:cider.enrich-classpath/omitting-empty-source` - a given source artifact (.jar) was found, but it didn't have actual Java sources in it, so it won't be added to the classpath.
 
 If you wish to start from a clean slate (given that resolutions are cached, even in face of timeout), you can remove the `~/.enrich-classpath-cache` file. 
 
