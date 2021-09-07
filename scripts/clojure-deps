@@ -17,6 +17,7 @@ exec clojure -Sdeps "$DEPS" "$0" "$@"
 
 (require '[babashka.process :as process]
          '[clojure.string :as string]
+         '[clojure.edn :as edn]
          '[cider.enrich-classpath :as enrich]
          '[leiningen.core.classpath :as classpath]
          '[clojure.pprint :as pprint])
@@ -83,13 +84,40 @@ exec clojure -Sdeps "$DEPS" "$0" "$@"
   {:dependencies dependencies
    :repositories repositories})
 
+(defn get-sdeps
+  [args]
+  (let [maybe-deps (reduce
+                    (fn [has-extra-deps? arg]
+                      (if has-extra-deps?
+                        (reduced arg)
+                        (if (= "-Sdeps" arg)
+                          true
+                          false)))
+                    false
+                    args)]
+    (when (string? maybe-deps)
+      (edn/read-string maybe-deps))))
+
+(defn sdep-version
+  [deps dep-name]
+  (:mvn/version (get deps dep-name)))
+
+(defn sdeps->leiningen-deps-structure
+  [deps-edn]
+  (let [deps (:deps deps-edn)
+        dep-names (keys deps)]
+    (for [dep-name dep-names]
+      [dep-name (sdep-version deps dep-name)])))
+
+
 ;; bug with babashka.process and pprint https://github.com/babashka/process#clojurepprint
 (prefer-method pprint/simple-dispatch clojure.lang.IPersistentMap clojure.lang.IDeref)
 
 (let [aliases-args (first *command-line-args*)
       initial-classpath (get-initial-classpath aliases-args)
-      project (-> initial-classpath
-                  leiningen-deps-structure
+      dependencies (concat (leiningen-deps-structure initial-classpath)
+                           (sdeps->leiningen-deps-structure (get-sdeps *command-line-args*)))
+      project (-> dependencies
                   ->lein-project-map
                   enrich/middleware)
       enriched-classpath (string/join ":" (classpath/get-classpath project))
