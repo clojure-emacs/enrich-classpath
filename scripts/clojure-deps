@@ -1,0 +1,103 @@
+#!/bin/sh
+#_(
+   #_DEPS is same format as deps.edn. Multiline is okay.
+   DEPS='
+   {:deps {mx.cider/enrich-classpath {:mvn/version "1.4.1"}
+           clj-commons/pomegranate {:mvn/version "1.2.0"}
+           leiningen-core/leiningen-core {:mvn/version "2.9.6"}
+           babashka/process {:mvn/version "0.0.2"}}}
+   '
+exec clojure -Sdeps "$DEPS" "$0" "$@"
+   )
+
+;; bash hack from here https://gist.github.com/ericnormand/6bb4562c4bc578ef223182e3bb1e72c5
+;;
+;; Allow injecting Enrich Classpath code before starting Clojure
+
+
+(require '[babashka.process :as process]
+         '[clojure.string :as string]
+         '[cider.enrich-classpath :as enrich]
+         '[leiningen.core.classpath :as classpath]
+         '[clojure.pprint :as pprint])
+
+(def repositories
+  [["central" {:url "https://repo1.maven.org/maven2/" :snapshots false}]
+   ["clojars" {:url "https://repo.clojars.org/"}]])
+
+(defn get-aliases
+  [args]
+  (when args
+    (->> (string/split args #":")
+         (drop 1)
+         (string/join ":")
+         (str "-X:"))))
+
+(defn get-initial-classpath
+  [args]
+  (let [cmd ["clojure" "-Spath" (get-aliases args)]]
+    (-> (process/process cmd)
+        :out
+        slurp)))
+
+(defn source-paths?
+  "This function identify a :source-path resource e.g. src, test folders in class path.
+
+  A valid classpath string is something like this:
+
+  /Users/wferreir/.m2/repository/org/clojure/clojure/1.10.3/clojure-1.10.3.jar
+
+  This functions receives a vector after string/split #/ on the string above.
+  "
+  [classpath]
+  (or (string/starts-with? classpath "src")
+      (string/starts-with? classpath "test")))
+
+(defn gitlibs?
+  "In deps.edn projects we can get dependencies from Github using SHA value.
+
+  They are saved in $HOME/.gitlibs folder.
+
+  These libraries are current not supported in the project."
+  [classpath]
+  (string/starts-with? classpath (str (System/getProperty "user.home") "/.gitlibs")))
+
+(defn leiningen-deps-structure
+  [classpath]
+  (->> (string/split classpath #":")
+       (filter #(and (not (source-paths? %))
+                     (not (gitlibs? %))))
+       (map #(let[coords (->> (string/split % #"\/")
+                              (drop 4)
+                              (drop-last))
+                  deps-version (first (take-last 1 coords))
+                  deps-name (first (take-last 1 (drop-last coords)))
+                  deps-group (string/join "." (drop 1 (drop-last (drop-last coords))))]
+               (when (and deps-group deps-name)
+                 [(symbol (str deps-group "/" deps-name))
+                  deps-version])))
+       (filter some?)))
+
+(defn ->lein-project-map
+  [dependencies]
+  {:dependencies dependencies
+   :repositories repositories})
+
+;; bug with babashka.process and pprint https://github.com/babashka/process#clojurepprint
+(prefer-method pprint/simple-dispatch clojure.lang.IPersistentMap clojure.lang.IDeref)
+
+(let [aliases-args (first *command-line-args*)
+      initial-classpath (get-initial-classpath aliases-args)
+      project (-> initial-classpath
+                  leiningen-deps-structure
+                  ->lein-project-map
+                  enrich/middleware)
+      enriched-classpath (string/join ":" (classpath/get-classpath project))
+      final-classpath (str initial-classpath ":" enriched-classpath)
+      command (concat ["clojure" "-Scp" final-classpath] *command-line-args*)]
+
+  (-> (process/process command {:out :inherit})
+      (process/check))
+
+  ;; force termination
+  (shutdown-agents))
