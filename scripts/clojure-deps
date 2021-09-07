@@ -43,11 +43,11 @@ exec clojure -Sdeps "$DEPS" "$0" "$@"
 (defn source-paths?
   "This function identify a :source-path resource e.g. src, test folders in class path.
 
-  A valid classpath string is something like this:
+  A valid classpath string is something like these:
 
   /Users/wferreir/.m2/repository/org/clojure/clojure/1.10.3/clojure-1.10.3.jar
-
-  This functions receives a vector after string/split #/ on the string above.
+  src/my-project
+  test/my-project
   "
   [classpath]
   (or (string/starts-with? classpath "src")
