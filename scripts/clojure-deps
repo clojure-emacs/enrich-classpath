@@ -13,14 +13,10 @@ exec clojure -Sdeps "$DEPS" "$0" "$@"
 ;; bash hack from here https://gist.github.com/ericnormand/6bb4562c4bc578ef223182e3bb1e72c5
 ;;
 ;; Allow injecting Enrich Classpath code before starting Clojure
-
-
 (require '[babashka.process :as process]
          '[clojure.string :as string]
-         '[clojure.edn :as edn]
          '[cider.enrich-classpath :as enrich]
-         '[leiningen.core.classpath :as classpath]
-         '[clojure.pprint :as pprint])
+         '[leiningen.core.classpath :as classpath])
 
 (def repositories
   [["central" {:url "https://repo1.maven.org/maven2/" :snapshots false}]
@@ -28,28 +24,42 @@ exec clojure -Sdeps "$DEPS" "$0" "$@"
 
 (defn get-aliases
   [args]
-  (when args
-    (->> (string/split args #":")
-         (drop 1)
-         (string/join ":")
-         (str "-X:"))))
+  (reduce
+   (fn [aliases arg]
+     (let [exec-opt (subs arg 0 2)
+           aliasable? (contains? #{"-A" "-T" "-X" "-M"} exec-opt)]
+       (when aliasable?
+         (reduced (string/join ":" (drop 1 (string/split arg #":")))))))
+   nil
+   args))
+
+(defn get-sdeps
+  [args]
+  (reduce
+   (fn [has-extra-deps? arg]
+     (if has-extra-deps?
+       (reduced arg)
+       (when (= "-Sdeps" arg)
+         true)))
+   nil
+   args))
 
 (defn get-initial-classpath
   [args]
-  (let [cmd ["clojure" "-Spath" (get-aliases args)]]
-    (-> (process/process cmd)
+  (let [alias (get-aliases args)
+        sdeps (get-sdeps args)
+        cmd-with-alias (when alias [(str "-X:" alias)])
+        cmd-with-sdeps (when sdeps ["-Sdeps" sdeps])]
+    (-> ["clojure"]
+        (concat cmd-with-sdeps
+                ["-Spath"]
+                cmd-with-alias)
+        process/process
         :out
         slurp)))
 
 (defn source-paths?
-  "This function identify a :source-path resource e.g. src, test folders in class path.
-
-  A valid classpath string is something like these:
-
-  /Users/wferreir/.m2/repository/org/clojure/clojure/1.10.3/clojure-1.10.3.jar
-  src/my-project
-  test/my-project
-  "
+  "This function identify a :source-path resource e.g. src, test folders in class path."
   [classpath]
   (or (string/starts-with? classpath "src")
       (string/starts-with? classpath "test")))
@@ -84,40 +94,13 @@ exec clojure -Sdeps "$DEPS" "$0" "$@"
   {:dependencies dependencies
    :repositories repositories})
 
-(defn get-sdeps
-  [args]
-  (let [maybe-deps (reduce
-                    (fn [has-extra-deps? arg]
-                      (if has-extra-deps?
-                        (reduced arg)
-                        (if (= "-Sdeps" arg)
-                          true
-                          false)))
-                    false
-                    args)]
-    (when (string? maybe-deps)
-      (edn/read-string maybe-deps))))
-
-(defn sdep-version
-  [deps dep-name]
-  (:mvn/version (get deps dep-name)))
-
-(defn sdeps->leiningen-deps-structure
-  [deps-edn]
-  (let [deps (:deps deps-edn)
-        dep-names (keys deps)]
-    (for [dep-name dep-names]
-      [dep-name (sdep-version deps dep-name)])))
-
-
 ;; bug with babashka.process and pprint https://github.com/babashka/process#clojurepprint
+(require '[clojure.pprint :as pprint])
 (prefer-method pprint/simple-dispatch clojure.lang.IPersistentMap clojure.lang.IDeref)
 
-(let [aliases-args (first *command-line-args*)
-      initial-classpath (get-initial-classpath aliases-args)
-      dependencies (concat (leiningen-deps-structure initial-classpath)
-                           (sdeps->leiningen-deps-structure (get-sdeps *command-line-args*)))
-      project (-> dependencies
+(let [initial-classpath (get-initial-classpath *command-line-args*)
+      project (-> initial-classpath
+                  leiningen-deps-structure
                   ->lein-project-map
                   enrich/middleware)
       enriched-classpath (string/join ":" (classpath/get-classpath project))
