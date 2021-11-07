@@ -62,3 +62,7 @@
 
       "Favors `deps` over `managed-dependencies` even if the latter indicates a more recent version"
       [a-orig] [b-orig] [a-source b-source] a-source)))
+
+(deftest tools-jar-path
+  (is (= (some? (re-find #"^1\.8\." (System/getProperty "java.version")))
+         (some? (sut/tools-jar-path)))))

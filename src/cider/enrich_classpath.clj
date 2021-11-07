@@ -6,13 +6,15 @@
    [cider.enrich-classpath.locks :refer [read-file! write-file!]]
    [cider.enrich-classpath.logging :refer [debug info warn]]
    [cider.enrich-classpath.source-analysis :refer [bad-source?]]
+   [clojure.java.io :as io]
    [clojure.string :as string]
    [clojure.walk :as walk]
    [fipp.clojure])
   (:import
    (java.io File)
    (java.net InetAddress URI UnknownHostException)
-   (java.util.concurrent ExecutionException)))
+   (java.util.concurrent ExecutionException)
+   (java.util.regex Pattern)))
 
 (def ^String cache-filename
   (-> "user.home"
@@ -253,6 +255,13 @@
          (catch UnknownHostException _
            false))))
 
+(def tools-jar-path
+  "tools.jar is useful for Orchard in JDK8."
+  (memoize (fn []
+             (let [tools-file (-> "java.home" System/getProperty (io/file ".." "lib" "tools.jar"))]
+               (when (.exists tools-file)
+                 (-> tools-file .getCanonicalPath))))))
+
 (defn add [{:keys                                                      [repositories managed-dependencies]
             {:keys               [classifiers]
              plugin-repositories :repositories
@@ -271,37 +280,44 @@
                            (filter acceptable-repository?)
                            repositories)
         initial-cache-value (-> cache-filename read-file! safe-read-string deserialize)
-        cache-atom (atom initial-cache-value)]
-    (update project
-            :dependencies
-            (fn [deps]
-              (let [memoized-resolve! (memoize (partial resolve! cache-atom repositories classifiers))
-                    additions (->> deps
-                                   (divide-by parallelism-factor)
-                                   (pmap (fn [work]
-                                           (->> work
-                                                (mapcat (partial derivatives
-                                                                 classifiers
-                                                                 managed-dependencies
-                                                                 memoized-resolve!))
-                                                ;; ensure the work is done within the pmap thread:
-                                                (vec))))
-                                   (apply concat)
-                                   (distinct)
-                                   (filter (fn [[_ _ _ x]]
-                                             (classifiers x)))
-                                   (filter (partial matches-version? deps))
-                                   (group-by (fn [[dep version _ classifier]]
-                                               [dep classifier]))
-                                   (vals)
-                                   (map (partial choose-one-artifact deps managed-dependencies))
-                                   (mapv (fn [x]
-                                           (conj x :exclusions '[[*]]))))]
-                (when-not (= initial-cache-value @cache-atom)
-                  (write-file! cache-filename
-                               (make-merge-fn cache-atom)))
-                ;; order can be sensitive
-                (into additions deps))))))
+        cache-atom (atom initial-cache-value)
+        add-dependencies (fn [deps]
+                           (let [memoized-resolve! (memoize (partial resolve! cache-atom repositories classifiers))
+                                 additions (->> deps
+                                                (divide-by parallelism-factor)
+                                                (pmap (fn [work]
+                                                        (->> work
+                                                             (mapcat (partial derivatives
+                                                                              classifiers
+                                                                              managed-dependencies
+                                                                              memoized-resolve!))
+                                                             ;; ensure the work is done within the pmap thread:
+                                                             (vec))))
+                                                (apply concat)
+                                                (distinct)
+                                                (filter (fn [[_ _ _ x]]
+                                                          (classifiers x)))
+                                                (filter (partial matches-version? deps))
+                                                (group-by (fn [[dep version _ classifier]]
+                                                            [dep classifier]))
+                                                (vals)
+                                                (map (partial choose-one-artifact deps managed-dependencies))
+                                                (mapv (fn [x]
+                                                        (conj x :exclusions '[[*]]))))]
+                             (when-not (= initial-cache-value @cache-atom)
+                               (write-file! cache-filename
+                                            (make-merge-fn cache-atom)))
+                             ;; order can be sensitive
+                             (into additions deps)))
+        jdk8? (re-find #"^1\.8\." (System/getProperty "java.version"))
+        add-tools? (and jdk8?
+                        (tools-jar-path))]
+    (cond-> project
+      true       (update :dependencies add-dependencies)
+      add-tools? (update :resource-paths conj (tools-jar-path))
+      add-tools? (update :jar-exclusions conj (-> (tools-jar-path)
+                                                  Pattern/quote
+                                                  re-pattern)))))
 
 (defmacro time
   {:style/indent 1}
