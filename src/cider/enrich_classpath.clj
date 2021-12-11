@@ -262,7 +262,10 @@
                (when (.exists tools-file)
                  (-> tools-file .getCanonicalPath))))))
 
-(defn add [{:keys                                                      [repositories managed-dependencies]
+(defn add [{:keys                                                      [repositories
+                                                                        managed-dependencies
+                                                                        java-source-paths
+                                                                        resource-paths]
             {:keys               [classifiers]
              plugin-repositories :repositories
              :or                 {classifiers #{"javadoc" "sources"}}} :enrich-classpath
@@ -314,10 +317,18 @@
                         (tools-jar-path))]
     (cond-> project
       true       (update :dependencies add-dependencies)
-      add-tools? (update :resource-paths conj (tools-jar-path))
-      add-tools? (update :jar-exclusions conj (-> (tools-jar-path)
-                                                  Pattern/quote
-                                                  re-pattern)))))
+      add-tools? (update :jar-exclusions (-> (tools-jar-path)
+                                             Pattern/quote
+                                             re-pattern))
+      add-tools? (update :resource-paths (fn [rp]
+                                           (into [(tools-jar-path)] rp)))
+      (seq java-source-paths) (update :resource-paths (fn [rp]
+                                                        (let [corpus (->> java-source-paths
+                                                                          (filterv (fn [jsp]
+                                                                                     (not-any? #{jsp} rp))))]
+                                                          (if (seq corpus)
+                                                            (into corpus rp)
+                                                            rp)))))))
 
 (defmacro time
   {:style/indent 1}

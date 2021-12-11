@@ -47,7 +47,7 @@ jobs:
         env:
           no_eval_in_leiningen: true
       - name: exercise the plugin over a variety of real-world projects
-        run: lein integration-test
+        run: lein with-profile -user integration-test
         env:
           no_eval_in_leiningen: true
           integration_test_parallelism: ${{ matrix.integration-test-parallelism }}

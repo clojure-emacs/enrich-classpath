@@ -45,7 +45,7 @@
 
 (defn prelude [x]
   (cond-> [x
-           "with-profile" "-user"
+           "with-profile" "-user,+test"
 
            "update-in"
            ":plugins" "conj" (str "[mx.cider/enrich-classpath \""
@@ -64,7 +64,7 @@
 (def vanilla-lein-deps
   (conj (prelude lein) "deps"))
 
-(def commands
+(def deps-commands
   (sort ;; ensure stable tests
    {"aleph"         vanilla-lein-deps
     "amazonica"     vanilla-lein-deps
@@ -122,6 +122,32 @@
                       ;; something fipp-related (unrelated to our vendored version):
                       {::skip-in-newer-jdks true})}))
 
+(def classpath-commands
+  (into {}
+        (map (fn [[id command]]
+               {:pre [(-> command last #{"deps"})]}
+               (let [idx (-> command count dec)]
+                 [id, (-> command
+                          (subvec 0 idx)
+                          (conj "classpath"))])))
+        deps-commands))
+
+(def classpath-commands-for-java-source-paths-test
+  (let [m (->> classpath-commands
+               (filter (fn [[id]]
+                         (let [f (io/file "integration-testing" id "project.clj")]
+                           (assert (-> f .exists))
+                           (->> f
+                                slurp
+                                string/split-lines
+                                (some (fn [line]
+                                        (re-find #".*:java-source-paths.*/java" line)))))))
+               (into {}))]
+    ;; machine_head declares :java-source-paths not backed by an actual directory:
+    (dissoc m "machine_head")))
+
+(assert (seq classpath-commands-for-java-source-paths-test))
+
 (defmacro time
   {:style/indent 1}
   [id expr]
@@ -147,10 +173,10 @@
             dir)
     dir))
 
-(defn run-repos! [f]
+(defn run-repos! [commands-corpus f]
   (assert (pos? parallelism-factor))
-  (assert (seq commands))
-  (->> commands
+  (assert (seq commands-corpus))
+  (->> commands-corpus
 
        (divide-by parallelism-factor)
 
@@ -174,12 +200,35 @@
                                                exit
                                                (pr-str (-> out (doto println)))
                                                (pr-str (-> err (doto println)))]))
-                                (let [lines (->> out
-                                                 string/split-lines
-                                                 (filter (fn [s]
-                                                           (string/includes? s "cider.enrich-classpath"))))
-                                      good (->> lines (filter (fn [s]
-                                                                (string/includes? s "/found"))))
+                                (let [checking-deps? (= commands-corpus deps-commands)
+                                      checking-classpath? (#{classpath-commands
+                                                             classpath-commands-for-java-source-paths-test}
+                                                           commands-corpus)
+                                      lines (cond->> out
+                                              true string/split-lines
+
+
+                                              checking-deps?
+                                              (filter (fn [s]
+                                                        (string/includes? s "cider.enrich-classpath")))
+
+                                              checking-classpath?
+                                              (take-last 1)
+
+                                              (and (not checking-deps?)
+                                                   (not checking-classpath?))
+                                              (assert false))
+                                      good (cond->> lines
+                                             checking-deps?
+                                             (filter (fn [s]
+                                                       (string/includes? s "/found")))
+
+                                             checking-classpath?
+                                             first
+
+                                             (and (not checking-deps?)
+                                                  (not checking-classpath?))
+                                             (assert false))
                                       bad (->> lines (filter (fn [s]
                                                                (string/includes? s "/could-not")
                                                                (string/includes? s "/timed-out")
@@ -200,6 +249,7 @@
        doall))
 
 (defn classpath-test! []
+  (info "Running `classpath-test!`")
   (letfn [(run [extra-profile]
             {:post [(-> % count pos?)]}
             (let [{:keys [out err exit]} (apply sh (reduce into [[lein
@@ -220,6 +270,19 @@
       (assert (> count-with count-without)
               (pr-str [count-with count-without runs])))))
 
+(defn java-source-paths-test! []
+  (info "Running `java-source-paths-test!`")
+  (run-repos! classpath-commands-for-java-source-paths-test
+              (fn [id classpath]
+                (assert (->> (string/split classpath #":")
+                             (filter (fn [s]
+                                       (let [f (File. s)]
+                                         (when (-> f .exists)
+                                           (-> f .isDirectory)))))
+                             (some (fn [s]
+                                     (string/includes? s "/java"))))
+                        [id classpath]))))
+
 (defn suite []
 
   (when-not *assert*
@@ -239,7 +302,8 @@
 
   (-> sut/cache-filename File. .delete)
 
-  (run-repos! (fn [id good-lines]
+  (run-repos! deps-commands
+              (fn [id good-lines]
                 (when (#{1} parallelism-factor)
                   ;; This assertion cannot be guaranteed in parallel runs, since different orderings mean work can get "stolen"
                   ;; from one project to another (which is perfectly normal and desirable)
@@ -249,14 +313,16 @@
                               (count good-lines)
                               id))))
 
-  (run-repos! (fn [id good-lines]
+  (run-repos! deps-commands
+              (fn [id good-lines]
                 (assert (empty? good-lines)
                         [id
                          "Caches the findings"
                          (count good-lines)])))
 
   ;; Run one last time, proving that a given project's cache building is accretive:
-  (run-repos! (fn [id good-lines]
+  (run-repos! deps-commands
+              (fn [id good-lines]
                 (run! info good-lines)
                 (assert (empty? good-lines)
                         [id
@@ -270,6 +336,8 @@
     (assert (= v
                (-> v sut/deserialize sut/serialize sut/deserialize sut/serialize))
             "Longer roundtrip"))
+
+  (java-source-paths-test!)
 
   (classpath-test!))
 
