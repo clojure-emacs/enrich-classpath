@@ -166,6 +166,7 @@
                       "1")))
 
 (defn submodule-dir ^File [id]
+  {:pre [(seq id)]}
   (let [dir (io/file "integration-testing" id)]
     (assert (-> dir .exists) dir)
     (assert (> (count (file-seq dir))
@@ -201,8 +202,8 @@
                                                (pr-str (-> out (doto println)))
                                                (pr-str (-> err (doto println)))]))
                                 (let [checking-deps? (= commands-corpus deps-commands)
-                                      checking-classpath? (#{classpath-commands
-                                                             classpath-commands-for-java-source-paths-test}
+                                      checking-classpath? ((hash-set classpath-commands
+                                                                     classpath-commands-for-java-source-paths-test)
                                                            commands-corpus)
                                       lines (cond->> out
                                               true string/split-lines
