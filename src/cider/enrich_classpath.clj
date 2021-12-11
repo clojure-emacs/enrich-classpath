@@ -317,9 +317,9 @@
                         (tools-jar-path))]
     (cond-> project
       true       (update :dependencies add-dependencies)
-      add-tools? (update :jar-exclusions (-> (tools-jar-path)
-                                             Pattern/quote
-                                             re-pattern))
+      add-tools? (update :jar-exclusions conj (-> (tools-jar-path)
+                                                  Pattern/quote
+                                                  re-pattern))
       add-tools? (update :resource-paths (fn [rp]
                                            (into [(tools-jar-path)] rp)))
       (seq java-source-paths) (update :resource-paths (fn [rp]
