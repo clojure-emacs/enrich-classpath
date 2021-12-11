@@ -2,7 +2,7 @@ version: 2.1
 
 orbs:
   shellcheck: circleci/shellcheck@2.2.3
-  
+
 executor_defaults: &executor_defaults
   # xlarge: use as many CPU cores as possible, to exercise parallelism as realistically as possible
   # xlarge is only applied in paid accounts and gracefully degrades to a compatible resource_class in regular accounts
@@ -45,6 +45,13 @@ executors:
       <<: *env_defaults
       <<: *newer_jdk_env_defaults
     <<: *executor_defaults
+  openjdk17:
+    docker:
+      - image: circleci/clojure:openjdk-17-lein-2.9.5-buster
+    environment:
+      <<: *env_defaults
+      <<: *newer_jdk_env_defaults
+    <<: *executor_defaults
 
 jobs:
   test:
@@ -67,7 +74,7 @@ jobs:
       - run:
           name: Lint
           command: lein with-profile -user,+test,+eastwood eastwood
-          
+
       - run:
           name: Test
           command: lein with-profile -user,-dev test
@@ -103,5 +110,5 @@ workflows:
       - test:
           matrix:
             parameters:
-              executor: [openjdk8, openjdk11, openjdk16]
+              executor: [openjdk8, openjdk11, openjdk16, openjdk17]
               integration_test_parallelism: ["1", "8"]
