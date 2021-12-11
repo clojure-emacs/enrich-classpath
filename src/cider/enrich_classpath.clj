@@ -265,7 +265,9 @@
 (defn add [{:keys                                                      [repositories
                                                                         managed-dependencies
                                                                         java-source-paths
-                                                                        resource-paths]
+                                                                        resource-paths
+                                                                        source-paths
+                                                                        test-paths]
             {:keys               [classifiers]
              plugin-repositories :repositories
              :or                 {classifiers #{"javadoc" "sources"}}} :enrich-classpath
@@ -325,7 +327,10 @@
       (seq java-source-paths) (update :resource-paths (fn [rp]
                                                         (let [corpus (->> java-source-paths
                                                                           (filterv (fn [jsp]
-                                                                                     (not-any? #{jsp} rp))))]
+                                                                                     (let [s #{jsp}]
+                                                                                       (and (not-any? s rp)
+                                                                                            (not-any? s source-paths)
+                                                                                            (not-any? s test-paths))))))]
                                                           (if (seq corpus)
                                                             (into corpus rp)
                                                             rp)))))))
