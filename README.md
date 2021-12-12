@@ -1,12 +1,21 @@
 # enrich-classpath [![Clojars Project](https://img.shields.io/clojars/v/mx.cider/enrich-classpath.svg)](https://clojars.org/mx.cider/enrich-classpath)
 
-A library (and Leiningen plugin) that automatically downloads all available `.jar`s with Java sources and javadocs for a given project, so that various tooling (typically IDEs) can access it.
+A library (and Leiningen plugin) that, as its main feature, automatically downloads all available `.jar`s with Java sources and javadocs for a given project, so that various tooling (typically IDEs) can access it.
 
 It behaves gracefully even in face of `:managed-dependencies`, `:pedantic?`, in- and inter-process parallel invocations of Lein, etc.
 
 For efficiency, it has caching that is shared across projects, and dependency resolution is parallel.
 
 Importantly, it does not mutate the classpath via classloaders in any way, yielding a simple solution that guaranteed to work across all JDKs. 
+
+This is the set of things that `enrich-classpath` can add to the classpath, when needed (depending on your JDK and build tool of choice):
+
+* third-party source/javadocs .jars
+* the sources for a given JDK
+  * e.g. the sources for the `Thread` class.
+* the `:java-source-paths` from a Leiningen project
+  * this way, IDE-like functionality will also work for classes you might be developing.
+* `tools.jar`.
 
 ## A sample use case
 
@@ -39,7 +48,7 @@ Add the following somewhere in your `~/.lein/profiles.clj` (aka your [user-wide 
 ;; Installing this plugin under the :repl profile is most recommended for best performance,
 ;; especially if you work with a monorepo with a complex build process.  
 :repl {:middleware [cider.enrich-classpath/middleware]
-       :plugins    [[mx.cider/enrich-classpath "1.4.1"]]
+       :plugins    [[mx.cider/enrich-classpath "1.5.0"]]
        ;; Optional - you can use this option to specify a different set (e.g. a smaller set like #{"sources"} is more performant)
        :enrich-classpath {:classifiers #{"sources" "javadoc"}}}
 ```
