@@ -37,22 +37,24 @@
 (defn locking-file
   "These file locks guard against concurrent Lein executions, which could otherwise corrupt a given file."
   [^String filename f]
+  {:pre [(string? filename)]}
   (locking in-process-lock
     (with-open [c (FileChannel/open (Paths/get filename (into-array String []))
                                     (into-array StandardOpenOption [StandardOpenOption/CREATE
                                                                     StandardOpenOption/READ
                                                                     StandardOpenOption/WRITE
                                                                     StandardOpenOption/SYNC]))
+                ;; remember: this lock is closed via with-open
                 lock (-> c (.lock 0 Long/MAX_VALUE false))]
       (let [prev-content (read! c)]
-        (f prev-content c lock)))))
+        (f prev-content c)))))
 
 (defn read-file! [filename]
-  (locking-file filename (fn [v _ _]
+  (locking-file filename (fn [v _]
                            v)))
 
 (defn write-file! [filename merge-fn]
-  (locking-file filename (fn [v ^FileChannel c, ^FileLock lock]
+  (locking-file filename (fn [v ^FileChannel c]
                            (let [d (merge-fn v)]
                              (when-not (= d v)
                                (-> c (.truncate 0))

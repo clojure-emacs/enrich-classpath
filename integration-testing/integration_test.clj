@@ -3,6 +3,7 @@
   (:require
    [cider.enrich-classpath :as sut]
    [cider.enrich-classpath.collections :refer [divide-by]]
+   [cider.enrich-classpath.jdk-sources :as jdk-sources]
    [cider.enrich-classpath.locks :as locks]
    [cider.enrich-classpath.logging :refer [info]]
    [clojure.java.io :as io]
@@ -208,7 +209,6 @@
                                       lines (cond->> out
                                               true string/split-lines
 
-
                                               checking-deps?
                                               (filter (fn [s]
                                                         (string/includes? s "cider.enrich-classpath")))
@@ -301,6 +301,7 @@
       (println err)
       (assert false)))
 
+  (sh "rm" "-rf" (jdk-sources/uncompressed-sources-dir))
   (-> sut/cache-filename File. .delete)
 
   (run-repos! deps-commands

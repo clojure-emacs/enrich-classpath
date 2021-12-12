@@ -3,6 +3,7 @@
   (:require
    [cemerick.pomegranate.aether]
    [cider.enrich-classpath.collections :refer [add-exclusions-if-classified divide-by ensure-no-lists flatten-deps maybe-normalize safe-sort]]
+   [cider.enrich-classpath.jdk-sources :as jdk-sources]
    [cider.enrich-classpath.locks :refer [read-file! write-file!]]
    [cider.enrich-classpath.logging :refer [debug info warn]]
    [cider.enrich-classpath.source-analysis :refer [bad-source?]]
@@ -333,7 +334,8 @@
                                                                                             (not-any? s test-paths))))))]
                                                           (if (seq corpus)
                                                             (into corpus rp)
-                                                            rp)))))))
+                                                            rp))))
+      true (update :resource-paths into (jdk-sources/resources-to-add)))))
 
 (defmacro time
   {:style/indent 1}
