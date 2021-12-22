@@ -1,6 +1,7 @@
 (ns unit.cider.enrich-classpath
   (:require
    [cider.enrich-classpath :as sut]
+   [clojure.string :as str]
    [clojure.test :refer [are deftest is testing]]))
 
 (deftest matches-version?
@@ -66,3 +67,8 @@
 (deftest tools-jar-path
   (is (= (some? (re-find #"^1\.8\." (System/getProperty "java.version")))
          (some? (sut/tools-jar-path)))))
+
+(deftest add-project
+  (testing ":resource-paths does not contain any empty entries"
+    (let [{:keys [resource-paths]} (sut/add {:resource-paths []})]
+      (is  (empty? (filter str/blank? resource-paths))))))

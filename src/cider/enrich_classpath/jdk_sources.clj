@@ -23,7 +23,8 @@
                (io/file home "lib" f)
                (io/file parent f)
                (io/file parent "lib" f)]]
-    (->> paths (filter #(.canRead ^File %)) first str)))
+    (when-let [path (->> paths (filter #(.canRead ^File %)) first)]
+      (str path))))
 
 (defn java-path->zip-path [path]
   (some-> (io/resource path)
@@ -90,4 +91,4 @@
 (defn resources-to-add []
   (cond-> []
     jdk8? (conj (unzipped-jdk-source))
-    true  (conj jdk-sources)))
+    jdk-sources  (conj jdk-sources)))
