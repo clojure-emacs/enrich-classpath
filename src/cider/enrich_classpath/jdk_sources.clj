@@ -1,6 +1,7 @@
 (ns cider.enrich-classpath.jdk-sources
   (:require
    [cider.enrich-classpath.locks :refer [locking-file]]
+   [cider.enrich-classpath.logging :refer [warn]]
    [clojure.java.io :as io]
    [clojure.string :as string])
   (:import
@@ -22,8 +23,14 @@
         paths [(io/file home f)
                (io/file home "lib" f)
                (io/file parent f)
-               (io/file parent "lib" f)]]
-    (->> paths (filter #(.canRead ^File %)) first str)))
+               (io/file parent "lib" f)]
+        v (some->> paths
+                   (filter #(.canRead ^File %))
+                   first
+                   str)]
+    (when-not v
+      (warn :cider.enrich-classpath/no-jdk-sources-found))
+    v))
 
 (defn java-path->zip-path [path]
   (some-> (io/resource path)
@@ -89,5 +96,5 @@
 
 (defn resources-to-add []
   (cond-> []
-    jdk8? (conj (unzipped-jdk-source))
-    true  (conj jdk-sources)))
+    jdk8?       (conj (unzipped-jdk-source))
+    jdk-sources (conj jdk-sources)))
