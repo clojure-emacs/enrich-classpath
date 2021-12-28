@@ -48,7 +48,7 @@ Add the following somewhere in your `~/.lein/profiles.clj` (aka your [user-wide 
 ;; Installing this plugin under the :repl profile is most recommended for best performance,
 ;; especially if you work with a monorepo with a complex build process.  
 :repl {:middleware [cider.enrich-classpath/middleware]
-       :plugins    [[mx.cider/enrich-classpath "1.6.1"]]
+       :plugins    [[mx.cider/enrich-classpath "1.6.2"]]
        ;; Optional - you can use this option to specify a different set (e.g. a smaller set like #{"sources"} is more performant)
        :enrich-classpath {:classifiers #{"sources" "javadoc"}}}
 ```

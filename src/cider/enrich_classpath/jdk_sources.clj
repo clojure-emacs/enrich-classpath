@@ -96,5 +96,5 @@
 
 (defn resources-to-add []
   (cond-> []
-    jdk8?       (conj (unzipped-jdk-source))
-    jdk-sources (conj jdk-sources)))
+    (and jdk-sources jdk8?) (conj (unzipped-jdk-source))
+    jdk-sources             (conj jdk-sources)))
