@@ -102,15 +102,19 @@
 (defn resolve-with-timeout! [coordinates repositories]
   {:pre [(vector? coordinates)
          (-> coordinates count #{1})]}
-  (try
-    (deref (future
-             (cemerick.pomegranate.aether/resolve-dependencies :coordinates coordinates
-                                                               :repositories repositories))
-           ;; timing out should be very rare, it's not here for a strong reason
-           27500
-           ::timed-out)
-    (catch ExecutionException e
-      (-> e .getCause throw))))
+  (let [repositories (or (not-empty repositories)
+                         [["central" {:url "https://repo1.maven.org/maven2/" :snapshots false}]
+                          ["clojars" {:url "https://repo.clojars.org/"}]])]
+
+    (try
+      (deref (future
+               (cemerick.pomegranate.aether/resolve-dependencies :coordinates coordinates
+                                                                 :repositories repositories))
+             ;; timing out should be very rare, it's not here for a strong reason
+             27500
+             ::timed-out)
+      (catch ExecutionException e
+        (-> e .getCause throw)))))
 
 (defn maybe-add-exclusions* [x]
   (->> x
