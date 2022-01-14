@@ -111,4 +111,4 @@ workflows:
           matrix:
             parameters:
               executor: [openjdk8, openjdk11, openjdk16, openjdk17]
-              integration_test_parallelism: ["1", "8"]
+              integration_test_parallelism: ["1"]

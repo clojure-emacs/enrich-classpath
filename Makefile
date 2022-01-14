@@ -3,6 +3,7 @@
 clean:
 	lein clean
 	rm -f .inline-deps
+	rm -rf .cpcache
 
 .inline-deps: clean
 	lein with-profile -user inline-deps
