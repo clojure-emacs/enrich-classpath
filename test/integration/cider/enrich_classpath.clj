@@ -94,7 +94,8 @@ since a git repo inherently cannot resolve to a .jar artifact"
                                                                memoized-resolve!
                                                                input)))
                                     s (str sw)]
-                                (assert (not (string/includes? s "timed-out")))
+                                (assert (not (string/includes? s "timed-out"))
+                                        s)
                                 (is (= expected
                                        v)
                                     s)

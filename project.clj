@@ -1,4 +1,7 @@
-(defproject mx.cider/enrich-classpath "1.7.0"
+(defproject mx.cider/enrich-classpath (if (System/getenv "CIRCLE_TAG")
+                                        (doto (System/getenv "PROJECT_VERSION") assert)
+                                        (or (System/getenv "PROJECT_VERSION")
+                                            "n/a"))
   :description "Makes available .jars with Java sources and javadocs for a given project."
 
   :url "https://github.com/clojure-emacs/enrich-classpath"
@@ -14,7 +17,7 @@
 
   :eval-in-leiningen ~(nil? (System/getenv "no_eval_in_leiningen"))
 
-  :plugins [[thomasa/mranderson "0.5.3"]]
+  :plugins [[thomasa/mranderson "0.5.4-SNAPSHOT"]]
 
   :mranderson {:project-prefix  "cider.enrich-classpath.inlined-deps"
                :expositions     []
@@ -31,8 +34,10 @@
                                    ;; ensure that at least one dependency will fetch sources:
                                    :dependencies [[puppetlabs/trapperkeeper-webserver-jetty9 "4.1.0"]]}
 
-             :eastwood            {:plugins [[jonase/eastwood "1.0.0"]]
+             :eastwood            {:plugins [[jonase/eastwood "1.1.1"]]
                                    :eastwood {:add-linters [:boxed-math
-                                                            :performance]}}}
+                                                            :performance]}}
+
+             :deploy              {:source-paths [".circleci"]}}
 
   :aliases {"integration-test" ["with-profile" "-user,-dev,+test,+integration-testing" "run" "-m" "integration-test"]})

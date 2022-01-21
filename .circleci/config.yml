@@ -31,6 +31,14 @@ executors:
       <<: *env_defaults
       <<: *older_jdk_env_defaults
     <<: *executor_defaults
+  openjdk8_deploy:
+    docker:
+      - image: circleci/clojure:openjdk-8-lein-2.9.5
+    environment:
+      <<: *env_defaults
+      <<: *older_jdk_env_defaults
+      LEIN_JVM_OPTS: -Dmranderson.internal.no-parallelism=true
+    <<: *executor_defaults
   openjdk11:
     docker:
       - image: circleci/clojure:openjdk-11-lein-2.9.5
@@ -103,6 +111,24 @@ jobs:
           paths:
             - ~/.m2
           key: v2-dependencies-{{ checksum "project.clj" }}
+  deploy:
+    executor: openjdk8_deploy
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - v2-dependencies-{{ checksum "project.clj" }}
+            # fallback to using the latest cache if no exact match is found
+            - v2-dependencies-
+      - run: "$LEIN_DEPS_COMMAND"
+      - save_cache:
+          paths:
+            - ~/.m2
+          key: v2-dependencies-{{ checksum "project.clj" }}
+      - run:
+         name: Deploy
+         command: |
+           lein with-profile -user,+deploy run -m maybe-deploy make deploy
 
 workflows:
   default:
@@ -112,3 +138,11 @@ workflows:
             parameters:
               executor: [openjdk8, openjdk11, openjdk16, openjdk17]
               integration_test_parallelism: ["1"]
+      - deploy:
+          requires:
+            - test
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^v\d+\.\d+\.\d+(-alpha\d+)?$/

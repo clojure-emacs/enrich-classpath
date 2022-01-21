@@ -39,10 +39,7 @@
 
 (assert (seq lein))
 
-(def project-version (-> "project.clj"
-                         slurp
-                         read-string
-                         (nth 2)))
+(def project-version "999.99.9")
 
 (assert (string? project-version))
 
@@ -295,7 +292,9 @@
   (when-not *assert*
     (throw (ex-info "." {})))
 
-  (sh lein "install" :dir (System/getProperty "user.dir") :env env)
+  (sh lein "install"
+      :dir (System/getProperty "user.dir") :env
+      (assoc env "PROJECT_VERSION" project-version))
 
   ;; Pedestal needs separate invocations for `install`, `deps`:
   (let [{:keys [out exit err]} (apply sh (reduce into [[lein "with-profile" "-user"
