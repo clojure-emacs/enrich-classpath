@@ -164,8 +164,6 @@ workflows:
           filters:
             branches:
               only: /.*/
-            tags:
-              only: /^v\d+\.\d+\.\d+(-alpha\d+)?$/
           matrix:
             parameters:
               executor: [openjdk8, openjdk11, openjdk16, openjdk17]
@@ -174,15 +172,10 @@ workflows:
           filters:
             branches:
               only: /.*/
-            tags:
-              only: /^v\d+\.\d+\.\d+(-alpha\d+)?$/
           matrix:
             parameters:
               executor: [openjdk8, openjdk11, openjdk16, openjdk17]
       - deploy:
-          requires:
-            - test
-            - test-deps-edn
           filters:
             branches:
               ignore: /.*/
