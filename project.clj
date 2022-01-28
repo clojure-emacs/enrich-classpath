@@ -9,11 +9,9 @@
   :license {:name "EPL-2.0"
             :url  "https://www.eclipse.org/legal/epl-2.0/"}
 
-  :dependencies [;; lein assumes it but t.deps requires it:
-                 [clj-commons/pomegranate "1.2.1"]
-                 ^:inline-dep [fipp "0.6.25" :exclusions [org.clojure/clojure]]
+  :dependencies [^:inline-dep [fipp "0.6.25" :exclusions [org.clojure/clojure]]
                  [org.clojure/clojure "1.10.3"] ;; Hard-require a recent-enough version of Clojure, since other plugins may require an overly old one which would make Fipp fail.
-                 [org.clojure/tools.deps.alpha "0.12.1109"]]
+                 ]
 
   :eval-in-leiningen ~(nil? (System/getenv "no_eval_in_leiningen"))
 
@@ -30,7 +28,10 @@
                                     :password :env/clojars_password
                                     :sign-releases false}]]
 
-  :profiles {:integration-testing {:source-paths ["integration-testing"]}
+  :profiles {;; Helps developing the plugin when (false? eval-in-leiningen):
+             :test                {:dependencies [[clj-commons/pomegranate "1.2.1"]]}
+
+             :integration-testing {:source-paths ["integration-testing"]}
 
              :self-test           {:middleware   [cider.enrich-classpath/middleware]
                                    ;; ensure that at least one dependency will fetch sources:
