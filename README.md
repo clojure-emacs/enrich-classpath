@@ -1,4 +1,4 @@
-# enrich-classpath [![Clojars Project](https://img.shields.io/clojars/v/mx.cider/enrich-classpath.svg)](https://clojars.org/mx.cider/enrich-classpath)
+# enrich-classpath [![Clojars Project](https://img.shields.io/clojars/v/mx.cider/enrich-classpath.svg)](https://clojars.org/mx.cider/enrich-classpath) [![Clojars Project](https://img.shields.io/clojars/v/mx.cider/enrich-classpath.svg)](https://clojars.org/mx.cider/tools.deps.enrich-classpath)
 
 A library (and Leiningen plugin) that, as its main feature, automatically downloads all available `.jar`s with Java sources and javadocs for a given project, so that various tooling (typically IDEs) can access it.
 
@@ -48,7 +48,7 @@ Add the following somewhere in your `~/.lein/profiles.clj` (aka your [user-wide 
 ;; Installing this plugin under the :repl profile is most recommended for best performance,
 ;; especially if you work with a monorepo with a complex build process.  
 :repl {:middleware [cider.enrich-classpath/middleware]
-       :plugins    [[mx.cider/enrich-classpath "1.7.0"]]
+       :plugins    [[mx.cider/enrich-classpath "1.8.0"]]
        ;; Optional - you can use this option to specify a different set (e.g. a smaller set like #{"sources"} is more performant)
        :enrich-classpath {:classifiers #{"sources" "javadoc"}}}
 ```
@@ -56,6 +56,16 @@ Add the following somewhere in your `~/.lein/profiles.clj` (aka your [user-wide 
 > If adding this middleware on a per-project basis, make sure it's not turned on by default, simply because other people might not appreciate a slower (first) dependency resolution for a functionality that they might not use. [Profiles](https://github.com/technomancy/leiningen/blob/master/doc/PROFILES.md) help.
 
 After that, `lein repl` and similar commands will download each artifact of your dependency tree with `"sources"` and `"javadoc"` Maven classifiers, if such an artifact exists (normally these only exist for Java dependencies, not Clojure ones), and place it in the classpath for your REPL process. 
+
+### tools.deps
+
+enrich-classpath has a distinct artifact intended for tools.deps usage:
+
+```clj
+mx.cider/tools.deps.enrich-classpath {:mvn/version "1.8.0"}
+```
+
+Usage is still TBD.
 
 ## Notes on caching
 

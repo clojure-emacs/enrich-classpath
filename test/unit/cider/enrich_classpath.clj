@@ -60,7 +60,9 @@
       "Does not choose from `managed-deps` a non-existing source"
       []       [a-orig] [b-source]          b-source
 
-      "Favors `deps` over `managed-dependencies` even if the latter indicates a more recent version"
+      "Favors `deps` over `managed-dependencies` even if the latter indicates a more recent version,
+because that's how Lein naturally resolves dependencies
+(:dependencies take precedence over :managed-dependencies if both indicate a present `version`)"
       [a-orig] [b-orig] [a-source b-source] a-source)))
 
 (deftest tools-jar-path

@@ -178,6 +178,8 @@
 
 (defn derivatives [classifiers managed-dependencies memoized-resolve! [dep version & args :as original]]
   (let [version (or version
+                    ;; note that managed-dependencies's version only takes precedence
+                    ;; if version was nil. Those are Leiningen's precedence rules which we also honor.
                     (->> managed-dependencies
                          (filter (fn [[a]]
                                    (= dep a)))
@@ -195,12 +197,25 @@
                             (into [original])
                             (distinct)
                             (remove (comp nil? second))
-                            (filter (fn [x]
-                                      (->> (memoized-resolve! [x])
-                                           flatten-deps
-                                           (filter #{(maybe-add-exclusions x)})
-                                           first
-                                           some?))))))
+                            ;; If a *transitive* dependency is explicitly specified by :managed-dependencies,
+                            ;; the managed version should take precedence (because that's their whole point):
+                            (remove (fn [[d v]]
+                                      (->> managed-dependencies
+                                           (some (fn [[dd vv]]
+                                                   (and (= d dd)
+                                                        v
+                                                        vv
+                                                        (not= v vv)))))))
+                            (keep (fn [x]
+                                    ;; Keep only classified artifacts that exist...
+                                    (let [v (->> (memoized-resolve! [x])
+                                                 flatten-deps
+                                                 (filter #{(maybe-add-exclusions x)})
+                                                 first)]
+                                      (when (some? v)
+                                        ;; ...and attach their meta (currently unused),
+                                        ;; especially for `:file`:
+                                        (with-meta x (meta v)))))))))
              (distinct)
              (vec))))))
 
@@ -321,9 +336,17 @@
                              (into additions deps)))
         jdk8? (re-find #"^1\.8\." (System/getProperty "java.version"))
         add-tools? (and jdk8?
-                        (tools-jar-path))]
+                        (tools-jar-path))
+        enriched-deps-from-managed-deps (->> managed-dependencies
+                                             add-dependencies
+                                             (remove (set managed-dependencies))
+                                             (filter (fn [[_ _ classifier]]
+                                                       classifier))
+                                             (distinct)
+                                             (vec))]
     (cond-> project
       true       (update :dependencies add-dependencies)
+      true       (update :dependencies into enriched-deps-from-managed-deps)
       add-tools? (update :jar-exclusions conj (-> (tools-jar-path)
                                                   Pattern/quote
                                                   re-pattern))

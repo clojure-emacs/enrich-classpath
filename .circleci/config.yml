@@ -111,6 +111,36 @@ jobs:
           paths:
             - ~/.m2
           key: v2-dependencies-{{ checksum "project.clj" }}
+
+  test-deps-edn:
+    parameters:
+      executor:
+        type: executor
+    executor: << parameters.executor >>
+    environment:
+      PROJECT_VERSION: 999.99.9
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - v2-dependencies-{{ checksum "project.clj" }}
+
+      - run:
+          name: Fetch dependencies
+          command: "$LEIN_DEPS_COMMAND"
+
+      - run:
+          name: Install
+          command: make install-base
+
+      - run:
+          name: Test
+          command: cd tools.deps; lein with-profile -user,-dev test
+
+      - run:
+          name: Lint
+          command: cd tools.deps; lein with-profile -user,+test,+eastwood eastwood
+
   deploy:
     executor: openjdk8_deploy
     steps:
@@ -138,9 +168,14 @@ workflows:
             parameters:
               executor: [openjdk8, openjdk11, openjdk16, openjdk17]
               integration_test_parallelism: ["1"]
+      - test-deps-edn:
+          matrix:
+            parameters:
+              executor: [openjdk8, openjdk11, openjdk16, openjdk17]
       - deploy:
           requires:
             - test
+            - test-deps-edn
           filters:
             branches:
               ignore: /.*/
