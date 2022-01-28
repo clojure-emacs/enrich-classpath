@@ -1,6 +1,6 @@
 (defproject mx.cider/enrich-classpath (if (System/getenv "CIRCLE_TAG")
                                         (doto (System/getenv "PROJECT_VERSION") assert)
-                                        (or (System/getenv "PROJECT_VERSION")
+                                        (or (not-empty (System/getenv "PROJECT_VERSION"))
                                             "n/a"))
   :description "Makes available .jars with Java sources and javadocs for a given project."
 
