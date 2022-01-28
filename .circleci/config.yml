@@ -69,6 +69,8 @@ jobs:
       integration_test_parallelism:
         type: string
     executor: << parameters.executor >>
+    environment:
+      PROJECT_VERSION: 999.99.9
     steps:
       - checkout
       - restore_cache:
@@ -164,11 +166,21 @@ workflows:
   default:
     jobs:
       - test:
+          filters:
+            branches:
+              only: /.*/
+            tags:
+              only: /^v\d+\.\d+\.\d+(-alpha\d+)?$/
           matrix:
             parameters:
               executor: [openjdk8, openjdk11, openjdk16, openjdk17]
               integration_test_parallelism: ["1"]
       - test-deps-edn:
+          filters:
+            branches:
+              only: /.*/
+            tags:
+              only: /^v\d+\.\d+\.\d+(-alpha\d+)?$/
           matrix:
             parameters:
               executor: [openjdk8, openjdk11, openjdk16, openjdk17]
