@@ -1,4 +1,5 @@
-# enrich-classpath [![Clojars Project](https://img.shields.io/clojars/v/mx.cider/enrich-classpath.svg)](https://clojars.org/mx.cider/enrich-classpath) [![Clojars Project](https://img.shields.io/clojars/v/mx.cider/tools.deps.enrich-classpath.svg)](https://clojars.org/mx.cider/tools.deps.enrich-classpath)
+# enrich-classpath
+[![Clojars Project](https://img.shields.io/clojars/v/mx.cider/enrich-classpath.svg)](https://clojars.org/mx.cider/enrich-classpath) [![Clojars Project](https://img.shields.io/clojars/v/mx.cider/tools.deps.enrich-classpath.svg)](https://clojars.org/mx.cider/tools.deps.enrich-classpath)
 
 A library (and Leiningen plugin) that, as its main feature, automatically downloads all available `.jar`s with Java sources and javadocs for a given project, so that various tooling (typically IDEs) can access it.
 

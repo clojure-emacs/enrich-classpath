@@ -152,15 +152,10 @@ jobs:
             - v2-dependencies-{{ checksum "project.clj" }}
             # fallback to using the latest cache if no exact match is found
             - v2-dependencies-
-      - run: "$LEIN_DEPS_COMMAND"
-      - save_cache:
-          paths:
-            - ~/.m2
-          key: v2-dependencies-{{ checksum "project.clj" }}
       - run:
          name: Deploy
          command: |
-           lein with-profile -user,+deploy run -m maybe-deploy make deploy
+           PROJECT_VERSION=$CIRCLE_TAG lein with-profile -user,+deploy run -m maybe-deploy make deploy
 
 workflows:
   default:

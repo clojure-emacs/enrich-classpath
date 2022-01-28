@@ -20,7 +20,8 @@
         (System/exit 1)
         (do
           (apply println "Executing" *command-line-args*)
-          (->> [:env (into {"PROJECT_VERSION" (make-version tag)} (System/getenv))]
+          (->> [:env (merge (into {} (System/getenv))
+                            {"PROJECT_VERSION" (make-version tag)})]
                (into (vec *command-line-args*))
                (apply sh)
                log-result
