@@ -19,6 +19,8 @@
 
   :plugins [[thomasa/mranderson "0.5.4-SNAPSHOT"]]
 
+  :jvm-opts ["-Dclojure.main.report=stderr"]
+
   :mranderson {:project-prefix  "cider.enrich-classpath.inlined-deps"
                :expositions     []
                :unresolved-tree false}
@@ -34,7 +36,7 @@
                                    ;; ensure that at least one dependency will fetch sources:
                                    :dependencies [[puppetlabs/trapperkeeper-webserver-jetty9 "4.1.0"]]}
 
-             :eastwood            {:plugins [[jonase/eastwood "1.1.1"]]
+             :eastwood            {:plugins [[jonase/eastwood "1.2.2"]]
                                    :eastwood {:add-linters [:boxed-math
                                                             :performance]}}
 
