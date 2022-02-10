@@ -287,14 +287,38 @@
                                      (string/includes? s "/java"))))
                         [id classpath]))))
 
+(defn metadata-test! []
+  (info "Running `metadata-test!`")
+  (let [dep-count (atom 0)
+        vals (->> sut/cache-filename
+                  locks/read-file!
+                  sut/safe-read-string
+                  sut/deserialize
+                  vals
+                  (keep seq))]
+    (assert (< 300 (count vals)))
+    (doseq [v vals
+            [_ deps] v
+            dep deps]
+      (assert (-> dep meta :file not-empty string?)
+              (pr-str {:dep dep
+                       :deps deps
+                       :v v}))
+      (swap! dep-count inc))
+    (assert (< 900 @dep-count))))
+
 (defn suite []
 
   (when-not *assert*
     (throw (ex-info "." {})))
 
-  (sh lein "install"
-      :dir (System/getProperty "user.dir") :env
-      (assoc env "PROJECT_VERSION" project-version))
+  (let [{:keys [out err exit]} (sh "make" "install"
+                                   :dir (System/getProperty "user.dir") :env
+                                   (assoc env "PROJECT_VERSION" project-version))]
+    (when-not (zero? exit)
+      (println out)
+      (println err)
+      (assert false)))
 
   ;; Pedestal needs separate invocations for `install`, `deps`:
   (let [{:keys [out exit err]} (apply sh (reduce into [[lein "with-profile" "-user"
@@ -346,7 +370,9 @@
 
   (java-source-paths-test!)
 
-  (classpath-test!))
+  (classpath-test!)
+
+  (metadata-test!))
 
 (defn -main [& _]
 

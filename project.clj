@@ -28,6 +28,8 @@
                                     :password :env/clojars_password
                                     :sign-releases false}]]
 
+  :java-source-paths ["java"]
+
   :profiles {;; Helps developing the plugin when (false? eval-in-leiningen):
              :test                {:dependencies [[clj-commons/pomegranate "1.2.1"]]}
 

@@ -30,8 +30,8 @@
                                   (is (= expected v))
                                   (is (= expected (locks/read-file! filename))))
                                 true)
-          (swap! state assoc [[4]] {[5 6] nil}) "[[[[4]] [[[5 6] nil]]]]\n"
-          (swap! state assoc [[1]] {[2 3] nil}) "[[[[1]] [[[2 3] nil]]] [[[4]] [[[5 6] nil]]]]\n")
+          (swap! state assoc [[4]] {[5 6] nil}) "^{:enrich-classpath/version 1}\n[[[[4]] [[[5 6] nil]]]]\n"
+          (swap! state assoc [[1]] {[2 3] nil}) "^{:enrich-classpath/version 1}\n[[[[1]] [[[2 3] nil]]] [[[4]] [[[5 6] nil]]]]\n")
         (finally
           (-> file .delete))))))
 

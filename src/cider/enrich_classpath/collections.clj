@@ -25,13 +25,16 @@
                  (not (vector? x)) vector)))))
 
 (defn maybe-normalize* [x]
-  (->> x
-       (walk/postwalk (fn [item]
-                        (cond-> item
-                          (and (vector? item)
-                               (some #{:exclusions} item))
-                          (update (inc (long (index item :exclusions)))
-                                  normalize-exclusions))))))
+  (with-meta (->> x
+                  (walk/postwalk (fn [item]
+                                   (cond-> item
+                                     (and (vector? item)
+                                          (some #{:exclusions} item))
+                                     (update (inc (long (index item :exclusions)))
+                                             normalize-exclusions)))))
+    (let [{:keys [file]} (meta x)]
+      (when file
+        {:file (str file)}))))
 
 (def maybe-normalize (memoize maybe-normalize*))
 
@@ -66,11 +69,14 @@
 
 (defn ensure-no-lists* [x]
   {:pre [(vector? x)]}
-  (->> x (mapv (fn [y]
-                 (let [v (cond-> y
-                           (sequential? y) vec)]
-                   (cond-> v
-                     (vector? v) ensure-no-lists*))))))
+  (with-meta (->> x (mapv (fn [y]
+                            (let [v (cond-> y
+                                      (sequential? y) vec)]
+                              (cond-> v
+                                (vector? v) ensure-no-lists*)))))
+    (let [{:keys [file]} (meta x)]
+      (when file
+        {:file (str file)}))))
 
 (def ensure-no-lists (memoize ensure-no-lists*))
 
