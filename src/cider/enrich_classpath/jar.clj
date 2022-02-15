@@ -35,7 +35,7 @@ Created-By: mx.cider/enrich-classpath
 (defn manifest ^String [classpath]
   (format template classpath))
 
-(defn jar-for! [jars]
+(defn jar-for! ^String [jars]
   (when-let [corpus (->> jars
                          ;; nil values should never be included (`integration_test.clj` asserts this),
                          ;; but just in case:
@@ -46,7 +46,7 @@ Created-By: mx.cider/enrich-classpath
           dir-crc (-> "user.dir" System/getProperty crc32 str)
           dir (-> "user.home"
                   System/getProperty
-                  (io/file ".mx.cider" "enrich-classpath" (jdk/digits-str) (dir-crc))
+                  (io/file ".mx.cider" "enrich-classpath" (jdk/digits-str) dir-crc)
                   (doto .mkdirs))
           filename (-> dir
                        (io/file (str corpus-crc ".jar"))
