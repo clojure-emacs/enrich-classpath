@@ -8,6 +8,7 @@
    [cider.enrich-classpath.locks :refer [read-file! write-file!]]
    [cider.enrich-classpath.logging :refer [debug info warn]]
    [cider.enrich-classpath.source-analysis :refer [bad-source?]]
+   [cider.enrich-classpath.version :as version]
    [clojure.java.io :as io]
    [clojure.string :as string]
    [clojure.walk :as walk]
@@ -23,8 +24,6 @@
       System/getProperty
       (File. ".enrich-classpath-cache")
       (str)))
-
-(def data-version 1)
 
 (defn serialize
   "Turns any contained coll into a vector, sorting it.
@@ -46,7 +45,7 @@
                                     vec)]))
                   safe-sort
                   vec)
-    {:enrich-classpath/version data-version}))
+    {:enrich-classpath/version version/data-version}))
 
 (defn deserialize
   "Undoes the work of `#'serialize`.
@@ -55,9 +54,7 @@
   [x]
   {:post [(map? %)]}
   (assert (vector? x) (class x))
-  (with-meta (if-not (-> x meta (find :enrich-classpath/version))
-               ;; discard cache values from prior enrich-classpath versions,
-               ;; since they lacked metadata:
+  (with-meta (if (-> x meta version/outdated-data-version?)
                {}
                (->> x
                     (map (fn [[k v]]
@@ -69,7 +66,7 @@
                                                              set)]))
                                          (into {})))]))
                     (into {})))
-    {:enrich-classpath/version data-version}))
+    {:enrich-classpath/version version/data-version}))
 
 (defn safe-read-string [x]
   {:pre  [(string? x)]
@@ -95,7 +92,7 @@
                          {:print-meta true})))
 
 (def default-cache-contents (ppr-str (with-meta []
-                                       {:enrich-classpath/version data-version})))
+                                       {:enrich-classpath/version version/data-version})))
 
 (defn make-merge-fn [cache-atom]
   {:pre [@cache-atom]}
