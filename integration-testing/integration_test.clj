@@ -97,32 +97,32 @@
     ;; uses lein-tools-deps:
     "overtone"      vanilla-lein-deps
     ;; uses lein-sub, lein-modules:
-    "incanter"      (reduce into [(prelude lein)
-                                  ["sub" "do"]
-                                  (prelude "install,")
-                                  ["deps"]])
+    "incanter"      (reduce into [] [(prelude lein)
+                                     ["sub" "do"]
+                                     (prelude "install,")
+                                     ["deps"]])
     ;; uses lein-sub:
-    "icepick"       (with-meta (reduce into [(prelude lein)
-                                             (prelude "sub")
-                                             ["deps"]])
+    "icepick"       (with-meta (reduce into [] [(prelude lein)
+                                                (prelude "sub")
+                                                ["deps"]])
                       ;; Icepick seemingly relies on tools.jar, unavailable in JDK9+
                       {::skip-in-newer-jdks true})
     ;; uses lein-sub:
-    "crux"          (reduce into [(prelude lein)
-                                  (prelude "sub")
-                                  ["deps"]])
+    "crux"          (reduce into [] [(prelude lein)
+                                     (prelude "sub")
+                                     ["deps"]])
     ;; uses lein-sub:
-    "pedestal"      (reduce into [(prelude lein)
-                                  (prelude "sub")
-                                  ["deps"]])
+    "pedestal"      (reduce into [] [(prelude lein)
+                                     (prelude "sub")
+                                     ["deps"]])
     ;; uses lein-monolith:
-    "sparkplug"     (with-meta (reduce into [(prelude lein)
-                                             ["monolith"]
-                                             (prelude "each")
-                                             ["do"
-                                              "clean,"
-                                              "install,"
-                                              "deps"]])
+    "sparkplug"     (with-meta (reduce into [] [(prelude lein)
+                                                ["monolith"]
+                                                (prelude "each")
+                                                ["do"
+                                                 "clean,"
+                                                 "install,"
+                                                 "deps"]])
                       ;; something fipp-related (unrelated to our vendored version):
                       {::skip-in-newer-jdks true})}))
 
@@ -256,12 +256,12 @@
   (info "Running `classpath-test!`")
   (letfn [(run [extra-profile]
             {:post [(-> % count pos?)]}
-            (let [{:keys [out err exit]} (apply sh (reduce into [[lein
-                                                                  "with-profile"
-                                                                  (str "-user,-dev" extra-profile)
-                                                                  "classpath"]
-                                                                 [:env env
-                                                                  :dir (System/getProperty "user.dir")]]))]
+            (let [{:keys [out err exit]} (apply sh (reduce into [] [[lein
+                                                                     "with-profile"
+                                                                     (str "-user,-dev" extra-profile)
+                                                                     "classpath"]
+                                                                    [:env env
+                                                                     :dir (System/getProperty "user.dir")]]))]
               (when-not (zero? exit)
                 (println out)
                 (println err)
@@ -321,10 +321,10 @@
       (assert false)))
 
   ;; Pedestal needs separate invocations for `install`, `deps`:
-  (let [{:keys [out exit err]} (apply sh (reduce into [[lein "with-profile" "-user"
-                                                        "sub" "with-profile" "-user" "install"]
-                                                       [:dir (submodule-dir "pedestal")
-                                                        :env env]]))]
+  (let [{:keys [out exit err]} (apply sh (reduce into [] [[lein "with-profile" "-user"
+                                                           "sub" "with-profile" "-user" "install"]
+                                                          [:dir (submodule-dir "pedestal")
+                                                           :env env]]))]
     (when-not (zero? exit)
       (println out)
       (println err)
