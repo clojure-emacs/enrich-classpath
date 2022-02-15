@@ -301,7 +301,8 @@
             [_ deps] v
             dep deps]
       (assert (-> dep meta :file not-empty string?)
-              (pr-str {:dep dep
+              (pr-str {:msg "Every dependency must have `:file` metadata, so that the `:shorten` option can work properly."
+                       :dep dep
                        :deps deps
                        :v v}))
       (swap! dep-count inc))
