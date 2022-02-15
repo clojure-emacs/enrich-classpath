@@ -1,5 +1,6 @@
 (ns cider.enrich-classpath.jar
   (:require
+   [cider.enrich-classpath.jdk :as jdk]
    [clojure.java.io :as io]
    [clojure.string :as string])
   (:import
@@ -12,6 +13,10 @@
   (let [b (ByteArrayOutputStream.)]
     (Calc72/calc72 (PrintStream. b) s)
     (str b)))
+
+(defn crc32 [^String s]
+  (let [s-bytes (-> s .getBytes)]
+    (-> (CRC32.) (doto (.update s-bytes 0 (alength s-bytes))) .getValue)))
 
 (defn jars->classpath [jars]
   (wrap72 (str "Class-Path: "
@@ -33,9 +38,15 @@ Created-By: mx.cider/enrich-classpath
                          (filter some?)
                          ;; maybe there's nothing to enrich in a small-enough project:
                          (seq))]
-    (let [sha-bytes (-> corpus string/join .getBytes)
-          sha (-> (CRC32.) (doto (.update sha-bytes 0 (alength sha-bytes))) .getValue)
-          filename (str sha ".jar")]
+    (let [corpus-crc (-> corpus string/join crc32)
+          dir-crc (-> "user.dir" System/getProperty crc32 str)
+          dir (-> "user.home"
+                  System/getProperty
+                  (io/file ".mx.cider" "enrich-classpath" (jdk/digits-str) (dir-crc))
+                  (doto .mkdirs))
+          filename (-> dir
+                       (io/file (str corpus-crc ".jar"))
+                       str)]
 
       (when-not (-> filename File. .exists)
         (let [manifest-contents (-> corpus jars->classpath manifest)
