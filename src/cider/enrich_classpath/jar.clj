@@ -9,6 +9,10 @@
    (java.util.jar JarOutputStream Manifest)
    (java.util.zip CRC32)))
 
+;; Manifest files must be wrapped every 72 lines, with one space of padding for every inserted newline.
+;; In principle the `Manifest` class provides this wrapping already, however beyond certain input size,
+;; it will throw an exception.
+;; An already-wrapped string will be accepted by `Manifest` without altering it or throwing any exception.
 (defn wrap72 [s]
   (let [b (ByteArrayOutputStream.)]
     (Calc72/calc72 (PrintStream. b) s)
