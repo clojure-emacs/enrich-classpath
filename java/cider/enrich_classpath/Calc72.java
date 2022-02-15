@@ -13,6 +13,7 @@ public class Calc72 {
             while (length - pos > 71) {
                 out.write(lineBytes, pos, 71);
                 pos += 71;
+                out.write('\r');
                 out.write('\n');
                 out.write(' ');
             }

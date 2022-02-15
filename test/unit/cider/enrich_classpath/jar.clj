@@ -9,15 +9,22 @@
     (are [input expected-output expected-newline-count] (testing input
                                                           (is (= expected-output
                                                                  (sut/wrap72 input)))
+                                                          (is (<= (->> input
+                                                                       sut/wrap72
+                                                                       string/split-lines
+                                                                       (map count)
+                                                                       (apply max)
+                                                                       (long))
+                                                                  72))
                                                           (is (= expected-newline-count
                                                                  (->> input
                                                                       sut/wrap72
-                                                                      (re-seq #"\n ")
+                                                                      (re-seq #"\r\n ")
                                                                       (count))))
                                                           (is (= input
                                                                  (-> input
                                                                      sut/wrap72
-                                                                     (string/split #"\n ")
+                                                                     (string/split #"\r\n ")
                                                                      (string/join)))
                                                               "The output has essentially the same info than the input, with no info being lost or added")
                                                           true)
@@ -26,9 +33,9 @@
       0
 
       "/Users/vemv/.m2/repository/rewrite-clj/rewrite-clj/1.0.594-alpha/rewrite-clj-1.0.594-alpha.jar"
-      "/Users/vemv/.m2/repository/rewrite-clj/rewrite-clj/1.0.594-alpha/rewrite\n -clj-1.0.594-alpha.jar"
+      "/Users/vemv/.m2/repository/rewrite-clj/rewrite-clj/1.0.594-alpha/rewrite\r\n -clj-1.0.594-alpha.jar"
       1
 
       "/Users/vemv/.m2/repository/rewrite-clj/rewrite-clj/1.0.594-alpha/rewrite-clj-1.0.594-alpha.jar /Users/vemv/.m2/repository/org/checkerframework/checker-qual/2.0.0/checker-qual-2.0.0.jar"
-      "/Users/vemv/.m2/repository/rewrite-clj/rewrite-clj/1.0.594-alpha/rewrite\n -clj-1.0.594-alpha.jar /Users/vemv/.m2/repository/org/checkerframework/\n checker-qual/2.0.0/checker-qual-2.0.0.jar"
+      "/Users/vemv/.m2/repository/rewrite-clj/rewrite-clj/1.0.594-alpha/rewrite\r\n -clj-1.0.594-alpha.jar /Users/vemv/.m2/repository/org/checkerframework/\r\n checker-qual/2.0.0/checker-qual-2.0.0.jar"
       2)))

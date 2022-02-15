@@ -325,13 +325,16 @@ since a git repo inherently cannot resolve to a .jar artifact"
         (throw (ex-info "." {}))) project)))
 
 (def expected-manifest-contents
-  (let [home (System/getProperty "user.home")]
+  (let [cp (jar/wrap72 (format (str "Class-Path: "
+                                    "%s/.m2/repository/org/clojure/clojure/1.10.3/clojure-1.10.3-sources.jar "
+                                    "%s/.m2/repository/org/clojure/clojure/1.10.3/clojure-1.10.3-javadoc.jar")
+                               (System/getProperty "user.home")
+                               (System/getProperty "user.home")))]
+    
     (format "Manifest-Version: 1.0
-Class-Path: %s/.m2/repository/org/clojure/clojure/1.10.3/clojur
- e-1.10.3-sources.jar %s/.m2/repository/org/clojure/clojure/1.1
- 0.3/clojure-1.10.3-javadoc.jar
-Created-By: mx.cider/enrich-classpath
-" home home)))
+%s
+Created-By: mx.cider/enrich-classpath\n\n"
+            cp)))
 
 (deftest add
   (let [base-dependencies '[[org.clojure/clojure "1.10.3"]]
@@ -349,7 +352,7 @@ Created-By: mx.cider/enrich-classpath
                  [org.clojure/clojure "1.10.3" :classifier "javadoc" :exclusions [[*]]]
                  [org.clojure/clojure "1.10.3"]]
                found-dependencies)
-            "Add dependencies. Sources/javadocs will precede non-classified (final) dependencies,
+            "Adds dependencies. Sources/javadocs will precede non-classified (final) dependencies,
 yielding a classpath less prone to issues (on Leiningen).")))
 
     (testing "`:shorten` option: true"
@@ -358,9 +361,15 @@ yielding a classpath less prone to issues (on Leiningen).")))
                                                          :enrich-classpath {:shorten true}})
             [^String jar :as all] (->> resource-paths
                                        (filter shortened-jar?))]
-        (assert (-> all count #{1}))
-        (is (= found-dependencies base-dependencies)
-            "Doesn't add dependencies")
-        (let [actual (-> jar File. jar/jar-file->manifest-contents (string/replace "\r" ""))]
-          (testing actual
-            (is (string/includes? actual expected-manifest-contents))))))))
+        (try
+          (assert (-> all count #{1}))
+          (is (= found-dependencies base-dependencies)
+              "Doesn't add dependencies under the `:dependencies` key")
+          (let [actual (-> jar File. jar/jar-file->manifest-contents (string/replace "\r" ""))]
+            (testing actual
+              (is (string/includes? actual
+                                    (string/replace expected-manifest-contents "\r" ""))
+                  "Adds a single .jar which Manifest points to `org.clojure/clojure` sources and javadocs")))
+
+          (finally ;; don't cache results, can affect subsequent test runs
+            (-> jar File. .delete)))))))
