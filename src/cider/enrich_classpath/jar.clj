@@ -6,7 +6,7 @@
   (:import
    (cider.enrich_classpath Calc72)
    (java.io ByteArrayOutputStream File PrintStream)
-   (java.util.jar JarOutputStream Manifest)
+   (java.util.jar JarInputStream JarOutputStream Manifest)
    (java.util.zip CRC32)))
 
 ;; Manifest files must be wrapped every 72 lines, with one space of padding for every inserted newline.
@@ -34,6 +34,11 @@ Created-By: mx.cider/enrich-classpath
 
 (defn manifest ^String [classpath]
   (format template classpath))
+
+(defn jar-file->manifest-contents [^File file]
+  (let [os (ByteArrayOutputStream.)]
+    (-> file io/input-stream JarInputStream. .getManifest (.write os))
+    (-> os .toByteArray (String. "UTF-8"))))
 
 (defn jar-for! ^String [jars]
   (when-let [corpus (->> jars

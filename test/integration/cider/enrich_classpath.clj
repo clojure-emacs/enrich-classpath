@@ -1,6 +1,7 @@
 (ns integration.cider.enrich-classpath
   (:require
    [cider.enrich-classpath :as sut]
+   [cider.enrich-classpath.jar :as jar]
    [cider.enrich-classpath.locks :as locks]
    [clojure.java.io :as io]
    [clojure.string :as string]
@@ -322,3 +323,44 @@ since a git repo inherently cannot resolve to a .jar artifact"
 
       (fn [project]
         (throw (ex-info "." {}))) project)))
+
+(def expected-manifest-contents
+  (let [home (System/getProperty "user.home")]
+    (format "Manifest-Version: 1.0
+Class-Path: %s/.m2/repository/org/clojure/clojure/1.10.3/clojur
+ e-1.10.3-sources.jar %s/.m2/repository/org/clojure/clojure/1.1
+ 0.3/clojure-1.10.3-javadoc.jar
+Created-By: mx.cider/enrich-classpath
+" home home)))
+
+(deftest add
+  (let [base-dependencies '[[org.clojure/clojure "1.10.3"]]
+        shortened-jar? (fn [entry]
+                         (string/includes? entry ".mx.cider/enrich-classpath"))]
+    (testing "`:shorten` option: false"
+      (let [{:keys [resource-paths]
+             found-dependencies :dependencies} (sut/add {:dependencies base-dependencies
+                                                         :enrich-classpath {:shorten false}})
+            all (->> resource-paths
+                     (filter shortened-jar?))]
+        (is (-> all count zero?)
+            "Doesn't add a shortened .jar")
+        (is (= '[[org.clojure/clojure "1.10.3" :classifier "sources" :exclusions [[*]]]
+                 [org.clojure/clojure "1.10.3" :classifier "javadoc" :exclusions [[*]]]
+                 [org.clojure/clojure "1.10.3"]]
+               found-dependencies)
+            "Add dependencies. Sources/javadocs will precede non-classified (final) dependencies,
+yielding a classpath less prone to issues (on Leiningen).")))
+
+    (testing "`:shorten` option: true"
+      (let [{:keys [resource-paths]
+             found-dependencies :dependencies} (sut/add {:dependencies base-dependencies
+                                                         :enrich-classpath {:shorten true}})
+            [^String jar :as all] (->> resource-paths
+                                       (filter shortened-jar?))]
+        (assert (-> all count #{1}))
+        (is (= found-dependencies base-dependencies)
+            "Doesn't add dependencies")
+        (let [actual (-> jar File. jar/jar-file->manifest-contents (string/replace "\r" ""))]
+          (testing actual
+            (is (string/includes? actual expected-manifest-contents))))))))
