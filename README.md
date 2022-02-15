@@ -88,6 +88,18 @@ The `~/.enrich-classpath-cache` file has a stable format. You can version-contro
 
 This program observes a number of Lein configuration options under the `:enrich-classpath` key:
 
+#### `:shorten`
+
+Default: `false`.
+
+If `true`, most classpath entries will be added as a single, very thin .jar file,
+which contents will consist of a single `MANIFEST.MF` file which will point of all those classpath entries.
+
+This results in a shorter `java` process name, which avoids incurring into the length limitations that Linux programs can be subject to.
+
+There isn't a visible difference in behavior around using this option: with or without it, entries will be added to the classpath effectively
+in the same way, and e.g. `clojure.java.io/resource` will keep pointing to the right jar (i.e. the final one, not the thin one that points to it).
+
 #### `:classifiers`
 
 By default, both sources and javadocs will be fetched. By specifying only `sources` to be fetched, one gets a 2x performance improvement (because 0.5x as many items will be attempted to be resolved):

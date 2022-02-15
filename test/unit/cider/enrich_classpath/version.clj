@@ -8,7 +8,7 @@
                           (is (= expected
                                  (sut/outdated-data-version? input)))
                           true)
-    nil                                                true
-    {}                                                 true
-    {:enrich-classpath/version (dec sut/data-version)} true
-    {:enrich-classpath/version sut/data-version}       false))
+    nil                                                        true
+    {}                                                         true
+    {:enrich-classpath/version (-> sut/data-version long dec)} true
+    {:enrich-classpath/version sut/data-version}               false))
