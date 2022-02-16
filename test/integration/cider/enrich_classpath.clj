@@ -331,9 +331,7 @@ since a git repo inherently cannot resolve to a .jar artifact"
                                (System/getProperty "user.home")
                                (System/getProperty "user.home")))]
     
-    (format "Manifest-Version: 1.0
-%s
-Created-By: mx.cider/enrich-classpath\n\n"
+    (format jar/template
             cp)))
 
 (deftest add
