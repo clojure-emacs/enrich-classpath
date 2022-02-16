@@ -1,7 +1,5 @@
-(defproject mx.cider/enrich-classpath (if (System/getenv "CIRCLE_TAG")
-                                        (doto (System/getenv "PROJECT_VERSION") assert)
-                                        (or (not-empty (System/getenv "PROJECT_VERSION"))
-                                            "n/a"))
+(defproject mx.cider/enrich-classpath (or (not-empty (System/getenv "PROJECT_VERSION"))
+                                          "0.0.0")
   :description "Makes available .jars with Java sources and javadocs for a given project."
 
   :url "https://github.com/clojure-emacs/enrich-classpath"
@@ -27,6 +25,8 @@
                                     :username :env/clojars_username
                                     :password :env/clojars_password
                                     :sign-releases false}]]
+
+  :java-source-paths ["java"]
 
   :profiles {;; Helps developing the plugin when (false? eval-in-leiningen):
              :test                {:dependencies [[clj-commons/pomegranate "1.2.1"]]}

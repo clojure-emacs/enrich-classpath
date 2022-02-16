@@ -1,5 +1,6 @@
 (ns cider.enrich-classpath.jdk-sources
   (:require
+   [cider.enrich-classpath.jdk :as jdk]
    [cider.enrich-classpath.locks :refer [locking-file]]
    [cider.enrich-classpath.logging :refer [warn]]
    [clojure.java.io :as io]
@@ -68,7 +69,7 @@
             (-> output .close)))))))
 
 (defn uncompressed-sources-dir []
-  (let [id (->> "java.version" System/getProperty (re-seq #"\d+") (string/join))]
+  (let [id (jdk/digits-str)]
     (-> "user.home"
         System/getProperty
         (io/file ".mx.cider" "unzipped-jdk-sources" id)
@@ -92,9 +93,7 @@
                         (uncompress dir choice)))))
     dir))
 
-(def jdk8? (->> "java.version" System/getProperty (re-find #"^1.8.")))
-
 (defn resources-to-add []
   (cond-> []
-    (and jdk-sources jdk8?) (conj (unzipped-jdk-source))
+    (and jdk-sources jdk/jdk8?) (conj (unzipped-jdk-source))
     jdk-sources             (conj jdk-sources)))

@@ -3,10 +3,13 @@
   (:require
    [cemerick.pomegranate.aether]
    [cider.enrich-classpath.collections :refer [add-exclusions-if-classified divide-by ensure-no-lists flatten-deps maybe-normalize safe-sort]]
+   [cider.enrich-classpath.jar :refer [jar-for!]]
+   [cider.enrich-classpath.jdk :as jdk]
    [cider.enrich-classpath.jdk-sources :as jdk-sources]
    [cider.enrich-classpath.locks :refer [read-file! write-file!]]
    [cider.enrich-classpath.logging :refer [debug info warn]]
    [cider.enrich-classpath.source-analysis :refer [bad-source?]]
+   [cider.enrich-classpath.version :as version]
    [clojure.java.io :as io]
    [clojure.string :as string]
    [clojure.walk :as walk]
@@ -26,23 +29,24 @@
 (defn serialize
   "Turns any contained coll into a vector, sorting it.
 
-  This ensures that stable values are peristed to the file caches."
+  This ensures that stable values are persisted to the file caches."
   [x]
   {:pre  [(map? x)]
    :post [(vector? %)]}
-  (->> x
-       (mapv (fn outer [[k v]]
-               [(ensure-no-lists k)
-                (some->> v
-                         (mapv (fn inner [[kk vv]]
-                                 [(ensure-no-lists kk) (some->> vv
-                                                                (map ensure-no-lists)
-                                                                safe-sort
-                                                                vec)]))
-                         (safe-sort)
-                         vec)]))
-       safe-sort
-       vec))
+  (with-meta (->> x
+                  (mapv (fn outer [[k v]]
+                          [(ensure-no-lists k)
+                           (some->> v
+                                    (mapv (fn inner [[kk vv]]
+                                            [(ensure-no-lists kk) (some->> vv
+                                                                           (map ensure-no-lists)
+                                                                           safe-sort
+                                                                           vec)]))
+                                    (safe-sort)
+                                    vec)]))
+                  safe-sort
+                  vec)
+    {:enrich-classpath/version version/data-version}))
 
 (defn deserialize
   "Undoes the work of `#'serialize`.
@@ -51,23 +55,31 @@
   [x]
   {:post [(map? %)]}
   (assert (vector? x) (class x))
-  (->> x
-       (map (fn [[k v]]
-              [k (if (and v (empty? v))
-                   []
-                   (some->> v
-                            (map (fn [[kk vv]]
-                                   [kk (some->> vv
-                                                set)]))
-                            (into {})))]))
-       (into {})))
+  (with-meta (if (-> x meta version/outdated-data-version?)
+               {}
+               (->> x
+                    (map (fn [[k v]]
+                           [k (if (and v (empty? v))
+                                []
+                                (some->> v
+                                         (map (fn [[kk vv]]
+                                                [kk (some->> vv
+                                                             set)]))
+                                         (into {})))]))
+                    (into {})))
+    {:enrich-classpath/version version/data-version}))
 
 (defn safe-read-string [x]
   {:pre  [(string? x)]
    :post [(vector? %)]}
   (if (string/blank? x)
     (do
-      (assert (not-any? (comp zero? byte) x)
+      (assert (reduce (fn [_ c]
+                        (if (-> c byte zero?)
+                          (reduced false)
+                          true))
+                      true
+                      x)
               "No ASCII NUL characters should be persisted")
       [])
     (try
@@ -77,7 +89,11 @@
 
 (defn ppr-str [x]
   (with-out-str
-    (fipp.clojure/pprint x)))
+    (fipp.clojure/pprint x
+                         {:print-meta true})))
+
+(def default-cache-contents (ppr-str (with-meta []
+                                       {:enrich-classpath/version version/data-version})))
 
 (defn make-merge-fn [cache-atom]
   {:pre [@cache-atom]}
@@ -176,6 +192,11 @@
       (swap! cache-atom assoc x v))
     v))
 
+(defn into-distinct [prio non-prio]
+  (into prio
+        (remove (set prio))
+        non-prio))
+
 (defn derivatives [classifiers managed-dependencies memoized-resolve! [dep version & args :as original]]
   (let [version (or version
                     ;; note that managed-dependencies's version only takes precedence
@@ -187,15 +208,14 @@
                          second))]
     (if-not version ;; handles managed-dependencies
       [original]
-      (let [transitive (->> (memoized-resolve! [(assoc-in original [1] version)])
+      (let [transitive (->> (memoized-resolve! [(assoc original 1 version)])
                             flatten-deps)]
         (->> transitive
              (mapcat (fn [[dep version :as original]]
                        (assert version (pr-str original))
                        (->> classifiers
                             (mapv (partial vector dep version :classifier))
-                            (into [original])
-                            (distinct)
+                            (into-distinct [original]) ;; favor the one with meta
                             (remove (comp nil? second))
                             ;; If a *transitive* dependency is explicitly specified by :managed-dependencies,
                             ;; the managed version should take precedence (because that's their whole point):
@@ -215,7 +235,10 @@
                                       (when (some? v)
                                         ;; ...and attach their meta (currently unused),
                                         ;; especially for `:file`:
-                                        (with-meta x (meta v)))))))))
+                                        (with-meta x
+                                          (let [{:keys [file]} (meta v)]
+                                            (when file
+                                              {:file (str file)}))))))))))
              (distinct)
              (vec))))))
 
@@ -283,20 +306,23 @@
                  (-> tools-file .getCanonicalPath))))))
 
 (defn add [{:keys                                                      [repositories
+                                                                        dependencies
                                                                         managed-dependencies
                                                                         java-source-paths
                                                                         resource-paths
                                                                         source-paths
                                                                         test-paths]
-            {:keys               [classifiers]
+            {:keys               [classifiers shorten]
              plugin-repositories :repositories
-             :or                 {classifiers #{"javadoc" "sources"}}} :enrich-classpath
+             :or                 {classifiers #{"javadoc" "sources"}
+                                  shorten false}} :enrich-classpath
             :as                                                        project}]
 
   (debug (str [::classifiers classifiers]))
 
   (write-file! cache-filename (fn [s]
-                                (or (not-empty s) "[]")))
+                                (or (not-empty s)
+                                    default-cache-contents)))
 
   (let [classifiers (set classifiers)
         repositories (or (not-empty plugin-repositories)
@@ -306,7 +332,7 @@
                            repositories)
         initial-cache-value (-> cache-filename read-file! safe-read-string deserialize)
         cache-atom (atom initial-cache-value)
-        add-dependencies (fn [deps]
+        add-dependencies (fn [deps jars?]
                            (let [memoized-resolve! (memoize (partial resolve! cache-atom repositories classifiers))
                                  additions (->> deps
                                                 (divide-by parallelism-factor)
@@ -333,25 +359,31 @@
                                (write-file! cache-filename
                                             (make-merge-fn cache-atom)))
                              ;; order can be sensitive
-                             (into additions deps)))
-        jdk8? (re-find #"^1\.8\." (System/getProperty "java.version"))
-        add-tools? (and jdk8?
+                             (if jars?
+                               (->> additions (mapv (comp :file meta)))
+                               (into additions deps))))
+        add-tools? (and (jdk/jdk8?)
                         (tools-jar-path))
-        enriched-deps-from-managed-deps (->> managed-dependencies
-                                             add-dependencies
+        enriched-deps-from-managed-deps (->> (add-dependencies managed-dependencies false)
                                              (remove (set managed-dependencies))
                                              (filter (fn [[_ _ classifier]]
                                                        classifier))
                                              (distinct)
                                              (vec))]
     (cond-> project
-      true       (update :dependencies add-dependencies)
-      true       (update :dependencies into enriched-deps-from-managed-deps)
+      (not shorten) (update :dependencies (fn [d]
+                                            (add-dependencies d false)))
+      (not shorten) (update :dependencies into enriched-deps-from-managed-deps)
       add-tools? (update :jar-exclusions conj (-> (tools-jar-path)
                                                   Pattern/quote
                                                   re-pattern))
       add-tools? (update :resource-paths (fn [rp]
                                            (into [(tools-jar-path)] rp)))
+      shorten (update :resource-paths (fn [rp]
+                                        (into (vec (remove nil? [(jar-for! (add-dependencies dependencies true))
+                                                                 (jar-for! (mapv (comp :file meta)
+                                                                                 enriched-deps-from-managed-deps))]))
+                                              rp)))
       (seq java-source-paths) (update :resource-paths (fn [rp]
                                                         (let [corpus (->> java-source-paths
                                                                           (filterv (fn [jsp]
