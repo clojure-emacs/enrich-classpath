@@ -1,7 +1,5 @@
-(defproject mx.cider/enrich-classpath (if (System/getenv "CIRCLE_TAG")
-                                        (doto (System/getenv "PROJECT_VERSION") assert)
-                                        (or (not-empty (System/getenv "PROJECT_VERSION"))
-                                            "n/a"))
+(defproject mx.cider/enrich-classpath (or (not-empty (System/getenv "PROJECT_VERSION"))
+                                          "0.0.0")
   :description "Makes available .jars with Java sources and javadocs for a given project."
 
   :url "https://github.com/clojure-emacs/enrich-classpath"

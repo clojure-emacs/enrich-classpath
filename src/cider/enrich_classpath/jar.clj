@@ -15,7 +15,9 @@
 ;; An already-wrapped string will be accepted by `Manifest` without altering it or throwing any exception.
 (defn wrap72 [s]
   (let [b (ByteArrayOutputStream.)]
-    (Calc72/calc72 (PrintStream. b) s)
+    (Calc72/calc72 (PrintStream. b)
+                   s
+                   (boolean (re-find #"^1\.8\." (System/getProperty "java.version"))))
     (str b)))
 
 (defn crc32 [^String s]

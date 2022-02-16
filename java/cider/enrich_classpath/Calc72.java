@@ -4,15 +4,16 @@ import java.io.OutputStream;
 import java.io.IOException;
 
 public class Calc72 {
-    public static OutputStream calc72(OutputStream out, String line) throws IOException {
+    public static OutputStream calc72(OutputStream out, String line, boolean accountForNewlines) throws IOException {
         if (!line.isEmpty()) {
             byte[] lineBytes = line.getBytes("UTF-8");
             int length = lineBytes.length;
             out.write(lineBytes[0]);
             int pos = 1;
-            while (length - pos > 71) {
-                out.write(lineBytes, pos, 71);
-                pos += 71;
+            int threshold = accountForNewlines ? 69 : 71;
+            while (length - pos > threshold) {
+                out.write(lineBytes, pos, threshold);
+                pos += threshold;
                 out.write('\r');
                 out.write('\n');
                 out.write(' ');
