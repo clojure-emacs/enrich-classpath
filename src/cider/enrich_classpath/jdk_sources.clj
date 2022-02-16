@@ -7,7 +7,7 @@
    [clojure.string :as string])
   (:import
    (java.io File FileOutputStream)
-   (java.net JarURLConnection)
+   (java.net JarURLConnection URL)
    (java.util.zip ZipInputStream)))
 
 (defmacro while-let
@@ -33,17 +33,25 @@
       (warn :cider.enrich-classpath/no-jdk-sources-found))
     v))
 
+(def base-prefix ".mx.cider")
+
+(defn external-resource ^URL [path]
+  (when-let [obj (io/resource path)]
+    (when-not (string/includes? (str obj) base-prefix)
+      obj)))
+
 (defn java-path->zip-path [path]
-  (some-> (io/resource path)
+  (some-> (external-resource path)
           ^JarURLConnection (. openConnection)
           .getJarFileURL
           io/as-file
           str))
 
 (def jdk-sources
-  (or (java-path->zip-path "java.base/java/lang/Object.java") ;; JDK9+
-      (java-path->zip-path "java/lang/Object.java")           ;; JDK8-
-      (jdk-find "src.zip")))
+  (delay
+    (or (java-path->zip-path "java.base/java/lang/Object.java") ;; JDK9+
+        (java-path->zip-path "java/lang/Object.java") ;; JDK8-
+        (jdk-find "src.zip"))))
 
 (def zip-separator
   ;; NOTE - does not necessarily equal `File/separator`:
@@ -72,7 +80,7 @@
   (let [id (jdk/digits-str)]
     (-> "user.home"
         System/getProperty
-        (io/file ".mx.cider" "unzipped-jdk-sources" id)
+        (io/file base-prefix "unzipped-jdk-sources" id)
         str)))
 
 (defn unzipped-jdk-source []
@@ -88,12 +96,12 @@
                                                   ;; files such as .DS_Store:
                                                   (-> candidate .getName (string/starts-with? ".")))))
                                empty?)
-                      (when-let [choice jdk-sources]
+                      (when-let [choice @jdk-sources]
                         (-> file .mkdirs)
                         (uncompress dir choice)))))
     dir))
 
 (defn resources-to-add []
   (cond-> []
-    (and jdk-sources jdk/jdk8?) (conj (unzipped-jdk-source))
-    jdk-sources             (conj jdk-sources)))
+    (and @jdk-sources jdk/jdk8?) (conj (unzipped-jdk-source))
+    @jdk-sources                 (conj @jdk-sources)))
