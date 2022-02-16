@@ -4,6 +4,7 @@
    [cemerick.pomegranate.aether]
    [cider.enrich-classpath.collections :refer [add-exclusions-if-classified divide-by ensure-no-lists flatten-deps maybe-normalize safe-sort]]
    [cider.enrich-classpath.jar :refer [jar-for!]]
+   [cider.enrich-classpath.jdk :as jdk]
    [cider.enrich-classpath.jdk-sources :as jdk-sources]
    [cider.enrich-classpath.locks :refer [read-file! write-file!]]
    [cider.enrich-classpath.logging :refer [debug info warn]]
@@ -361,8 +362,7 @@
                              (if jars?
                                (->> additions (mapv (comp :file meta)))
                                (into additions deps))))
-        jdk8? (re-find #"^1\.8\." (System/getProperty "java.version"))
-        add-tools? (and jdk8?
+        add-tools? (and (jdk/jdk8?)
                         (tools-jar-path))
         enriched-deps-from-managed-deps (->> (add-dependencies managed-dependencies false)
                                              (remove (set managed-dependencies))

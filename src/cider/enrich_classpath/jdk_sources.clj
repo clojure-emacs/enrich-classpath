@@ -93,9 +93,7 @@
                         (uncompress dir choice)))))
     dir))
 
-(def jdk8? (->> "java.version" System/getProperty (re-find #"^1.8.")))
-
 (defn resources-to-add []
   (cond-> []
-    (and jdk-sources jdk8?) (conj (unzipped-jdk-source))
+    (and jdk-sources jdk/jdk8?) (conj (unzipped-jdk-source))
     jdk-sources             (conj jdk-sources)))

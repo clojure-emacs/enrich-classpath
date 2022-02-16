@@ -17,7 +17,7 @@
   (let [b (ByteArrayOutputStream.)]
     (Calc72/calc72 (PrintStream. b)
                    s
-                   (boolean (re-find #"^1\.8\." (System/getProperty "java.version"))))
+                   (boolean (jdk/jdk8?)))
     (str b)))
 
 (defn crc32 [^String s]
