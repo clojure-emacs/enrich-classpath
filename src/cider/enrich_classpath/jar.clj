@@ -20,9 +20,12 @@
                    (boolean (jdk/jdk8?)))
     (str b)))
 
-(defn crc32 [^String s]
+(defn crc32 ^String [^String s]
   (let [s-bytes (-> s .getBytes)]
-    (-> (CRC32.) (doto (.update s-bytes 0 (alength s-bytes))) .getValue)))
+    (-> (CRC32.)
+        (doto (.update s-bytes 0 (alength s-bytes)))
+        .getValue
+        str)))
 
 (defn jars->classpath [jars]
   (wrap72 (str "Class-Path: "
@@ -50,7 +53,7 @@ Created-By: mx.cider/enrich-classpath
                          ;; maybe there's nothing to enrich in a small-enough project:
                          (seq))]
     (let [corpus-crc (-> corpus string/join crc32)
-          dir-crc (-> "user.dir" System/getProperty crc32 str)
+          dir-crc (-> "user.dir" System/getProperty crc32)
           dir (-> "user.home"
                   System/getProperty
                   (io/file ".mx.cider" "enrich-classpath" (jdk/digits-str) dir-crc)
