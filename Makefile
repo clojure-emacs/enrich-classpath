@@ -17,7 +17,7 @@ install-base: .inline-deps check-install-env
 install-deps: install-base
 	cd tools.deps; lein with-profile -user install
 
-# Usage: PROJECT_VERSION=1.8.0 make install
+# Usage: PROJECT_VERSION=1.9.0 make install
 # PROJECT_VERSION is needed because it's not computed dynamically
 install: install-base install-deps
 

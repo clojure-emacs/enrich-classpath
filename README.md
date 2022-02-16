@@ -45,11 +45,13 @@ A great real-world lib that would be enhanced by this program is Orchard's [sour
 
 Add the following somewhere in your `~/.lein/profiles.clj` (aka your [user-wide profile](https://github.com/technomancy/leiningen/blob/0f456829a8b21335aa86390f3ee3d0dcc68410d6/doc/PROFILES.md#declaring-profiles)):
 
+<!-- Updating the version below? Please also update it in the `clojure.sh` script -->
+
 ```clj
 ;; Installing this plugin under the :repl profile is most recommended for best performance,
 ;; especially if you work with a monorepo with a complex build process.  
 :repl {:middleware [cider.enrich-classpath/middleware]
-       :plugins    [[mx.cider/enrich-classpath "1.8.0"]]
+       :plugins    [[mx.cider/enrich-classpath "1.9.0"]]
        ;; Optional - you can use this option to specify a different set (e.g. a smaller set like #{"sources"} is more performant)
        :enrich-classpath {:classifiers #{"sources" "javadoc"}}}
 ```
@@ -62,8 +64,10 @@ After that, `lein repl` and similar commands will download each artifact of your
 
 enrich-classpath has a distinct artifact intended for tools.deps usage:
 
+<!-- Updating the version below? Please also update it in the `clojure.sh` script -->
+
 ```clj
-mx.cider/tools.deps.enrich-classpath {:mvn/version "1.8.0"}
+mx.cider/tools.deps.enrich-classpath {:mvn/version "1.9.0"}
 ```
 
 Usage is still TBD.
