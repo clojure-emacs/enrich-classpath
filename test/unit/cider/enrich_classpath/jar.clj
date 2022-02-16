@@ -1,37 +1,38 @@
 (ns unit.cider.enrich-classpath.jar
   (:require
    [cider.enrich-classpath.jar :as sut]
+   [cider.enrich-classpath.jdk :as jdk]
    [clojure.string :as string]
    [clojure.test :refer [are deftest is testing]]))
 
 (deftest wrap72
   (testing "Wraps text every 72 characters, inserting one space of padding for every inserted line break"
     (are [input expected-output expected-output-jdk8 expected-newline-count]
-        (testing input
-          (if (re-find #"^1\.8\." (System/getProperty "java.version"))
-            (is (= expected-output-jdk8
-                   (sut/wrap72 input)))
-            (is (= expected-output
-                   (sut/wrap72 input))))
-          (is (<= (->> input
+         (testing input
+           (if (jdk/jdk8?)
+             (is (= expected-output-jdk8
+                    (sut/wrap72 input)))
+             (is (= expected-output
+                    (sut/wrap72 input))))
+           (is (<= (->> input
+                        sut/wrap72
+                        string/split-lines
+                        (map count)
+                        (apply max)
+                        (long))
+                   72))
+           (is (= expected-newline-count
+                  (->> input
                        sut/wrap72
-                       string/split-lines
-                       (map count)
-                       (apply max)
-                       (long))
-                  72))
-          (is (= expected-newline-count
-                 (->> input
+                       (re-seq #"\r\n ")
+                       (count))))
+           (is (= input
+                  (-> input
                       sut/wrap72
-                      (re-seq #"\r\n ")
-                      (count))))
-          (is (= input
-                 (-> input
-                     sut/wrap72
-                     (string/split #"\r\n ")
-                     (string/join)))
-              "The output has essentially the same info than the input, with no info being lost or added")
-          true)
+                      (string/split #"\r\n ")
+                      (string/join)))
+               "The output has essentially the same info than the input, with no info being lost or added")
+           true)
       "a"
       "a"
       "a"

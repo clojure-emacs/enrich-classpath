@@ -1,6 +1,7 @@
 (ns unit.cider.enrich-classpath
   (:require
    [cider.enrich-classpath :as sut]
+   [cider.enrich-classpath.jdk :as jdk]
    [clojure.test :refer [are deftest is testing]]))
 
 (deftest matches-version?
@@ -66,5 +67,5 @@ because that's how Lein naturally resolves dependencies
       [a-orig] [b-orig] [a-source b-source] a-source)))
 
 (deftest tools-jar-path
-  (is (= (some? (re-find #"^1\.8\." (System/getProperty "java.version")))
+  (is (= (jdk/jdk8?)
          (some? (sut/tools-jar-path)))))
