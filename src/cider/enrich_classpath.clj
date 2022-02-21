@@ -208,8 +208,10 @@
                          second))]
     (if-not version ;; handles managed-dependencies
       [original]
-      (let [transitive (->> (memoized-resolve! [(assoc original 1 version)])
-                            flatten-deps)]
+      (let [original-with-version (assoc original 1 version)
+            resolution (memoized-resolve! [original-with-version])
+            original-file (some-> resolution (find original-with-version) key meta :file)
+            transitive (flatten-deps resolution)]
         (->> transitive
              (mapcat (fn [[dep version :as original]]
                        (assert version (pr-str original))
@@ -237,8 +239,9 @@
                                         ;; especially for `:file`:
                                         (with-meta x
                                           (let [{:keys [file]} (meta v)]
-                                            (when file
-                                              {:file (str file)}))))))))))
+                                            (merge {:enrich-classpath/original-file original-file}
+                                                   (when file
+                                                     {:file (str file)})))))))))))
              (distinct)
              (vec))))))
 
@@ -305,6 +308,20 @@
                (when (.exists tools-file)
                  (-> tools-file .getCanonicalPath))))))
 
+(defn additions->files [additions]
+  (let [xs (into []
+                 (comp (map meta)
+                       (map (juxt :enrich-classpath/original-file :file)))
+                 additions)
+        originals (vec (into #{}
+                             (keep first)
+                             xs))
+        files (mapv second xs)]
+    (into originals files)))
+
+(defn rinto [x y]
+  (into y x))
+
 (defn add [{:keys                                                      [repositories
                                                                         dependencies
                                                                         managed-dependencies
@@ -332,7 +349,7 @@
                            repositories)
         initial-cache-value (-> cache-filename read-file! safe-read-string deserialize)
         cache-atom (atom initial-cache-value)
-        add-dependencies (fn [deps jars?]
+        add-dependencies (fn [deps]
                            (let [memoized-resolve! (memoize (partial resolve! cache-atom repositories classifiers))
                                  additions (->> deps
                                                 (divide-by parallelism-factor)
@@ -358,32 +375,38 @@
                              (when-not (= initial-cache-value @cache-atom)
                                (write-file! cache-filename
                                             (make-merge-fn cache-atom)))
-                             ;; order can be sensitive
-                             (if jars?
-                               (->> additions (mapv (comp :file meta)))
-                               (into additions deps))))
+                             additions))
         add-tools? (and (jdk/jdk8?)
                         (tools-jar-path))
-        enriched-deps-from-managed-deps (->> (add-dependencies managed-dependencies false)
-                                             (remove (set managed-dependencies))
+        ;; XXX dry these two
+        enriched-deps-from-dependencies (->> (add-dependencies dependencies)
+                                             (remove (set dependencies))
                                              (filter (fn [[_ _ classifier]]
                                                        classifier))
                                              (distinct)
+                                             (vec))
+        tentative-dependencies-set (into dependencies enriched-deps-from-dependencies)
+        enriched-deps-from-managed-deps (->> (add-dependencies managed-dependencies)
+                                             (remove (set managed-dependencies))
+                                             (filter (fn [[_ _ classifier]]
+                                                       classifier))
+                                             (remove (fn [[dep version]]
+                                                       (->> tentative-dependencies-set
+                                                            (some (fn [[d v]]
+                                                                    (and (= d dep)
+                                                                         v
+                                                                         (not= version v)))))))
+                                             (distinct)
                                              (vec))]
     (cond-> project
-      (not shorten) (update :dependencies (fn [d]
-                                            (add-dependencies d false)))
-      (not shorten) (update :dependencies into enriched-deps-from-managed-deps)
+      (not shorten) (update :dependencies rinto enriched-deps-from-dependencies)
+      (not shorten) (update :dependencies rinto enriched-deps-from-managed-deps)
       add-tools? (update :jar-exclusions conj (-> (tools-jar-path)
                                                   Pattern/quote
                                                   re-pattern))
-      add-tools? (update :resource-paths (fn [rp]
-                                           (into [(tools-jar-path)] rp)))
-      shorten (update :resource-paths (fn [rp]
-                                        (into (vec (remove nil? [(jar-for! (add-dependencies dependencies true))
-                                                                 (jar-for! (mapv (comp :file meta)
-                                                                                 enriched-deps-from-managed-deps))]))
-                                              rp)))
+      add-tools? (update :resource-paths rinto [(tools-jar-path)])
+      shorten (update :resource-paths rinto (vec (remove nil? [(jar-for! (additions->files enriched-deps-from-dependencies))
+                                                               (jar-for! (additions->files enriched-deps-from-managed-deps))])))
       (seq java-source-paths) (update :resource-paths (fn [rp]
                                                         (let [corpus (->> java-source-paths
                                                                           (filterv (fn [jsp]

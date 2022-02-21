@@ -1,6 +1,7 @@
 (ns cider.enrich-classpath.clojure
   (:require
    [cider.enrich-classpath :as enrich-classpath]
+   [cider.enrich-classpath.jdk :as jdk]
    [clojure.java.io :as io]
    [clojure.string :as string]
    [clojure.tools.deps.alpha :as tools.deps])
@@ -31,6 +32,8 @@
         deps (into deps extra-deps)
         original-paths-set (set paths)
         original-deps-set (->> deps (map first) set)
+        shortened-jar-signature (string/join File/separator
+                                             [".mx.cider" "enrich-classpath" (jdk/digits-str)])
         {:keys [dependencies
                 resource-paths]} (enrich-classpath/middleware {:dependencies (->> deps
                                                                                   (keep (fn [[artifact-name {mv :mvn/version}]]
@@ -88,6 +91,10 @@
                                       (and lib-name
                                            (not (-> lib-name str (.contains "$"))))
                                       [6 lib-name]
+
+                                      (and path-key
+                                           (-> entry (.contains shortened-jar-signature)))
+                                      [10 entry]
 
                                       (and path-key
                                            (-> entry (.contains "unzipped-jdk-sources")))
