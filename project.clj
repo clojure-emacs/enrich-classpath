@@ -29,7 +29,7 @@
   :java-source-paths ["java"]
 
   :profiles {;; Helps developing the plugin when (false? eval-in-leiningen):
-             :test                {:dependencies [[clj-commons/pomegranate "1.2.1"]]}
+             :test                {:dependencies [[clj-commons/pomegranate "1.2.23"]]}
 
              :integration-testing {:source-paths ["integration-testing"]}
 

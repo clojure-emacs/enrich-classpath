@@ -29,14 +29,32 @@
                   (walk/postwalk (fn [item]
                                    (cond-> item
                                      (and (vector? item)
-                                          (some #{:exclusions} item))
-                                     (update (inc (long (index item :exclusions)))
+                                          (some #{'exclusions} item))
+                                     (update (long (index item 'exclusions))
+                                             keyword)
+
+                                     ;; XXX make elegant. maybe use as-> ?
+                                     (and (vector? item)
+                                          (some #{:exclusions 'exclusions} item))
+                                     (update (inc (long (or (index item :exclusions)
+                                                            (index item 'exclusions))))
                                              normalize-exclusions)))))
     (let [{:keys [file]} (meta x)]
       (when file
         {:file (str file)}))))
 
 (def maybe-normalize (memoize maybe-normalize*))
+
+(defn ppr-str [x]
+  (with-out-str
+    (clojure.pprint/pprint x)))
+
+(defn Xcompare [x y]
+  (try
+    (compare x y)
+    (catch Exception e
+      (warn (ppr-str [::could-not-compare x y]))
+      (throw e))))
 
 (defn safe-sort
   "Guards against errors when comparing objects of different classes."
@@ -55,14 +73,14 @@
                      true
                      (->> [x y]
                           (map maybe-normalize)
-                          (apply compare)))
+                          (apply Xcompare)))
                    (catch Exception e
-                     (warn (pr-str [::could-not-sort x y]))
+                     (warn (ppr-str [::could-not-sort x y]))
                      (when (System/getProperty "cider.enrich-classpath.throw")
                        (throw e))
                      0)))))
     (catch Exception e
-      (warn (pr-str [::could-not-sort coll]))
+      (warn (ppr-str [::could-not-sort coll]))
       (when (System/getProperty "cider.enrich-classpath.throw")
         (throw e))
       coll)))
