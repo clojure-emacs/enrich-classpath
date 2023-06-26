@@ -1,6 +1,7 @@
 (ns cider.enrich-classpath.collections
   (:require
    [cider.enrich-classpath.logging :refer [warn]]
+   [clojure.pprint :as pprint]
    [clojure.walk :as walk]))
 
 (defn index [coll item]
@@ -47,7 +48,7 @@
 
 (defn ppr-str [x]
   (with-out-str
-    (clojure.pprint/pprint x)))
+    (pprint/pprint x)))
 
 (defn Xcompare [x y]
   (try
