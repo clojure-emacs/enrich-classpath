@@ -105,7 +105,6 @@
          "--"]))
 
 (defn prelude-for-run [x]
-  ;; XXX injected profiles don't work
   (prelude* x "-user,+test,+enrich-classpath"))
 
 (def vanilla-lein-deps
@@ -386,7 +385,7 @@
 
        doall))
 
-(defn classpath-test! []
+(defn classpath-test! [exercising-shorten?]
   (info "Running `classpath-test!`")
   (letfn [(run [extra-profile]
             {:post [(-> % count pos?)]}
@@ -402,12 +401,19 @@
                 (println err)
                 (assert false))
               (string/split out #":")))]
-    (let [runs (->> [",+self-test"
-                     ""]
-                    (map run))
-          [count-with count-without] (->> runs (map count))]
-      (assert (> count-with count-without)
-              (pr-str [count-with count-without runs])))))
+    (let [[enriched-run orig-run :as runs] (->> [(cond-> ",+self-test"
+                                                   exercising-shorten? (str ",+shorten"))
+                                                 ""]
+                                                (map run))
+          [count-with count-without] (->> runs (map count))
+          f (fn [classpath-entry-string]
+              (string/includes? classpath-entry-string (str ".mx.cider/enrich-classpath/" (jdk/digits-str))))]
+      (if exercising-shorten?
+        (assert (some f enriched-run) enriched-run)
+        (do
+          (assert (not-any? f enriched-run) enriched-run)
+          (assert (> count-with count-without)
+                  (pr-str [count-with count-without runs])))))))
 
 (defn java-source-paths-test! []
   (info "Running `java-source-paths-test!`")
@@ -517,8 +523,7 @@
 
   (smoke-test!)
 
-  (when-not exercise-shorten?
-    (classpath-test!))
+  (classpath-test! exercise-shorten?)
 
   (metadata-test!))
 

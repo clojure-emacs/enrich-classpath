@@ -37,7 +37,9 @@
                                    ;; ensure that at least one dependency will fetch sources:
                                    :dependencies [[puppetlabs/trapperkeeper-webserver-jetty9 "4.1.0"]]}
 
-             :eastwood            {:plugins [[jonase/eastwood "1.2.2"]]
+             :shorten             {:enrich-classpath {:shorten true}}
+
+             :eastwood            {:plugins [[jonase/eastwood "1.4.0"]]
                                    :eastwood {:add-linters [:boxed-math
                                                             :performance]}}
 
