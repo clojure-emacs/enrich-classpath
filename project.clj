@@ -1,5 +1,7 @@
-(defproject mx.cider/enrich-classpath (or (not-empty (System/getenv "PROJECT_VERSION"))
-                                          "0.0.0")
+(def project-version (or (not-empty (System/getenv "PROJECT_VERSION"))
+                         "0.0.0"))
+
+(defproject mx.cider/enrich-classpath project-version
   :description "Makes available .jars with Java sources and javadocs for a given project."
 
   :url "https://github.com/clojure-emacs/enrich-classpath"
@@ -21,9 +23,9 @@
                :expositions     []
                :unresolved-tree false}
 
-  :deploy-repositories [["clojars" {:url "https://clojars.org/repo"
-                                    :username :env/clojars_username
-                                    :password :env/clojars_password
+  :deploy-repositories [["clojars" {:url           "https://clojars.org/repo"
+                                    :username      :env/clojars_username
+                                    :password      :env/clojars_password
                                     :sign-releases false}]]
 
   :java-source-paths ["java"]
@@ -34,12 +36,14 @@
              :integration-testing {:source-paths ["integration-testing"]}
 
              :self-test           {:middleware   [cider.enrich-classpath/middleware]
+                                   :plugins      [[mx.cider/enrich-classpath ~project-version]]
+                                   :jvm-opts     ["-Dcider.enrich-classpath.throw=true"]
                                    ;; ensure that at least one dependency will fetch sources:
                                    :dependencies [[puppetlabs/trapperkeeper-webserver-jetty9 "4.1.0"]]}
 
              :shorten             {:enrich-classpath {:shorten true}}
 
-             :eastwood            {:plugins [[jonase/eastwood "1.4.0"]]
+             :eastwood            {:plugins  [[jonase/eastwood "1.4.0"]]
                                    :eastwood {:add-linters [:boxed-math
                                                             :performance]}}
 

@@ -393,8 +393,10 @@
                                                                      "with-profile"
                                                                      (str "-user,-dev" extra-profile)
                                                                      "classpath"]
-                                                                    [:env (assoc env
-                                                                                 "no_eval_in_leiningen" "true")
+                                                                    [:env (-> env
+                                                                              (assoc "LEIN_SILENT" "true"
+                                                                                     "no_eval_in_leiningen" "true")
+                                                                              (dissoc "DEBUG"))
                                                                      :dir (System/getProperty "user.dir")]]))]
               (when-not (zero? exit)
                 (println out)
@@ -412,6 +414,12 @@
         (assert (some f enriched-run) enriched-run)
         (do
           (assert (not-any? f enriched-run) enriched-run)
+          (assert (some (fn [classpath-entry-string]
+                          (string/ends-with? classpath-entry-string "-sources.jar")) enriched-run)
+                  enriched-run)
+          (assert (some (fn [classpath-entry-string]
+                          (string/ends-with? classpath-entry-string "-javadoc.jar")) enriched-run)
+                  enriched-run)
           (assert (> count-with count-without)
                   (pr-str [count-with count-without runs])))))))
 
