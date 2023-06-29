@@ -90,7 +90,8 @@
 
 (assert (seq lein))
 
-(def project-version "999.99.9")
+(def project-version (or (not-empty (System/getenv "PROJECT_VERSION"))
+                         "0.0.0"))
 
 (assert (string? project-version))
 
