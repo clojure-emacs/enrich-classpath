@@ -13,6 +13,11 @@
                  [org.clojure/clojure "1.10.3"] ;; Hard-require a recent-enough version of Clojure, since other plugins may require an overly old one which would make Fipp fail.
                  ]
 
+  :pedantic? ~(if (System/getenv "CI")
+                :abort
+                ;; :pedantic? can be problematic for certain local dev workflows:
+                false)
+
   :eval-in-leiningen ~(nil? (System/getenv "no_eval_in_leiningen"))
 
   :plugins [[thomasa/mranderson "0.5.4-SNAPSHOT"]]

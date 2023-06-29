@@ -4,7 +4,7 @@
    [cider.enrich-classpath.jdk :as jdk]
    [clojure.java.io :as io]
    [clojure.string :as string]
-   [clojure.tools.deps.alpha :as tools.deps])
+   [clojure.tools.deps :as tools.deps])
   (:import
    (java.io File)))
 
@@ -25,7 +25,7 @@
                             (map keyword))
                       args)
         {:keys [paths deps]
-         {:keys [extra-paths extra-deps]} :classpath-args
+         {:keys [extra-paths extra-deps]} :argmap
          :as basis} (tools.deps/create-basis {:project (-> pwd (io/file deps-edn-filename) str)
                                               :aliases aliases})
         paths (into paths extra-paths)

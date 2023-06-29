@@ -7,7 +7,7 @@ executor_defaults: &executor_defaults
   working_directory: ~/repo
 
 env_defaults: &env_defaults
-  LEIN_DEPS_COMMAND: "lein with-profile +test,+eastwood deps"
+  LEIN_DEPS_COMMAND: "lein with-profile -user,+test,+eastwood deps"
   LEIN_ROOT: "true"
   no_eval_in_leiningen: "true"
 

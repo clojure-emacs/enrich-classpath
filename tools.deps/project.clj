@@ -8,9 +8,15 @@
   :url "https://github.com/clojure-emacs/enrich-classpath"
   :license {:name "EPL-2.0"
             :url  "https://www.eclipse.org/legal/epl-2.0/"}
+
+  :pedantic? ~(if (System/getenv "CI")
+                :abort
+                ;; :pedantic? can be problematic for certain local dev workflows:
+                false)
+
   :dependencies [[mx.cider/enrich-classpath ~project-version]
                  [org.clojure/clojure "1.10.3"]
-                 [org.clojure/tools.deps.alpha "0.12.1120"]
+                 [org.clojure/tools.deps "0.18.1354"]
                  [clj-commons/pomegranate "1.2.23"]]
   :profiles {:eastwood {:plugins [[jonase/eastwood "1.4.0"]]
                         :eastwood {:add-linters [:boxed-math
