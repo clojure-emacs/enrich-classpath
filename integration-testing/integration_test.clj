@@ -14,13 +14,20 @@
    (java.io File)
    (java.util.regex Pattern)))
 
+(defn assert-middleware-ok! [{:keys [out err] :as x}]
+  (assert (not (string/includes? out "Error: cannot resolve cider.enrich-classpath/middleware middleware")))
+  (assert (not (string/includes? err "Error: cannot resolve cider.enrich-classpath/middleware middleware")))
+  x)
+
 (defn sh [& args]
   (let [{:keys [exit] :as x} (apply shell/sh args)]
+    (assert-middleware-ok! x)
     (if (zero? exit)
       x
       (do
         (Thread/sleep 200)
         (let [{:keys [exit] :as x} (apply shell/sh args)]
+          (assert-middleware-ok! x)
           (if (zero? exit)
             x
             (do
