@@ -314,11 +314,16 @@
                  (comp (map meta)
                        (map (juxt :enrich-classpath/original-file :file)))
                  additions)
+        #_ #_
         originals (vec (into #{}
                              (keep first)
                              xs))
         files (mapv second xs)]
-    (into originals files)))
+    ;; I don't know why I originally coded it like this.
+    ;; Original files would result in .class artifacts added again to the classpath.
+    ;; Maybe my original thinking was that the shortened .jar would replace the entire classpath string?
+    #_(into originals files)
+    files))
 
 (defn rinto [x y]
   (into y x))

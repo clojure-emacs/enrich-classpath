@@ -326,7 +326,6 @@ since a git repo inherently cannot resolve to a .jar artifact"
 
 (def expected-manifest-contents
   (let [cp (jar/wrap72 (format (str "Class-Path: "
-                                    "%s/.m2/repository/org/clojure/clojure/1.10.3/clojure-1.10.3.jar "
                                     "%s/.m2/repository/org/clojure/clojure/1.10.3/clojure-1.10.3-sources.jar "
                                     "%s/.m2/repository/org/clojure/clojure/1.10.3/clojure-1.10.3-javadoc.jar")
                                (System/getProperty "user.home")
