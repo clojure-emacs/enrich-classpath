@@ -8,11 +8,20 @@
    [cider.enrich-classpath.locks :as locks]
    [cider.enrich-classpath.logging :refer [info]]
    [clojure.java.io :as io]
-   [clojure.java.shell :refer [sh]]
+   [clojure.java.shell :as shell]
    [clojure.string :as string])
   (:import
    (java.io File)
    (java.util.regex Pattern)))
+
+(defn sh [& args]
+  (let [{:keys [exit]} (apply shell/sh args)]
+    (when-not (zero? exit)
+      (Thread/sleep 200)
+      (let [{:keys [exit]} (apply shell/sh args)]
+        (when-not (zero? exit)
+          (Thread/sleep 400)
+          (apply shell/sh args))))))
 
 (def ansi-pattern (Pattern/compile "\\e\\[.*?m"))
 
