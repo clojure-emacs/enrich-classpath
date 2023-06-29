@@ -178,14 +178,15 @@
                   ;; but AbstractMethodErrors are rare enough that we can simply assume they have a single possible cause)
                   [])
                 (catch Exception e
+                  (info (str ::failed-to-resolve " " x))
+                  (-> e .printStackTrace)
+
                   (if (#{(Class/forName "org.eclipse.aether.resolution.DependencyResolutionException")
                          (Class/forName "org.eclipse.aether.transfer.ArtifactNotFoundException")
                          (Class/forName "org.eclipse.aether.resolution.ArtifactResolutionException")}
                        (class e))
                     []
-                    (do
-                      (-> e .printStackTrace)
-                      nil)))
+                    nil))
                 (finally
                   (debug (str ::resolved "  " (pr-str x))))))]
     (when v

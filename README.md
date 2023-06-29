@@ -151,6 +151,7 @@ The following entries can be possibly logged:
 * `:cider.enrich-classpath/found` - a source/jar artifact has been found, and will be added to the classpath.
 * `:cider.enrich-classpath/resolved` - a request has succeeded in resolving a specific dependency (of any kind: plain, source or javadoc) 
 * `:cider.enrich-classpath/timed-out` - a given dependency request has timed out, or the program as a whole has timed out (per the `:failsafe` option).
+* `:cider.enrich-classpath/failed-to-resolve` - the request for resolving a given dependency failed. 
 * `:cider.enrich-classpath/omitting-empty-source` - a given source artifact (.jar) was found, but it didn't have actual Java sources in it, so it won't be added to the classpath.
 * `:cider.enrich-classpath/no-jdk-sources-found` - no JDK sources could be found. Your JDK distribution (on `apt`, `rpm`, etc) probably didn't include any sources, and they should be installed separately (e.g. `sudo apt install openjdk-11-source`).
 
