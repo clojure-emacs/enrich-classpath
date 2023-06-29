@@ -19,18 +19,29 @@
   (assert (not (string/includes? err "Error: cannot resolve cider.enrich-classpath/middleware middleware")))
   x)
 
+(defn delete-m2! []
+  (shell/sh "rm" "-rf" (str (io/file (System/getProperty "user.home") ".m2"))))
+
+(defn reset-state! []
+  (shell/sh "rm" "-rf" (jdk-sources/uncompressed-sources-dir))
+  (-> sut/cache-filename File. .delete))
+
 (defn sh [& args]
   (let [{:keys [exit] :as x} (apply shell/sh args)]
     (assert-middleware-ok! x)
     (if (zero? exit)
       x
       (do
+        (delete-m2!)
+        (reset-state!)
         (Thread/sleep 200)
         (let [{:keys [exit] :as x} (apply shell/sh args)]
           (assert-middleware-ok! x)
           (if (zero? exit)
             x
             (do
+              (delete-m2!)
+              (reset-state!)
               (Thread/sleep 400)
               (apply shell/sh args))))))))
 
@@ -510,8 +521,7 @@
       (println err)
       (assert false)))
 
-  (sh "rm" "-rf" (jdk-sources/uncompressed-sources-dir))
-  (-> sut/cache-filename File. .delete)
+  (reset-state!)
 
   (run-repos! deps-commands
               (fn [id good-lines]
