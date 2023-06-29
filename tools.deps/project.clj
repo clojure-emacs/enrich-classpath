@@ -11,8 +11,8 @@
   :dependencies [[mx.cider/enrich-classpath ~project-version]
                  [org.clojure/clojure "1.10.3"]
                  [org.clojure/tools.deps.alpha "0.12.1120"]
-                 [clj-commons/pomegranate "1.2.1"]]
-  :profiles {:eastwood {:plugins [[jonase/eastwood "1.2.2"]]
+                 [clj-commons/pomegranate "1.2.23"]]
+  :profiles {:eastwood {:plugins [[jonase/eastwood "1.4.0"]]
                         :eastwood {:add-linters [:boxed-math
                                                  :performance]}}}
   :deploy-repositories [["clojars" {:url "https://clojars.org/repo"

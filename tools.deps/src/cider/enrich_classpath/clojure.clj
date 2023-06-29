@@ -13,7 +13,7 @@
        (apply vector clojure)
        (string/join " ")))
 
-(defn impl ^String [clojure deps-edn-filename pwd args]
+(defn impl ^String [clojure deps-edn-filename pwd args shorten?]
   {:pre [(vector? args)]} ;; for conj
   (let [aliases (into #{}
                       (comp (mapcat (fn [^String s]
@@ -40,6 +40,7 @@
                                                                                           (when mv
                                                                                             [artifact-name mv])))
                                                                                   (vec))
+                                                               :enrich-classpath {:shorten shorten?}
                                                                :resource-paths paths})
         {:keys [classpath]} (tools.deps/calc-basis {:paths paths
                                                     :deps (->> dependencies
@@ -114,16 +115,19 @@
         (conj "-Sforce" "-Srepro" "-J-XX:-OmitStackTraceInFastThrow" "-J-Dclojure.main.report=stderr" "-Scp" classpath)
         (commandize clojure))))
 
-(defn -main [clojure pwd & args]
-  (try
-    (println (try
-               (impl clojure "deps.edn" pwd (vec args))
-               (catch AssertionError e
-                 (-> e .printStackTrace)
-                 (commandize args clojure))
-               (catch Exception e
-                 (-> e .printStackTrace)
-                 (commandize args clojure))))
-    (finally
-      (shutdown-agents)))
+(defn -main [clojure pwd shorten & args]
+  (let [shorten? (case shorten
+                   "false" false
+                   true)]
+    (try
+      (println (try
+                 (impl clojure "deps.edn" pwd (vec args) shorten?)
+                 (catch AssertionError e
+                   (-> e .printStackTrace)
+                   (commandize args clojure))
+                 (catch Exception e
+                   (-> e .printStackTrace)
+                   (commandize args clojure))))
+      (finally
+        (shutdown-agents))))
   (System/exit 0))
