@@ -179,14 +179,14 @@
                   [])
                 (catch Exception e
                   (info (str ::failed-to-resolve " " x))
-                  (-> e .printStackTrace)
-
                   (if (#{(Class/forName "org.eclipse.aether.resolution.DependencyResolutionException")
                          (Class/forName "org.eclipse.aether.transfer.ArtifactNotFoundException")
                          (Class/forName "org.eclipse.aether.resolution.ArtifactResolutionException")}
                        (class e))
                     []
-                    nil))
+                    (do
+                      (-> e .printStackTrace) ;; only print stacktraces on unexpected errors. Else they will be printed for every Clojars-only artifact not found on Central.
+                      nil)))
                 (finally
                   (debug (str ::resolved "  " (pr-str x))))))]
     (when v
