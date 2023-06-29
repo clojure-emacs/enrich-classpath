@@ -91,7 +91,8 @@
       (doto .mkdirs)
       (io/file "profiles.clj")
       (str)
-      (spit (pr-str {:enrich-classpath {:middleware ['cider.enrich-classpath/middleware]}}))))
+      (spit (pr-str {:enrich-classpath {:plugins [['mx.cider/enrich-classpath project-version]]
+                                        :middleware ['cider.enrich-classpath/middleware]}}))))
 
 (defn prelude* [x profile]
   (cond-> [x
