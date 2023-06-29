@@ -15,8 +15,22 @@
                 false)
 
   :dependencies [[mx.cider/enrich-classpath ~project-version]
-                 [org.clojure/clojure "1.10.3"]
+                 [org.clojure/clojure "1.11.1"]
                  [org.clojure/tools.deps "0.18.1354"]
+                 [org.apache.maven/maven-resolver-provider "3.8.7"]
+                 [org.codehaus.plexus/plexus-utils "3.4.1"]
+                 [org.apache.maven.resolver/maven-resolver-transport-http "1.9.4"]
+                 [org.apache.maven.resolver/maven-resolver-impl "1.9.4"]
+                 [javax.annotation/javax.annotation-api "1.3.2"]
+                 [org.apache.maven/maven-builder-support "3.8.7"]
+                 [org.apache.maven.resolver/maven-resolver-transport-file "1.9.4"]
+                 [org.apache.maven/maven-artifact "3.8.7"]
+                 [org.apache.maven.resolver/maven-resolver-connector-basic "1.9.4"]
+                 [org.apache.maven.resolver/maven-resolver-util "1.9.4"]
+                 [org.apache.maven.resolver/maven-resolver-spi "1.9.4"]
+                 [org.apache.maven.resolver/maven-resolver-api "1.9.4"]
+                 [org.apache.httpcomponents/httpclient "4.5.14"]
+                 [org.apache.httpcomponents/httpcore "4.4.16"]
                  [clj-commons/pomegranate "1.2.23"]]
   :profiles {:eastwood {:plugins [[jonase/eastwood "1.4.0"]]
                         :eastwood {:add-linters [:boxed-math
