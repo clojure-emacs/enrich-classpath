@@ -15,13 +15,17 @@
    (java.util.regex Pattern)))
 
 (defn sh [& args]
-  (let [{:keys [exit]} (apply shell/sh args)]
-    (when-not (zero? exit)
-      (Thread/sleep 200)
-      (let [{:keys [exit]} (apply shell/sh args)]
-        (when-not (zero? exit)
-          (Thread/sleep 400)
-          (apply shell/sh args))))))
+  (let [{:keys [exit] :as x} (apply shell/sh args)]
+    (if (zero? exit)
+      x
+      (do
+        (Thread/sleep 200)
+        (let [{:keys [exit] :as x} (apply shell/sh args)]
+          (if (zero? exit)
+            x
+            (do
+              (Thread/sleep 400)
+              (apply shell/sh args))))))))
 
 (def ansi-pattern (Pattern/compile "\\e\\[.*?m"))
 

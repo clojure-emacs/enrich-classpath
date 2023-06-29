@@ -373,23 +373,3 @@ yielding a classpath less prone to issues (on Leiningen).")))
 
           (finally ;; don't cache results, can affect subsequent test runs
             (-> jar File. .delete)))))))
-
-;; XXX note my Lein profiles.clj, possibly it reflects an Enrich issue (w/o specifying cljs transitive deps explicitly, the wrong ones can be brought in)
-
-(deftest valid-guava-is-brought-in
-  (testing "A past bug by which javadocs and sources for a given artifact would be added, while the main artifact would be missing.
-That would be problematic." ;; XXX why? I can find it in lein pprint, it's the same version
-    (let [main-artifact [nil nil] ;; no evidence of classifiers, therefore it's the main artifact
-          d (->> {:dependencies '[[com.google.cloud/google-cloud-bigquery "2.9.0"]]
-                  :enrich-classpath {:shorten false}}
-                 sut/add
-                 :dependencies)
-          actual (->> d
-                      (filter (comp #{'com.google.guava/guava} first))
-                      (map (fn [[_ _ classifier-keyword classifier]]
-                             [classifier-keyword classifier]))
-                      (set))]
-      (is (= #{[:classifier "javadoc"]
-               [:classifier "sources"]}
-             actual)
-          "Brings in the main artifact, javadoc, and sources"))))

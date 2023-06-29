@@ -34,7 +34,6 @@
                                      (update (long (index item 'exclusions))
                                              keyword)
 
-                                     ;; XXX make elegant. maybe use as-> ?
                                      (and (vector? item)
                                           (some #{:exclusions 'exclusions} item))
                                      (update (inc (long (or (index item :exclusions)
@@ -50,7 +49,7 @@
   (with-out-str
     (pprint/pprint x)))
 
-(defn Xcompare [x y]
+(defn safe-compare [x y]
   (try
     (compare x y)
     (catch Exception e
@@ -74,7 +73,7 @@
                      true
                      (->> [x y]
                           (map maybe-normalize)
-                          (apply Xcompare)))
+                          (apply safe-compare)))
                    (catch Exception e
                      (warn (ppr-str [::could-not-sort x y]))
                      (when (System/getProperty "cider.enrich-classpath.throw")

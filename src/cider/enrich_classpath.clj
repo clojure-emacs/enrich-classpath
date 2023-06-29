@@ -379,7 +379,6 @@
                              additions))
         add-tools? (and (jdk/jdk8?)
                         (tools-jar-path))
-        ;; XXX dry these two
         enriched-deps-from-dependencies (->> (add-dependencies dependencies)
                                              (remove (set dependencies))
                                              (filter (fn [[_ _ classifier]]
