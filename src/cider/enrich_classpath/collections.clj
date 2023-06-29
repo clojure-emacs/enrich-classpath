@@ -49,7 +49,7 @@
   (with-out-str
     (pprint/pprint x)))
 
-(defn safe-compare [x y]
+(defn debugging-compare [x y]
   (try
     (compare x y)
     (catch Exception e
@@ -73,7 +73,7 @@
                      true
                      (->> [x y]
                           (map maybe-normalize)
-                          (apply safe-compare)))
+                          (apply debugging-compare)))
                    (catch Exception e
                      (warn (ppr-str [::could-not-sort x y]))
                      (when (System/getProperty "cider.enrich-classpath.throw")
