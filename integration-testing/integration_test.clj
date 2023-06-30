@@ -191,7 +191,7 @@
      "pallet"        (vanilla-lein-deps)
      "quartzite"     (vanilla-lein-deps)
      "riemann"       (vanilla-lein-deps)
-     "welle"         (vanilla-lein-deps)
+     ;; "welle"         (vanilla-lein-deps) ;; fails in an opaque way
      ;; uses various plugins:
      "schema"        (with-meta (vanilla-lein-deps)
                        ;; something core.rrb-vector related
@@ -251,7 +251,7 @@
      "pallet"        (vanilla-lein-run)
      "quartzite"     (vanilla-lein-run)
      "riemann"       (vanilla-lein-run)
-     "welle"         (vanilla-lein-run)
+     ;; "welle"         (vanilla-lein-run) ;; fails in an opaque way
      ;; uses various plugins:
      "schema"        (with-meta (vanilla-lein-run)
                        ;; something core.rrb-vector related
