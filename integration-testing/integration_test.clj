@@ -14,13 +14,32 @@
    (java.io File)
    (java.util.regex Pattern)))
 
+(def project-version (or (not-empty (System/getenv "PROJECT_VERSION"))
+                         "0.0.0"))
+
+(def env (-> (into {} (System/getenv))
+             (dissoc "CLASSPATH")
+             ;; for Lein logging:
+             (assoc "DEBUG" "true")
+             (assoc "LEIN_JVM_OPTS" "-Dclojure.main.report=stderr")))
+
+(defn make-install! []
+  (let [{:keys [out err exit]} (shell/sh "make" "install"
+                                         :dir (System/getProperty "user.dir")
+                                         :env (assoc env "PROJECT_VERSION" project-version))]
+    (when-not (zero? exit)
+      (println out)
+      (println err)
+      (assert false))))
+
 (defn assert-middleware-ok! [{:keys [out err] :as x}]
   (assert (not (string/includes? out "Error: cannot resolve cider.enrich-classpath/middleware middleware")))
   (assert (not (string/includes? err "Error: cannot resolve cider.enrich-classpath/middleware middleware")))
   x)
 
 (defn delete-m2! []
-  (shell/sh "rm" "-rf" (str (io/file (System/getProperty "user.home") ".m2"))))
+  (shell/sh "rm" "-rf" (str (io/file (System/getProperty "user.home") ".m2")))
+  (make-install!))
 
 (defn reset-state! []
   (shell/sh "rm" "-rf" (jdk-sources/uncompressed-sources-dir))
@@ -31,20 +50,24 @@
                       "1")))
 
 (defn sh [& args]
-  (let [{:keys [exit] :as x} (apply shell/sh args)]
+  (let [{:keys [exit out err] :as x} (apply shell/sh args)]
     (assert-middleware-ok! x)
     (if (zero? exit)
       x
       (do
+        (println out)
+        (println err)
         (when (#{1} parallelism-factor)
           (delete-m2!)
           (reset-state!))
         (Thread/sleep 200)
-        (let [{:keys [exit] :as x} (apply shell/sh args)]
+        (let [{:keys [exit out err] :as x} (apply shell/sh args)]
           (assert-middleware-ok! x)
           (if (zero? exit)
             x
             (do
+              (println out)
+              (println err)
               (when (#{1} parallelism-factor)
                 (delete-m2!)
                 (reset-state!))
@@ -69,12 +92,6 @@
                  read-string
                  dec)))
 
-(def env (-> (into {} (System/getenv))
-             (dissoc "CLASSPATH")
-             ;; for Lein logging:
-             (assoc "DEBUG" "true")
-             (assoc "LEIN_JVM_OPTS" "-Dclojure.main.report=stderr")))
-
 (def lein (->> [;; DeLaGuardo/setup-clojure (linux)
                 (io/file "/opt" "hostedtoolcache" "Leiningen" "2.8.1" "x64" "bin" "lein")
                 (io/file "/opt" "hostedtoolcache" "Leiningen" "2.9.4" "x64" "bin" "lein")
@@ -95,9 +112,6 @@
                str))
 
 (assert (seq lein))
-
-(def project-version (or (not-empty (System/getenv "PROJECT_VERSION"))
-                         "0.0.0"))
 
 (assert (string? project-version))
 
@@ -506,13 +520,7 @@
   (when-not *assert*
     (throw (ex-info "." {})))
 
-  (let [{:keys [out err exit]} (sh "make" "install"
-                                   :dir (System/getProperty "user.dir") :env
-                                   (assoc env "PROJECT_VERSION" project-version))]
-    (when-not (zero? exit)
-      (println out)
-      (println err)
-      (assert false)))
+  (make-install!)
 
   ;; Pedestal needs separate invocations for `install`, `deps`:
   (let [{:keys [out exit err]} (apply sh (reduce into [] [[lein "with-profile" "-user"
