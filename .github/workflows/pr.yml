@@ -17,6 +17,8 @@ jobs:
         lein-version: ["2.9.4"]
         java-version: ["8", "11", "16"]
         integration-test-parallelism: ["1"]
+        shorten: ["true", "false"]
+        slice: ["1", "2", "3", "4", "5"]
     steps:
       - name: m2 cache
         uses: actions/cache@v2
@@ -53,3 +55,5 @@ jobs:
         env:
           no_eval_in_leiningen: true
           integration_test_parallelism: ${{ matrix.integration-test-parallelism }}
+          enrich_classpath_ci_shorten: ${{ matrix.shorten }}
+          enrich_classpath_ci_slice: ${{ matrix.slice }}

@@ -4,13 +4,10 @@ orbs:
   shellcheck: circleci/shellcheck@2.2.3
 
 executor_defaults: &executor_defaults
-  # xlarge: use as many CPU cores as possible, to exercise parallelism as realistically as possible
-  # xlarge is only applied in paid accounts and gracefully degrades to a compatible resource_class in regular accounts
-  resource_class: xlarge
   working_directory: ~/repo
 
 env_defaults: &env_defaults
-  LEIN_DEPS_COMMAND: "lein with-profile +test,+self-test,+eastwood deps"
+  LEIN_DEPS_COMMAND: "lein with-profile -user,+test,+eastwood deps"
   LEIN_ROOT: "true"
   no_eval_in_leiningen: "true"
 
@@ -68,6 +65,10 @@ jobs:
         type: executor
       integration_test_parallelism:
         type: string
+      shorten:
+        type: string
+      slice:
+        type: string
     executor: << parameters.executor >>
     environment:
       PROJECT_VERSION: 999.99.9
@@ -79,7 +80,7 @@ jobs:
 
       - run:
           name: Fetch dependencies
-          command: "$LEIN_DEPS_COMMAND"
+          command: "$LEIN_DEPS_COMMAND || $LEIN_DEPS_COMMAND || $LEIN_DEPS_COMMAND"
 
       - run:
           name: Lint
@@ -87,7 +88,7 @@ jobs:
 
       - run:
           name: Test
-          command: lein with-profile -user,-dev test
+          command: lein with-profile -user,-dev test || lein with-profile -user,-dev test || lein with-profile -user,-dev test
 
       - run:
           name: Install Clojure
@@ -106,7 +107,11 @@ jobs:
 
       - run:
           name: Exercise the plugin over a variety of real-world projects
-          command: integration_test_parallelism=<< parameters.integration_test_parallelism >> lein integration-test
+          environment:
+            integration_test_parallelism: << parameters.integration_test_parallelism >>
+            enrich_classpath_ci_shorten: << parameters.shorten >>
+            enrich_classpath_ci_slice: << parameters.slice >>
+          command: lein integration-test || lein integration-test || lein integration-test
 
       # The cache is saved as a last step so that the integration test's fetched dependencies are also cached:
       - save_cache:
@@ -129,7 +134,7 @@ jobs:
 
       - run:
           name: Fetch dependencies
-          command: "$LEIN_DEPS_COMMAND"
+          command: "$LEIN_DEPS_COMMAND || $LEIN_DEPS_COMMAND || $LEIN_DEPS_COMMAND"
 
       - run:
           name: Install
@@ -137,7 +142,8 @@ jobs:
 
       - run:
           name: Test
-          command: cd tools.deps; lein with-profile -user,-dev test
+          working_directory: tools.deps
+          command: lein with-profile -user,-dev test || lein with-profile -user,-dev test || lein with-profile -user,-dev test
 
       - run:
           name: Lint
@@ -170,6 +176,8 @@ workflows:
             parameters:
               executor: [openjdk8, openjdk11, openjdk16, openjdk17]
               integration_test_parallelism: ["1"]
+              shorten: ["true", "false"]
+              slice: ["1", "2", "3", "4", "5"]
       - test-deps-edn:
           filters:
             branches:

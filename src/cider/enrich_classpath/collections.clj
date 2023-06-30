@@ -1,18 +1,19 @@
 (ns cider.enrich-classpath.collections
   (:require
    [cider.enrich-classpath.logging :refer [warn]]
+   [clojure.pprint :as pprint]
    [clojure.walk :as walk]))
 
 (defn index [coll item]
   {:pre  [(vector? coll)]
    :post [(or (-> % long pos?) ;; note: there's no nat-int? in old versions of Lein
               (-> % long zero?))]}
-  (->> coll
-       (map-indexed (fn [i x]
-                      (when (= x item)
-                        i)))
-       (filter some?)
-       first))
+  (first (into (empty coll)
+               (comp (map-indexed (fn [i x]
+                                    (when (= x item)
+                                      i)))
+                     (filter some?))
+               coll)))
 
 (defn normalize-exclusions [exclusions]
   (assert (or (sequential? exclusions)
@@ -29,14 +30,31 @@
                   (walk/postwalk (fn [item]
                                    (cond-> item
                                      (and (vector? item)
-                                          (some #{:exclusions} item))
-                                     (update (inc (long (index item :exclusions)))
+                                          (some #{'exclusions} item))
+                                     (update (long (index item 'exclusions))
+                                             keyword)
+
+                                     (and (vector? item)
+                                          (some #{:exclusions 'exclusions} item))
+                                     (update (inc (long (or (index item :exclusions)
+                                                            (index item 'exclusions))))
                                              normalize-exclusions)))))
     (let [{:keys [file]} (meta x)]
       (when file
         {:file (str file)}))))
 
 (def maybe-normalize (memoize maybe-normalize*))
+
+(defn ppr-str [x]
+  (with-out-str
+    (pprint/pprint x)))
+
+(defn debugging-compare [x y]
+  (try
+    (compare x y)
+    (catch Exception e
+      (warn (ppr-str [::could-not-compare x y]))
+      (throw e))))
 
 (defn safe-sort
   "Guards against errors when comparing objects of different classes."
@@ -55,14 +73,14 @@
                      true
                      (->> [x y]
                           (map maybe-normalize)
-                          (apply compare)))
+                          (apply debugging-compare)))
                    (catch Exception e
-                     (warn (pr-str [::could-not-sort x y]))
+                     (warn (ppr-str [::could-not-sort x y]))
                      (when (System/getProperty "cider.enrich-classpath.throw")
                        (throw e))
                      0)))))
     (catch Exception e
-      (warn (pr-str [::could-not-sort coll]))
+      (warn (ppr-str [::could-not-sort coll]))
       (when (System/getProperty "cider.enrich-classpath.throw")
         (throw e))
       coll)))

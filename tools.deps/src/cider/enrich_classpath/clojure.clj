@@ -1,9 +1,10 @@
 (ns cider.enrich-classpath.clojure
   (:require
    [cider.enrich-classpath :as enrich-classpath]
+   [cider.enrich-classpath.jdk :as jdk]
    [clojure.java.io :as io]
    [clojure.string :as string]
-   [clojure.tools.deps.alpha :as tools.deps])
+   [clojure.tools.deps :as tools.deps])
   (:import
    (java.io File)))
 
@@ -12,7 +13,7 @@
        (apply vector clojure)
        (string/join " ")))
 
-(defn impl ^String [clojure deps-edn-filename pwd args]
+(defn impl ^String [clojure deps-edn-filename pwd args shorten?]
   {:pre [(vector? args)]} ;; for conj
   (let [aliases (into #{}
                       (comp (mapcat (fn [^String s]
@@ -24,19 +25,22 @@
                             (map keyword))
                       args)
         {:keys [paths deps]
-         {:keys [extra-paths extra-deps]} :classpath-args
+         {:keys [extra-paths extra-deps]} :argmap
          :as basis} (tools.deps/create-basis {:project (-> pwd (io/file deps-edn-filename) str)
                                               :aliases aliases})
         paths (into paths extra-paths)
         deps (into deps extra-deps)
         original-paths-set (set paths)
         original-deps-set (->> deps (map first) set)
+        shortened-jar-signature (string/join File/separator
+                                             [".mx.cider" "enrich-classpath" (jdk/digits-str)])
         {:keys [dependencies
                 resource-paths]} (enrich-classpath/middleware {:dependencies (->> deps
                                                                                   (keep (fn [[artifact-name {mv :mvn/version}]]
                                                                                           (when mv
                                                                                             [artifact-name mv])))
                                                                                   (vec))
+                                                               :enrich-classpath {:shorten shorten?}
                                                                :resource-paths paths})
         {:keys [classpath]} (tools.deps/calc-basis {:paths paths
                                                     :deps (->> dependencies
@@ -90,6 +94,10 @@
                                       [6 lib-name]
 
                                       (and path-key
+                                           (-> entry (.contains shortened-jar-signature)))
+                                      [10 entry]
+
+                                      (and path-key
                                            (-> entry (.contains "unzipped-jdk-sources")))
                                       [11 entry]
 
@@ -107,16 +115,19 @@
         (conj "-Sforce" "-Srepro" "-J-XX:-OmitStackTraceInFastThrow" "-J-Dclojure.main.report=stderr" "-Scp" classpath)
         (commandize clojure))))
 
-(defn -main [clojure pwd & args]
-  (try
-    (println (try
-               (impl clojure "deps.edn" pwd (vec args))
-               (catch AssertionError e
-                 (-> e .printStackTrace)
-                 (commandize args clojure))
-               (catch Exception e
-                 (-> e .printStackTrace)
-                 (commandize args clojure))))
-    (finally
-      (shutdown-agents)))
+(defn -main [clojure pwd shorten & args]
+  (let [shorten? (case shorten
+                   "false" false
+                   true)]
+    (try
+      (println (try
+                 (impl clojure "deps.edn" pwd (vec args) shorten?)
+                 (catch AssertionError e
+                   (-> e .printStackTrace)
+                   (commandize args clojure))
+                 (catch Exception e
+                   (-> e .printStackTrace)
+                   (commandize args clojure))))
+      (finally
+        (shutdown-agents))))
   (System/exit 0))

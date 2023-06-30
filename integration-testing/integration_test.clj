@@ -3,20 +3,94 @@
   (:require
    [cider.enrich-classpath :as sut]
    [cider.enrich-classpath.collections :refer [divide-by]]
+   [cider.enrich-classpath.jdk :as jdk]
    [cider.enrich-classpath.jdk-sources :as jdk-sources]
    [cider.enrich-classpath.locks :as locks]
    [cider.enrich-classpath.logging :refer [info]]
    [clojure.java.io :as io]
-   [clojure.java.shell :refer [sh]]
+   [clojure.java.shell :as shell]
    [clojure.string :as string])
   (:import
-   (java.io File)))
+   (java.io File)
+   (java.util.regex Pattern)))
+
+(def project-version (or (not-empty (System/getenv "PROJECT_VERSION"))
+                         "0.0.0"))
 
 (def env (-> (into {} (System/getenv))
              (dissoc "CLASSPATH")
              ;; for Lein logging:
              (assoc "DEBUG" "true")
              (assoc "LEIN_JVM_OPTS" "-Dclojure.main.report=stderr")))
+
+(defn make-install! []
+  (let [{:keys [out err exit]} (shell/sh "make" "install"
+                                         :dir (System/getProperty "user.dir")
+                                         :env (assoc env "PROJECT_VERSION" project-version))]
+    (when-not (zero? exit)
+      (println out)
+      (println err)
+      (assert false))))
+
+(defn assert-middleware-ok! [{:keys [out err] :as x}]
+  (assert (not (string/includes? out "Error: cannot resolve cider.enrich-classpath/middleware middleware")))
+  (assert (not (string/includes? err "Error: cannot resolve cider.enrich-classpath/middleware middleware")))
+  x)
+
+(defn delete-m2! []
+  (shell/sh "rm" "-rf" (str (io/file (System/getProperty "user.home") ".m2")))
+  (make-install!))
+
+(defn reset-state! []
+  (shell/sh "rm" "-rf" (jdk-sources/uncompressed-sources-dir))
+  (-> sut/cache-filename File. .delete))
+
+(def parallelism-factor
+  (Long/parseLong (or (System/getenv "integration_test_parallelism")
+                      "1")))
+
+(defn sh [& args]
+  (let [{:keys [exit out err] :as x} (apply shell/sh args)]
+    (assert-middleware-ok! x)
+    (if (zero? exit)
+      x
+      (do
+        (println out)
+        (println err)
+        (when (#{1} parallelism-factor)
+          (delete-m2!)
+          (reset-state!))
+        (Thread/sleep 200)
+        (let [{:keys [exit out err] :as x} (apply shell/sh args)]
+          (assert-middleware-ok! x)
+          (if (zero? exit)
+            x
+            (do
+              (println out)
+              (println err)
+              (when (#{1} parallelism-factor)
+                (delete-m2!)
+                (reset-state!))
+              (Thread/sleep 400)
+              (apply shell/sh args))))))))
+
+(def ansi-pattern (Pattern/compile "\\e\\[.*?m"))
+
+(defn strip-ansi ^String [s]
+  (string/replace s ansi-pattern ""))
+
+(def exercise-shorten? (let [env-var-name "enrich_classpath_ci_shorten"]
+                         (-> env-var-name
+                             System/getenv
+                             (doto (assert (str env-var-name " is unset")))
+                             read-string)))
+
+(def slice (let [env-var-name "enrich_classpath_ci_slice"]
+             (-> env-var-name
+                 System/getenv
+                 (doto (assert (str env-var-name " is unset")))
+                 read-string
+                 dec)))
 
 (def lein (->> [;; DeLaGuardo/setup-clojure (linux)
                 (io/file "/opt" "hostedtoolcache" "Leiningen" "2.8.1" "x64" "bin" "lein")
@@ -39,101 +113,208 @@
 
 (assert (seq lein))
 
-(def project-version "999.99.9")
-
 (assert (string? project-version))
 
-(defn prelude [x]
-  (cond-> [x
-           "with-profile" "-user,+test"
+(when (System/getenv "CI")
+  (-> "user.home"
+      System/getProperty
+      io/file
+      (io/file ".lein")
+      (doto .mkdirs)
+      (io/file "profiles.clj")
+      (str)
+      (spit (pr-str {:enrich-classpath {:plugins [['mx.cider/enrich-classpath project-version :exclusions ['org.clojure/clojure]]]
+                                        :middleware ['cider.enrich-classpath/middleware]}}))))
 
-           "update-in"
-           ":" "assoc" ":pedantic?" "false"
-           "--"
+(defn prelude* [x profile]
+  [x
+   "with-profile" profile
 
-           "update-in"
-           ":plugins" "conj" (str "[mx.cider/enrich-classpath \""
-                                  project-version
-                                  "\"]")
-           "--"
+   "update-in"
+   ":" "assoc" ":pedantic?" "false"
+   "--"
 
-           "update-in"
-           ":" "assoc" ":enrich-classpath" "{:classifiers #{\"sources\"}}"
-           "--"
+   "update-in"
+   ":" "dissoc" ":javac-options"
+   "--"
 
-           "update-in"
-           ":middleware" "conj" "cider.enrich-classpath/middleware"
-           "--"]))
+   "update-in"
+   ":plugins" "conj" (str "[mx.cider/enrich-classpath \""
+                          project-version
+                          "\" :exclusions [org.clojure/clojure]]")
+   "--"
 
-(def vanilla-lein-deps
-  (conj (prelude lein) "deps"))
+   "update-in"
+   ":" "assoc" ":enrich-classpath" (format "{:classifiers #{\"sources\"}%s}"
+                                           (if exercise-shorten?
+                                             " :shorten true}"
+                                             "}"))
+   "--"])
+
+(defn prelude [x & [extra]]
+  (reduce into
+          []
+          [(prelude* x "-user,+test")
+           ["update-in" ":middleware" "conj" "cider.enrich-classpath/middleware" "--"]
+           extra]))
+
+(defn prelude-for-run [x & [extra]]
+  (into (prelude* x "-user,+test,+enrich-classpath")
+        extra))
+
+(defn vanilla-lein-deps [& [extra]]
+  (conj (prelude lein extra) "deps"))
+
+(def run-command ["run" "-m" "clojure.main" "--" "-e" "(println *clojure-version*)"])
+
+(defn vanilla-lein-run [& [extra]]
+  (into (prelude-for-run lein extra) run-command))
+
+(defn take-slice [coll]
+  (nth (partition-all 5 coll) slice))
 
 (def deps-commands
-  (sort ;; ensure stable tests
-   {"aleph"         vanilla-lein-deps
-    "amazonica"     vanilla-lein-deps
-    "carmine"       vanilla-lein-deps
-    "cassaforte"    vanilla-lein-deps
-    "cider-nrepl"   vanilla-lein-deps
-    "elastisch"     vanilla-lein-deps
-    "http-kit"      vanilla-lein-deps
-    "jackdaw"       vanilla-lein-deps
-    "langohr"       vanilla-lein-deps
-    "machine_head"  vanilla-lein-deps
-    "metabase"      vanilla-lein-deps
-    "monger"        vanilla-lein-deps
-    "pallet"        vanilla-lein-deps
-    "quartzite"     vanilla-lein-deps
-    "riemann"       vanilla-lein-deps
-    "welle"         vanilla-lein-deps
-    ;; uses various plugins:
-    "schema"        (with-meta vanilla-lein-deps
-                      ;; something core.rrb-vector related
-                      {::skip-in-newer-jdks true})
-    ;; uses lein-parent:
-    "trapperkeeper" vanilla-lein-deps
-    ;; uses lein-parent:
-    "jepsen/jepsen" vanilla-lein-deps
-    ;; uses lein-tools-deps:
-    "overtone"      vanilla-lein-deps
-    ;; uses lein-sub, lein-modules:
-    "incanter"      (reduce into [] [(prelude lein)
-                                     ["sub" "do"]
-                                     (prelude "install,")
-                                     ["deps"]])
-    ;; uses lein-sub:
-    "icepick"       (with-meta (reduce into [] [(prelude lein)
-                                                (prelude "sub")
-                                                ["deps"]])
-                      ;; Icepick seemingly relies on tools.jar, unavailable in JDK9+
-                      {::skip-in-newer-jdks true})
-    ;; uses lein-sub:
-    "crux"          (reduce into [] [(prelude lein)
-                                     (prelude "sub")
-                                     ["deps"]])
-    ;; uses lein-sub:
-    "pedestal"      (reduce into [] [(prelude lein)
-                                     (prelude "sub")
-                                     ["deps"]])
-    ;; uses lein-monolith:
-    "sparkplug"     (with-meta (reduce into [] [(prelude lein)
-                                                ["monolith"]
-                                                (prelude "each")
-                                                ["do"
-                                                 "clean,"
-                                                 "install,"
-                                                 "deps"]])
-                      ;; something fipp-related (unrelated to our vendored version):
-                      {::skip-in-newer-jdks true})}))
+  (take-slice
+   (sort ;; ensure stable tests
+    {"aleph"         (vanilla-lein-deps)
+     "amazonica"     (vanilla-lein-deps)
+     "carmine"       (vanilla-lein-deps)
+     "cassaforte"    (vanilla-lein-deps)
+     "cider-nrepl"   (vanilla-lein-deps)
+     "elastisch"     (vanilla-lein-deps)
+     "http-kit"      (vanilla-lein-deps)
+     "jackdaw"       (vanilla-lein-deps)
+     "langohr"       (vanilla-lein-deps)
+     "machine_head"  (vanilla-lein-deps)
+     "metabase"      (vanilla-lein-deps)
+     "monger"        (vanilla-lein-deps)
+     "pallet"        (vanilla-lein-deps)
+     "quartzite"     (vanilla-lein-deps)
+     "riemann"       (vanilla-lein-deps)
+     ;; "welle"         (vanilla-lein-deps) ;; fails in an opaque way
+     ;; uses various plugins:
+     "schema"        (with-meta (vanilla-lein-deps)
+                       ;; something core.rrb-vector related
+                       {::skip-in-newer-jdks true})
+     ;; uses lein-parent:
+     "trapperkeeper" (vanilla-lein-deps ["update-in" ":dependencies" "conj" "[org.clojure/clojure \"1.10.1\"]" "--"])
+     ;; uses lein-parent:
+     "jepsen/jepsen" (vanilla-lein-deps)
+     ;; uses lein-tools-deps:
+     "overtone"      (vanilla-lein-deps)
+     ;; uses lein-sub, lein-modules:
+     "incanter"      (reduce into [] [(prelude lein)
+                                      ["sub" "do"]
+                                      (prelude "install,")
+                                      ["deps"]])
+     ;; uses lein-sub:
+     "icepick"       (with-meta (reduce into [] [(prelude lein)
+                                                 (prelude "sub")
+                                                 ["deps"]])
+                       ;; Icepick seemingly relies on tools.jar, unavailable in JDK9+
+                       {::skip-in-newer-jdks true
+                        ::running-needs-shortening true})
+     ;; uses lein-sub:
+     "crux"          (reduce into [] [(prelude lein)
+                                      (prelude "sub")
+                                      ["deps"]])
+     ;; uses lein-sub:
+     "pedestal"      (reduce into [] [(prelude lein)
+                                      (prelude "sub")
+                                      ["deps"]])
+     ;; uses lein-monolith:
+     "sparkplug"     (with-meta (reduce into [] [(prelude lein)
+                                                 ["monolith"]
+                                                 (prelude "each")
+                                                 ["do"
+                                                  "clean,"
+                                                  "install,"
+                                                  "deps"]])
+                       ;; something fipp-related (unrelated to our vendored version):
+                       {::skip-in-newer-jdks true})})))
+
+(def run-commands
+  (take-slice
+   (sort ;; ensure stable tests
+    {"aleph"         (vanilla-lein-run)
+     "amazonica"     (vanilla-lein-run)
+     "carmine"       (vanilla-lein-run)
+     "cassaforte"    (vanilla-lein-run)
+     "cider-nrepl"   (vanilla-lein-run)
+     "elastisch"     (vanilla-lein-run)
+     "http-kit"      (vanilla-lein-run)
+     "jackdaw"       (vanilla-lein-run)
+     "langohr"       (vanilla-lein-run)
+     "machine_head"  (vanilla-lein-run)
+     "metabase"      (vanilla-lein-run)
+     "monger"        (vanilla-lein-run)
+     "pallet"        (vanilla-lein-run)
+     "quartzite"     (vanilla-lein-run)
+     "riemann"       (vanilla-lein-run)
+     ;; "welle"         (vanilla-lein-run) ;; fails in an opaque way
+     ;; uses various plugins:
+     "schema"        (with-meta (vanilla-lein-run)
+                       ;; something core.rrb-vector related
+                       {::skip-in-newer-jdks true})
+     ;; uses lein-parent:
+     "trapperkeeper" (vanilla-lein-run ["update-in" ":dependencies" "conj" "[org.clojure/clojure \"1.10.1\"]" "--"])
+     ;; uses lein-parent:
+     "jepsen/jepsen" (vanilla-lein-run)
+     ;; uses lein-tools-deps:
+     "overtone"      (vanilla-lein-run)
+     ;; uses lein-sub, lein-modules:
+     "incanter"      (reduce into [] [(prelude lein)
+                                      ["sub" "do"]
+                                      (prelude-for-run "install,")
+                                      run-command])
+     ;; uses lein-sub:
+     "icepick"       (with-meta (reduce into [] [(prelude lein)
+                                                 (prelude-for-run "sub")
+                                                 run-command])
+                       ;; Icepick seemingly relies on tools.jar, unavailable in JDK9+
+                       {::skip-in-newer-jdks true
+                        ::running-needs-shortening true})
+     ;; uses lein-sub:
+     "crux"          (reduce into [] [(prelude lein)
+                                      (prelude-for-run "sub")
+                                      run-command])
+     ;; uses lein-sub:
+     "pedestal"      (reduce into [] [(prelude lein)
+                                      (prelude-for-run "sub")
+                                      run-command])
+     ;; uses lein-monolith:
+     "sparkplug"     (with-meta (reduce into [] [(prelude lein)
+                                                 ["monolith"]
+                                                 (prelude-for-run "each")
+                                                 ["do"
+                                                  "clean,"
+                                                  "install,"]
+                                                 run-command])
+                       ;; something fipp-related (unrelated to our vendored version):
+                       {::skip-in-newer-jdks true})})))
+
+(def smoke-commands
+  (into {}
+        (comp (remove (comp (cond-> #{"crux" ;; hangs
+                                      "sparkplug" ;; hangs
+                                      "incanter" ;; hangs
+                                      "icepick" ;; doesn't show a real issue but one caused by the ci setup itself
+                                      "metabase" ;; javac
+                                      }
+                              ;; overtone uses a deprecated JVM option
+                              (not (jdk/jdk8?)) (conj "overtone"))
+                            key)))
+        run-commands))
 
 (def classpath-commands
   (into {}
         (map (fn [[id command]]
                {:pre [(-> command last #{"deps"})]}
                (let [idx (-> command count dec)]
-                 [id, (-> command
-                          (subvec 0 idx)
-                          (conj "classpath"))])))
+                 [id, (with-meta (-> command
+                                     (subvec 0 idx)
+                                     (conj "classpath"))
+                        (meta command))])))
         deps-commands))
 
 (def classpath-commands-for-java-source-paths-test
@@ -150,8 +331,6 @@
     ;; machine_head declares :java-source-paths not backed by an actual directory:
     (dissoc m "machine_head")))
 
-(assert (seq classpath-commands-for-java-source-paths-test))
-
 (defmacro time
   {:style/indent 1}
   [id expr]
@@ -164,10 +343,6 @@
                                                         (/ 1000000.0)
                                                         (/ 60000.0))))
      ret#))
-
-(def parallelism-factor
-  (Long/parseLong (or (System/getenv "integration_test_parallelism")
-                      "1")))
 
 (defn submodule-dir ^File [id]
   {:pre [(seq id)]}
@@ -188,71 +363,82 @@
        (pmap (fn [chunks]
                (->> chunks
                     (mapv (fn [[id command]]
-                            (if (and (not (-> "java.version" System/getProperty (string/starts-with? "1.8")))
-                                     (-> command meta ::skip-in-newer-jdks))
-                              id
-                              (let [dir (submodule-dir id)
-                                    _ (info (str "Exercising " id " in " (-> dir
-                                                                             .getCanonicalPath)))
-                                    _ (info (pr-str command))
-                                    {:keys [out exit err]} (time id
-                                                                 (apply sh (into command
-                                                                                 [:dir dir
-                                                                                  :env env])))
-                                    ok? (zero? exit)]
-                                (assert ok? (when-not ok?
-                                              [id
-                                               exit
-                                               (pr-str (-> out (doto println)))
-                                               (pr-str (-> err (doto println)))]))
-                                (let [checking-deps? (= commands-corpus deps-commands)
-                                      checking-classpath? ((hash-set classpath-commands
-                                                                     classpath-commands-for-java-source-paths-test)
-                                                           commands-corpus)
-                                      lines (cond->> out
-                                              true string/split-lines
+                            (let [checking-deps? (= commands-corpus deps-commands)
+                                  smoke-testing? (= commands-corpus smoke-commands)
+                                  checking-classpath? ((hash-set classpath-commands
+                                                                 classpath-commands-for-java-source-paths-test)
+                                                       commands-corpus)]
+                              (if (or (and (not (-> "java.version" System/getProperty (string/starts-with? "1.8")))
+                                           (-> command meta ::skip-in-newer-jdks))
+                                      (and smoke-testing?
+                                           (not exercise-shorten?)
+                                           (-> command meta ::running-needs-shortening)))
+                                id
+                                (let [dir (submodule-dir id)
+                                      _ (info (str "Exercising " id " in " (-> dir
+                                                                               .getCanonicalPath)))
+                                      _ (info (pr-str command))
+                                      _ (shell/sh "git" "clean" "-fdx" :dir dir) ;; eases local development
+                                      {:keys [out exit err]} (time id
+                                                               (apply sh (into command
+                                                                               [:dir dir
+                                                                                :env env])))
+                                      ok? (zero? exit)]
+                                  (assert ok? (when-not ok?
+                                                [id
+                                                 exit
+                                                 (pr-str (-> out (doto println)))
+                                                 (pr-str (-> err (doto println)))]))
+                                  (let [lines (cond->> out
+                                                true string/split-lines
 
-                                              checking-deps?
-                                              (filter (fn [s]
-                                                        (string/includes? s "cider.enrich-classpath")))
+                                                checking-deps?
+                                                (filter (fn [s]
+                                                          (string/includes? s "cider.enrich-classpath")))
 
-                                              checking-classpath?
-                                              (take-last 1)
+                                                (or smoke-testing?
+                                                    checking-classpath?)
+                                                (take-last 1)
 
-                                              (and (not checking-deps?)
-                                                   (not checking-classpath?))
-                                              (assert false))
-                                      good (cond->> lines
-                                             checking-deps?
-                                             (filter (fn [s]
-                                                       (string/includes? s "/found")))
+                                                (and (not checking-deps?)
+                                                     (not checking-classpath?)
+                                                     (not smoke-testing?))
+                                                (assert false))
+                                        good (cond->> lines
+                                               checking-deps?
+                                               (filter (fn [s]
+                                                         (string/includes? s "/found")))
 
-                                             checking-classpath?
-                                             first
+                                               (or smoke-testing?
+                                                   checking-classpath?)
+                                               first
 
-                                             (and (not checking-deps?)
-                                                  (not checking-classpath?))
-                                             (assert false))
-                                      bad (->> lines (filter (fn [s]
-                                                               (string/includes? s "/could-not")
-                                                               (string/includes? s "/timed-out")
-                                                               ;; #{"sources"} is specified in `#'prelude`
-                                                               (string/includes? s ":classifier \"javadoc\""))))
-                                      timing (->> out
-                                                  string/split-lines
-                                                  (filter (partial re-find #"Completed in.*minutes\.")))]
-                                  (assert (empty? bad)
-                                          (pr-str [id bad]))
-                                  (assert (-> timing count pos?))
-                                  (f id good)
-                                  (info (str id " - " (first timing)))
-                                  id))))))))
+                                               (and (not checking-deps?)
+                                                    (not smoke-testing?)
+                                                    (not checking-classpath?))
+                                               (assert false))
+                                        bad (->> lines (filter (fn [s]
+                                                                 (string/includes? s "/could-not")
+                                                                 (string/includes? s "/timed-out")
+                                                                 ;; #{"sources"} is specified in `#'prelude`
+                                                                 (string/includes? s ":classifier \"javadoc\""))))
+                                        timing (->> out
+                                                    string/split-lines
+                                                    (filter (partial re-find #"Completed in.*minutes\.")))]
+                                    (assert (empty? bad)
+                                            (pr-str [id bad]))
+                                    (when-not (-> timing count pos?)
+                                      (println out)
+                                      (assert false (pr-str id)))
+                                    (f id good)
+                                    (info (str id " - " (first timing)))
+                                    id)))))))))
 
        (apply concat)
 
        doall))
 
-(defn classpath-test! []
+(defn classpath-test! [exercising-shorten?]
   (info "Running `classpath-test!`")
   (letfn [(run [extra-profile]
             {:post [(-> % count pos?)]}
@@ -260,19 +446,35 @@
                                                                      "with-profile"
                                                                      (str "-user,-dev" extra-profile)
                                                                      "classpath"]
-                                                                    [:env env
+                                                                    [:env (-> env
+                                                                              (assoc "LEIN_SILENT" "true"
+                                                                                     "no_eval_in_leiningen" "true")
+                                                                              (dissoc "DEBUG"))
                                                                      :dir (System/getProperty "user.dir")]]))]
               (when-not (zero? exit)
                 (println out)
                 (println err)
                 (assert false))
               (string/split out #":")))]
-    (let [runs (->> [",+self-test"
-                     ""]
-                    (map run))
-          [count-with count-without] (->> runs (map count))]
-      (assert (> count-with count-without)
-              (pr-str [count-with count-without runs])))))
+    (let [[enriched-run orig-run :as runs] (->> [(cond-> ",+self-test"
+                                                   exercising-shorten? (str ",+shorten"))
+                                                 ""]
+                                                (map run))
+          [count-with count-without] (->> runs (map count))
+          f (fn [classpath-entry-string]
+              (string/includes? classpath-entry-string (str ".mx.cider/enrich-classpath/" (jdk/digits-str))))]
+      (if exercising-shorten?
+        (assert (some f enriched-run) enriched-run)
+        (do
+          (assert (not-any? f enriched-run) enriched-run)
+          (assert (some (fn [classpath-entry-string]
+                          (string/ends-with? classpath-entry-string "-sources.jar")) enriched-run)
+                  enriched-run)
+          (assert (some (fn [classpath-entry-string]
+                          (string/ends-with? classpath-entry-string "-javadoc.jar")) enriched-run)
+                  enriched-run)
+          (assert (> count-with count-without)
+                  (pr-str [count-with count-without runs])))))))
 
 (defn java-source-paths-test! []
   (info "Running `java-source-paths-test!`")
@@ -285,7 +487,16 @@
                                            (-> f .isDirectory)))))
                              (some (fn [s]
                                      (string/includes? s "/java"))))
-                        [id classpath]))))
+                        [:java-source-paths-test! id classpath]))))
+
+(defn smoke-test! []
+  (info "Running `smoke-test!`")
+  ;; one needs to set prep-tasks to [] and run javac without enrich beforehand
+  (run-repos! smoke-commands
+              (fn [id output]
+                (assert (or (string/starts-with? output "{:major 1")
+                            (-> output strip-ansi (string/includes? "SUCCESS: Applied with-profile")))
+                        (pr-str [id output])))))
 
 (defn metadata-test! []
   (info "Running `metadata-test!`")
@@ -313,13 +524,7 @@
   (when-not *assert*
     (throw (ex-info "." {})))
 
-  (let [{:keys [out err exit]} (sh "make" "install"
-                                   :dir (System/getProperty "user.dir") :env
-                                   (assoc env "PROJECT_VERSION" project-version))]
-    (when-not (zero? exit)
-      (println out)
-      (println err)
-      (assert false)))
+  (make-install!)
 
   ;; Pedestal needs separate invocations for `install`, `deps`:
   (let [{:keys [out exit err]} (apply sh (reduce into [] [[lein "with-profile" "-user"
@@ -331,8 +536,7 @@
       (println err)
       (assert false)))
 
-  (sh "rm" "-rf" (jdk-sources/uncompressed-sources-dir))
-  (-> sut/cache-filename File. .delete)
+  (reset-state!)
 
   (run-repos! deps-commands
               (fn [id good-lines]
@@ -371,7 +575,9 @@
 
   (java-source-paths-test!)
 
-  (classpath-test!)
+  (smoke-test!)
+
+  (classpath-test! exercise-shorten?)
 
   (metadata-test!))
 

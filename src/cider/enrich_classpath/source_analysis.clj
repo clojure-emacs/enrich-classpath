@@ -15,15 +15,15 @@
        (recur ~expr))))
 
 (defn ls-zip [target]
-  (let [v (transient [])
+  (let [v (volatile! [])
         zis (-> target io/input-stream ZipInputStream.)]
     (try
       (while-let [entry (-> zis .getNextEntry)]
-        (conj! v (-> ^ZipEntry entry .getName)))
+        (vswap! v conj (-> ^ZipEntry entry .getName)))
       (catch ZipException _)
       (finally
         (-> zis .close)))
-    (persistent! v)))
+    @v))
 
 (defn bad-source? [[id version _classifier-keyword classifier]]
   {:pre [(symbol? id)

@@ -1,5 +1,7 @@
-(defproject mx.cider/enrich-classpath (or (not-empty (System/getenv "PROJECT_VERSION"))
-                                          "0.0.0")
+(def project-version (or (not-empty (System/getenv "PROJECT_VERSION"))
+                         "0.0.0"))
+
+(defproject mx.cider/enrich-classpath project-version
   :description "Makes available .jars with Java sources and javadocs for a given project."
 
   :url "https://github.com/clojure-emacs/enrich-classpath"
@@ -11,6 +13,11 @@
                  [org.clojure/clojure "1.10.3"] ;; Hard-require a recent-enough version of Clojure, since other plugins may require an overly old one which would make Fipp fail.
                  ]
 
+  :pedantic? ~(if (System/getenv "CI")
+                :abort
+                ;; :pedantic? can be problematic for certain local dev workflows:
+                false)
+
   :eval-in-leiningen ~(nil? (System/getenv "no_eval_in_leiningen"))
 
   :plugins [[thomasa/mranderson "0.5.4-SNAPSHOT"]]
@@ -21,23 +28,30 @@
                :expositions     []
                :unresolved-tree false}
 
-  :deploy-repositories [["clojars" {:url "https://clojars.org/repo"
-                                    :username :env/clojars_username
-                                    :password :env/clojars_password
+  :deploy-repositories [["clojars" {:url           "https://clojars.org/repo"
+                                    :username      :env/clojars_username
+                                    :password      :env/clojars_password
                                     :sign-releases false}]]
 
   :java-source-paths ["java"]
 
   :profiles {;; Helps developing the plugin when (false? eval-in-leiningen):
-             :test                {:dependencies [[clj-commons/pomegranate "1.2.1"]]}
+             :test                {:dependencies [[clj-commons/pomegranate "1.2.23"]]}
 
              :integration-testing {:source-paths ["integration-testing"]}
 
-             :self-test           {:middleware   [cider.enrich-classpath/middleware]
+             :self-test           {:middleware           [cider.enrich-classpath/middleware]
+                                   :plugins              [[mx.cider/enrich-classpath ~project-version]]
+                                   :jvm-opts             ["-Dcider.enrich-classpath.throw=true"]
                                    ;; ensure that at least one dependency will fetch sources:
-                                   :dependencies [[puppetlabs/trapperkeeper-webserver-jetty9 "4.1.0"]]}
+                                   :dependencies         [[puppetlabs/trapperkeeper-webserver-jetty9 "4.1.0"]]
+                                   :managed-dependencies [[commons-codec "1.10"]
+                                                          [org.slf4j/slf4j-api "1.7.25"]
+                                                          [org.clojure/tools.reader "1.0.0-beta4"]]}
 
-             :eastwood            {:plugins [[jonase/eastwood "1.2.2"]]
+             :shorten             {:enrich-classpath {:shorten true}}
+
+             :eastwood            {:plugins  [[jonase/eastwood "1.4.0"]]
                                    :eastwood {:add-linters [:boxed-math
                                                             :performance]}}
 
