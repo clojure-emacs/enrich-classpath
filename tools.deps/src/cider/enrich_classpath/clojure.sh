@@ -24,7 +24,7 @@ else
   # don't let local deps.edn files interfere:
   cd
 
-  output=$(2>&1 "$clojure" -Sforce -Srepro -J-XX:-OmitStackTraceInFastThrow -J-Dclojure.main.report=stderr -Sdeps '{:deps {mx.cider/tools.deps.enrich-classpath {:mvn/version "1.9.0"}}}' -M -m cider.enrich-classpath.clojure "$clojure" "$here" "true" "$@")
+  output=$(2>&1 "$clojure" -Sforce -Srepro -J-XX:-OmitStackTraceInFastThrow -J-Dclojure.main.report=stderr -Sdeps '{:deps {mx.cider/tools.deps.enrich-classpath {:mvn/version "1.10.0"}}}' -M -m cider.enrich-classpath.clojure "$clojure" "$here" "true" "$@")
   cmd=$(tail -n1 <(echo "$output"))
 
   cd "$here"
