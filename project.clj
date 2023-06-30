@@ -10,7 +10,7 @@
             :url  "https://www.eclipse.org/legal/epl-2.0/"}
 
   :dependencies [^:inline-dep [fipp "0.6.25" :exclusions [org.clojure/clojure]]
-                 [org.clojure/clojure "1.11.1"] ;; Hard-require a recent-enough version of Clojure, since other plugins may require an overly old one which would make Fipp fail.
+                 [org.clojure/clojure "1.10.3"] ;; Hard-require a recent-enough version of Clojure, since other plugins may require an overly old one which would make Fipp fail.
                  ]
 
   :pedantic? ~(if (System/getenv "CI")
