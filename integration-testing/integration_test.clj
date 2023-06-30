@@ -427,8 +427,9 @@
                                                     (filter (partial re-find #"Completed in.*minutes\.")))]
                                     (assert (empty? bad)
                                             (pr-str [id bad]))
-                                    (assert (-> timing count pos?)
-                                            (pr-str id))
+                                    (when-not (-> timing count pos?)
+                                      (println out)
+                                      (assert false (pr-str id)))
                                     (f id good)
                                     (info (str id " - " (first timing)))
                                     id)))))))))
