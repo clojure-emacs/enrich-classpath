@@ -80,7 +80,7 @@ jobs:
 
       - run:
           name: Fetch dependencies
-          command: "$LEIN_DEPS_COMMAND"
+          command: "$LEIN_DEPS_COMMAND || $LEIN_DEPS_COMMAND || $LEIN_DEPS_COMMAND"
 
       - run:
           name: Lint
@@ -130,7 +130,7 @@ jobs:
 
       - run:
           name: Fetch dependencies
-          command: "$LEIN_DEPS_COMMAND"
+          command: "$LEIN_DEPS_COMMAND || $LEIN_DEPS_COMMAND || $LEIN_DEPS_COMMAND"
 
       - run:
           name: Install
