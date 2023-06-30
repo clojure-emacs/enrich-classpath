@@ -57,16 +57,16 @@
   (assert (vector? x) (class x))
   (with-meta (if (-> x meta version/outdated-data-version?)
                {}
-               (->> x
-                    (map (fn [[k v]]
-                           [k (if (and v (empty? v))
-                                []
-                                (some->> v
-                                         (map (fn [[kk vv]]
-                                                [kk (some->> vv
-                                                             set)]))
-                                         (into {})))]))
-                    (into {})))
+               (into {}
+                     (map (fn [[k v]]
+                            [k (if (and v (empty? v))
+                                 []
+                                 (some->> v
+                                          (map (fn [[kk vv]]
+                                                 [kk (some->> vv
+                                                              set)]))
+                                          (into {})))]))
+                     x))
     {:enrich-classpath/version version/data-version}))
 
 (defn safe-read-string [x]
@@ -185,7 +185,10 @@
                        (class e))
                     []
                     (do
-                      (-> e .printStackTrace) ;; only print stacktraces on unexpected errors. Else they will be printed for every Clojars-only artifact not found on Central.
+                      ;; only print stacktraces on unexpected errors.
+                      ;; Else they will be printed for every Clojars-only artifact not found on Central,
+                      ;; or of any source/javadoc artifact that simply doesn't exist.
+                      (-> e .printStackTrace)
                       nil)))
                 (finally
                   (debug (str ::resolved "  " (pr-str x))))))]
@@ -212,39 +215,40 @@
       (let [original-with-version (assoc original 1 version)
             resolution (memoized-resolve! [original-with-version])
             original-file (some-> resolution (find original-with-version) key meta :file)
-            transitive (flatten-deps resolution)]
-        (->> transitive
-             (mapcat (fn [[dep version :as original]]
-                       (assert version (pr-str original))
-                       (->> classifiers
-                            (mapv (partial vector dep version :classifier))
-                            (into-distinct [original]) ;; favor the one with meta
-                            (remove (comp nil? second))
-                            ;; If a *transitive* dependency is explicitly specified by :managed-dependencies,
-                            ;; the managed version should take precedence (because that's their whole point):
-                            (remove (fn [[d v]]
-                                      (->> managed-dependencies
-                                           (some (fn [[dd vv]]
-                                                   (and (= d dd)
-                                                        v
-                                                        vv
-                                                        (not= v vv)))))))
-                            (keep (fn [x]
-                                    ;; Keep only classified artifacts that exist...
-                                    (let [v (->> (memoized-resolve! [x])
-                                                 flatten-deps
-                                                 (filter #{(maybe-add-exclusions x)})
-                                                 first)]
-                                      (when (some? v)
-                                        ;; ...and attach their meta (currently unused),
-                                        ;; especially for `:file`:
-                                        (with-meta x
-                                          (let [{:keys [file]} (meta v)]
-                                            (merge {:enrich-classpath/original-file original-file}
-                                                   (when file
-                                                     {:file (str file)})))))))))))
-             (distinct)
-             (vec))))))
+            transitive (flatten-deps resolution)
+            f (fn [[dep version :as original]]
+                (assert version (pr-str original))
+                (->> classifiers
+                     (mapv (partial vector dep version :classifier))
+                     (into-distinct [original]) ;; favor the one with meta
+                     (remove (comp nil? second))
+                     ;; If a *transitive* dependency is explicitly specified by :managed-dependencies,
+                     ;; the managed version should take precedence (because that's their whole point):
+                     (remove (fn [[d v]]
+                               (->> managed-dependencies
+                                    (some (fn [[dd vv]]
+                                            (and (= d dd)
+                                                 v
+                                                 vv
+                                                 (not= v vv)))))))
+                     (keep (fn [x]
+                             ;; Keep only classified artifacts that exist...
+                             (let [v (->> (memoized-resolve! [x])
+                                          flatten-deps
+                                          (filter #{(maybe-add-exclusions x)})
+                                          first)]
+                               (when (some? v)
+                                 ;; ...and attach their meta (currently unused),
+                                 ;; especially for `:file`:
+                                 (with-meta x
+                                   (let [{:keys [file]} (meta v)]
+                                     (merge {:enrich-classpath/original-file original-file}
+                                            (when file
+                                              {:file (str file)}))))))))))]
+        (into []
+              (comp (mapcat f)
+                    (distinct))
+              transitive)))))
 
 (defn matches-version? [deps [s-or-j-name s-or-j-version :as s-or-j]]
   (let [[_ matching-version :as matching] (->> deps
@@ -314,10 +318,9 @@
                  (comp (map meta)
                        (map (juxt :enrich-classpath/original-file :file)))
                  additions)
-        #_ #_
-        originals (vec (into #{}
-                             (keep first)
-                             xs))
+        #_#_originals (vec (into #{}
+                                 (keep first)
+                                 xs))
         files (mapv second xs)]
     ;; I don't know why I originally coded it like this.
     ;; Original files would result in .class artifacts added again to the classpath.
@@ -384,25 +387,25 @@
                              additions))
         add-tools? (and (jdk/jdk8?)
                         (tools-jar-path))
-        enriched-deps-from-dependencies (->> (add-dependencies dependencies)
-                                             (remove (set dependencies))
-                                             (filter (fn [[_ _ classifier]]
-                                                       classifier))
-                                             (distinct)
-                                             (vec))
+        enriched-deps-from-dependencies (into []
+                                              (comp (remove (set dependencies))
+                                                    (filter (fn [[_ _ classifier]]
+                                                              classifier))
+                                                    (distinct))
+                                              (add-dependencies dependencies))
         tentative-dependencies-set (into dependencies enriched-deps-from-dependencies)
-        enriched-deps-from-managed-deps (->> (add-dependencies managed-dependencies)
-                                             (remove (set managed-dependencies))
-                                             (filter (fn [[_ _ classifier]]
-                                                       classifier))
-                                             (remove (fn [[dep version]]
-                                                       (->> tentative-dependencies-set
-                                                            (some (fn [[d v]]
-                                                                    (and (= d dep)
-                                                                         v
-                                                                         (not= version v)))))))
-                                             (distinct)
-                                             (vec))]
+        enriched-deps-from-managed-deps (into []
+                                              (comp (remove (set managed-dependencies))
+                                                    (filter (fn [[_ _ classifier]]
+                                                              classifier))
+                                                    (remove (fn [[dep version]]
+                                                              (->> tentative-dependencies-set
+                                                                   (some (fn [[d v]]
+                                                                           (and (= d dep)
+                                                                                v
+                                                                                (not= version v)))))))
+                                                    (distinct))
+                                              (add-dependencies managed-dependencies))]
     (cond-> project
       (not shorten) (update :dependencies rinto enriched-deps-from-dependencies)
       (not shorten) (update :dependencies rinto enriched-deps-from-managed-deps)
@@ -410,8 +413,12 @@
                                                   Pattern/quote
                                                   re-pattern))
       add-tools? (update :resource-paths rinto [(tools-jar-path)])
-      shorten (update :resource-paths rinto (vec (remove nil? [(jar-for! (additions->files enriched-deps-from-dependencies))
-                                                               (jar-for! (additions->files enriched-deps-from-managed-deps))])))
+      shorten (update :resource-paths
+                      rinto
+                      (into []
+                            (remove nil?)
+                            [(jar-for! (additions->files enriched-deps-from-dependencies))
+                             (jar-for! (additions->files enriched-deps-from-managed-deps))]))
       (seq java-source-paths) (update :resource-paths (fn [rp]
                                                         (let [corpus (->> java-source-paths
                                                                           (filterv (fn [jsp]

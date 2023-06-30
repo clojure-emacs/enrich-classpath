@@ -8,12 +8,12 @@
   {:pre  [(vector? coll)]
    :post [(or (-> % long pos?) ;; note: there's no nat-int? in old versions of Lein
               (-> % long zero?))]}
-  (->> coll
-       (map-indexed (fn [i x]
-                      (when (= x item)
-                        i)))
-       (filter some?)
-       first))
+  (first (into (empty coll)
+               (comp (map-indexed (fn [i x]
+                                    (when (= x item)
+                                      i)))
+                     (filter some?))
+               coll)))
 
 (defn normalize-exclusions [exclusions]
   (assert (or (sequential? exclusions)
