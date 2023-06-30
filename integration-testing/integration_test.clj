@@ -127,46 +127,48 @@
                                         :middleware ['cider.enrich-classpath/middleware]}}))))
 
 (defn prelude* [x profile]
-  (cond-> [x
-           "with-profile" profile
+  [x
+   "with-profile" profile
 
-           "update-in"
-           ":" "assoc" ":pedantic?" "false"
-           "--"
+   "update-in"
+   ":" "assoc" ":pedantic?" "false"
+   "--"
 
-           "update-in"
-           ":" "dissoc" ":javac-options"
-           "--"
+   "update-in"
+   ":" "dissoc" ":javac-options"
+   "--"
 
-           "update-in"
-           ":plugins" "conj" (str "[mx.cider/enrich-classpath \""
-                                  project-version
-                                  "\"]")
-           "--"
+   "update-in"
+   ":plugins" "conj" (str "[mx.cider/enrich-classpath \""
+                          project-version
+                          "\"]")
+   "--"
 
-           "update-in"
-           ":" "assoc" ":enrich-classpath" (format "{:classifiers #{\"sources\"}%s}"
-                                                   (if exercise-shorten?
-                                                     " :shorten true}"
-                                                     "}"))
-           "--"]))
+   "update-in"
+   ":" "assoc" ":enrich-classpath" (format "{:classifiers #{\"sources\"}%s}"
+                                           (if exercise-shorten?
+                                             " :shorten true}"
+                                             "}"))
+   "--"])
 
-(defn prelude [x]
-  (into (prelude* x "-user,+test")
-        ["update-in"
-         ":middleware" "conj" "cider.enrich-classpath/middleware"
-         "--"]))
+(defn prelude [x & [extra]]
+  (reduce into
+          []
+          [(prelude* x "-user,+test")
+           ["update-in" ":middleware" "conj" "cider.enrich-classpath/middleware" "--"]
+           extra]))
 
-(defn prelude-for-run [x]
-  (prelude* x "-user,+test,+enrich-classpath"))
+(defn prelude-for-run [x & [extra]]
+  (into (prelude* x "-user,+test,+enrich-classpath")
+        extra))
 
-(def vanilla-lein-deps
-  (conj (prelude lein) "deps"))
+(defn vanilla-lein-deps [& [extra]]
+  (conj (prelude lein extra) "deps"))
 
 (def run-command ["run" "-m" "clojure.main" "--" "-e" "(println *clojure-version*)"])
 
-(def vanilla-lein-run
-  (into (prelude-for-run lein) run-command))
+(defn vanilla-lein-run [& [extra]]
+  (into (prelude-for-run lein extra) run-command))
 
 (defn take-slice [coll]
   (nth (partition-all 5 coll) slice))
@@ -174,32 +176,32 @@
 (def deps-commands
   (take-slice
    (sort ;; ensure stable tests
-    {"aleph"         vanilla-lein-deps
-     "amazonica"     vanilla-lein-deps
-     "carmine"       vanilla-lein-deps
-     "cassaforte"    vanilla-lein-deps
-     "cider-nrepl"   vanilla-lein-deps
-     "elastisch"     vanilla-lein-deps
-     "http-kit"      vanilla-lein-deps
-     "jackdaw"       vanilla-lein-deps
-     "langohr"       vanilla-lein-deps
-     "machine_head"  vanilla-lein-deps
-     "metabase"      vanilla-lein-deps
-     "monger"        vanilla-lein-deps
-     "pallet"        vanilla-lein-deps
-     "quartzite"     vanilla-lein-deps
-     "riemann"       vanilla-lein-deps
-     "welle"         vanilla-lein-deps
+    {"aleph"         (vanilla-lein-deps)
+     "amazonica"     (vanilla-lein-deps)
+     "carmine"       (vanilla-lein-deps)
+     "cassaforte"    (vanilla-lein-deps)
+     "cider-nrepl"   (vanilla-lein-deps)
+     "elastisch"     (vanilla-lein-deps)
+     "http-kit"      (vanilla-lein-deps)
+     "jackdaw"       (vanilla-lein-deps)
+     "langohr"       (vanilla-lein-deps)
+     "machine_head"  (vanilla-lein-deps)
+     "metabase"      (vanilla-lein-deps)
+     "monger"        (vanilla-lein-deps)
+     "pallet"        (vanilla-lein-deps)
+     "quartzite"     (vanilla-lein-deps)
+     "riemann"       (vanilla-lein-deps)
+     "welle"         (vanilla-lein-deps)
      ;; uses various plugins:
-     "schema"        (with-meta vanilla-lein-deps
+     "schema"        (with-meta (vanilla-lein-deps)
                        ;; something core.rrb-vector related
                        {::skip-in-newer-jdks true})
      ;; uses lein-parent:
-     "trapperkeeper" vanilla-lein-deps
+     "trapperkeeper" (vanilla-lein-deps ["update-in" ":dependencies" "conj" "[org.clojure/clojure \"1.10.1\"]" "--"])
      ;; uses lein-parent:
-     "jepsen/jepsen" vanilla-lein-deps
+     "jepsen/jepsen" (vanilla-lein-deps)
      ;; uses lein-tools-deps:
-     "overtone"      vanilla-lein-deps
+     "overtone"      (vanilla-lein-deps)
      ;; uses lein-sub, lein-modules:
      "incanter"      (reduce into [] [(prelude lein)
                                       ["sub" "do"]
@@ -234,32 +236,32 @@
 (def run-commands
   (take-slice
    (sort ;; ensure stable tests
-    {"aleph"         vanilla-lein-run
-     "amazonica"     vanilla-lein-run
-     "carmine"       vanilla-lein-run
-     "cassaforte"    vanilla-lein-run
-     "cider-nrepl"   vanilla-lein-run
-     "elastisch"     vanilla-lein-run
-     "http-kit"      vanilla-lein-run
-     "jackdaw"       vanilla-lein-run
-     "langohr"       vanilla-lein-run
-     "machine_head"  vanilla-lein-run
-     "metabase"      vanilla-lein-run
-     "monger"        vanilla-lein-run
-     "pallet"        vanilla-lein-run
-     "quartzite"     vanilla-lein-run
-     "riemann"       vanilla-lein-run
-     "welle"         vanilla-lein-run
+    {"aleph"         (vanilla-lein-run)
+     "amazonica"     (vanilla-lein-run)
+     "carmine"       (vanilla-lein-run)
+     "cassaforte"    (vanilla-lein-run)
+     "cider-nrepl"   (vanilla-lein-run)
+     "elastisch"     (vanilla-lein-run)
+     "http-kit"      (vanilla-lein-run)
+     "jackdaw"       (vanilla-lein-run)
+     "langohr"       (vanilla-lein-run)
+     "machine_head"  (vanilla-lein-run)
+     "metabase"      (vanilla-lein-run)
+     "monger"        (vanilla-lein-run)
+     "pallet"        (vanilla-lein-run)
+     "quartzite"     (vanilla-lein-run)
+     "riemann"       (vanilla-lein-run)
+     "welle"         (vanilla-lein-run)
      ;; uses various plugins:
-     "schema"        (with-meta vanilla-lein-run
+     "schema"        (with-meta (vanilla-lein-run)
                        ;; something core.rrb-vector related
                        {::skip-in-newer-jdks true})
      ;; uses lein-parent:
-     "trapperkeeper" vanilla-lein-run
+     "trapperkeeper" (vanilla-lein-run ["update-in" ":dependencies" "conj" "[org.clojure/clojure \"1.10.1\"]" "--"])
      ;; uses lein-parent:
-     "jepsen/jepsen" vanilla-lein-run
+     "jepsen/jepsen" (vanilla-lein-run)
      ;; uses lein-tools-deps:
-     "overtone"      vanilla-lein-run
+     "overtone"      (vanilla-lein-run)
      ;; uses lein-sub, lein-modules:
      "incanter"      (reduce into [] [(prelude lein)
                                       ["sub" "do"]
@@ -377,9 +379,9 @@
                                                                                .getCanonicalPath)))
                                       _ (info (pr-str command))
                                       {:keys [out exit err]} (time id
-                                                                   (apply sh (into command
-                                                                                   [:dir dir
-                                                                                    :env env])))
+                                                               (apply sh (into command
+                                                                               [:dir dir
+                                                                                :env env])))
                                       ok? (zero? exit)]
                                   (assert ok? (when-not ok?
                                                 [id
@@ -483,7 +485,7 @@
                                            (-> f .isDirectory)))))
                              (some (fn [s]
                                      (string/includes? s "/java"))))
-                        [id classpath]))))
+                        [:java-source-paths-test! id classpath]))))
 
 (defn smoke-test! []
   (info "Running `smoke-test!`")
