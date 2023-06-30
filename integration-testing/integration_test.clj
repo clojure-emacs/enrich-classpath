@@ -378,6 +378,7 @@
                                       _ (info (str "Exercising " id " in " (-> dir
                                                                                .getCanonicalPath)))
                                       _ (info (pr-str command))
+                                      _ (shell/sh "git" "clean" "-fdx" :dir dir) ;; eases local development
                                       {:keys [out exit err]} (time id
                                                                (apply sh (into command
                                                                                [:dir dir
