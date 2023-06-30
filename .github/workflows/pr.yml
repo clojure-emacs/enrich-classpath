@@ -55,5 +55,5 @@ jobs:
         env:
           no_eval_in_leiningen: true
           integration_test_parallelism: ${{ matrix.integration-test-parallelism }}
-          shorten: ${{ matrix.shorten }}
-          enrich_classpath_ci_slice: << matrix.slice >>
+          enrich_classpath_ci_shorten: ${{ matrix.shorten }}
+          enrich_classpath_ci_slice: ${{ matrix.slice }}
