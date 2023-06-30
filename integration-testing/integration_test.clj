@@ -26,22 +26,28 @@
   (shell/sh "rm" "-rf" (jdk-sources/uncompressed-sources-dir))
   (-> sut/cache-filename File. .delete))
 
+(def parallelism-factor
+  (Long/parseLong (or (System/getenv "integration_test_parallelism")
+                      "1")))
+
 (defn sh [& args]
   (let [{:keys [exit] :as x} (apply shell/sh args)]
     (assert-middleware-ok! x)
     (if (zero? exit)
       x
       (do
-        (delete-m2!)
-        (reset-state!)
+        (when (#{1} parallelism-factor)
+          (delete-m2!)
+          (reset-state!))
         (Thread/sleep 200)
         (let [{:keys [exit] :as x} (apply shell/sh args)]
           (assert-middleware-ok! x)
           (if (zero? exit)
             x
             (do
-              (delete-m2!)
-              (reset-state!)
+              (when (#{1} parallelism-factor)
+                (delete-m2!)
+                (reset-state!))
               (Thread/sleep 400)
               (apply shell/sh args))))))))
 
@@ -321,10 +327,6 @@
                                                         (/ 1000000.0)
                                                         (/ 60000.0))))
      ret#))
-
-(def parallelism-factor
-  (Long/parseLong (or (System/getenv "integration_test_parallelism")
-                      "1")))
 
 (defn submodule-dir ^File [id]
   {:pre [(seq id)]}
