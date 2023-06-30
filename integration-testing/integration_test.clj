@@ -123,7 +123,7 @@
       (doto .mkdirs)
       (io/file "profiles.clj")
       (str)
-      (spit (pr-str {:enrich-classpath {:plugins [['mx.cider/enrich-classpath project-version]]
+      (spit (pr-str {:enrich-classpath {:plugins [['mx.cider/enrich-classpath project-version :exclusions ['org.clojure/clojure]]]
                                         :middleware ['cider.enrich-classpath/middleware]}}))))
 
 (defn prelude* [x profile]
@@ -141,7 +141,7 @@
    "update-in"
    ":plugins" "conj" (str "[mx.cider/enrich-classpath \""
                           project-version
-                          "\"]")
+                          "\" :exclusions [org.clojure/clojure]]")
    "--"
 
    "update-in"
