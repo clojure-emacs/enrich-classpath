@@ -109,6 +109,16 @@ jobs:
           name: Exercise the plugin over a variety of real-world projects
           command: integration_test_parallelism=<< parameters.integration_test_parallelism >> enrich_classpath_ci_shorten=<< parameters.shorten >> enrich_classpath_ci_slice=<< parameters.slice >> lein integration-test
 
+      - run:
+          name: Exercise the plugin over a variety of real-world projects (Retry)
+          command: integration_test_parallelism=<< parameters.integration_test_parallelism >> enrich_classpath_ci_shorten=<< parameters.shorten >> enrich_classpath_ci_slice=<< parameters.slice >> lein integration-test
+          when: on_fail
+
+      - run:
+          name: Exercise the plugin over a variety of real-world projects (Retry)
+          command: integration_test_parallelism=<< parameters.integration_test_parallelism >> enrich_classpath_ci_shorten=<< parameters.shorten >> enrich_classpath_ci_slice=<< parameters.slice >> lein integration-test
+          when: on_fail
+
       # The cache is saved as a last step so that the integration test's fetched dependencies are also cached:
       - save_cache:
           paths:
