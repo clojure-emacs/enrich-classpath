@@ -40,11 +40,14 @@
 
              :integration-testing {:source-paths ["integration-testing"]}
 
-             :self-test           {:middleware   [cider.enrich-classpath/middleware]
-                                   :plugins      [[mx.cider/enrich-classpath ~project-version]]
-                                   :jvm-opts     ["-Dcider.enrich-classpath.throw=true"]
+             :self-test           {:middleware           [cider.enrich-classpath/middleware]
+                                   :plugins              [[mx.cider/enrich-classpath ~project-version]]
+                                   :jvm-opts             ["-Dcider.enrich-classpath.throw=true"]
                                    ;; ensure that at least one dependency will fetch sources:
-                                   :dependencies [[puppetlabs/trapperkeeper-webserver-jetty9 "4.1.0"]]}
+                                   :dependencies         [[puppetlabs/trapperkeeper-webserver-jetty9 "4.1.0"]]
+                                   :managed-dependencies [[commons-codec "1.10"]
+                                                          [org.slf4j/slf4j-api "1.7.25"]
+                                                          [org.clojure/tools.reader "1.0.0-beta4"]]}
 
              :shorten             {:enrich-classpath {:shorten true}}
 
