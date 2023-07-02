@@ -338,10 +338,13 @@
                                                                         resource-paths
                                                                         source-paths
                                                                         test-paths]
-            {:keys               [classifiers shorten]
+            {:keys               [classifiers
+                                  shorten
+                                  only-present-results?] ;; if true, the project is not modified - instead the results are assoced to :enrich-classpath
              plugin-repositories :repositories
              :or                 {classifiers #{"javadoc" "sources"}
-                                  shorten false}} :enrich-classpath
+                                  shorten false
+                                  only-present-results? false}} :enrich-classpath
             :as                                                        project}]
 
   (debug (str [::classifiers classifiers]))
@@ -405,31 +408,40 @@
                                                                                 v
                                                                                 (not= version v)))))))
                                                     (distinct))
-                                              (add-dependencies managed-dependencies))]
-    (cond-> project
-      (not shorten) (update :dependencies rinto enriched-deps-from-dependencies)
-      (not shorten) (update :dependencies rinto enriched-deps-from-managed-deps)
-      add-tools? (update :jar-exclusions conj (-> (tools-jar-path)
-                                                  Pattern/quote
-                                                  re-pattern))
-      add-tools? (update :resource-paths rinto [(tools-jar-path)])
-      shorten (update :resource-paths
-                      rinto
-                      (into []
-                            (remove nil?)
-                            [(jar-for! (additions->files enriched-deps-from-dependencies))
-                             (jar-for! (additions->files enriched-deps-from-managed-deps))]))
-      (seq java-source-paths) (update :resource-paths (fn [rp]
-                                                        (let [corpus (->> java-source-paths
-                                                                          (filterv (fn [jsp]
-                                                                                     (let [s #{jsp}]
-                                                                                       (and (not-any? s rp)
-                                                                                            (not-any? s source-paths)
-                                                                                            (not-any? s test-paths))))))]
-                                                          (if (seq corpus)
-                                                            (into corpus rp)
-                                                            rp))))
-      true (update :resource-paths into (jdk-sources/resources-to-add)))))
+                                              (add-dependencies managed-dependencies))
+        java-source-paths-to-add (fn [rp]
+                                   (->> java-source-paths
+                                        (filterv (fn [jsp]
+                                                   (let [s #{jsp}]
+                                                     (and (not-any? s rp)
+                                                          (not-any? s source-paths)
+                                                          (not-any? s test-paths)))))))]
+    (if only-present-results?
+      (-> project
+          (assoc-in [:enrich-classpath :results :tools] [(tools-jar-path)])
+          (assoc-in [:enrich-classpath :results :dependencies] [(jar-for! (additions->files enriched-deps-from-dependencies))])
+          (assoc-in [:enrich-classpath :results :managed-dependencies] [(jar-for! (additions->files enriched-deps-from-managed-deps))])
+          (assoc-in [:enrich-classpath :results :java-source-paths] (java-source-paths-to-add resource-paths))
+          (assoc-in [:enrich-classpath :results :jdk-sources] (jdk-sources/resources-to-add)))
+      (cond-> project
+        (not shorten) (update :dependencies rinto enriched-deps-from-dependencies)
+        (not shorten) (update :dependencies rinto enriched-deps-from-managed-deps)
+        add-tools? (update :jar-exclusions conj (-> (tools-jar-path)
+                                                    Pattern/quote
+                                                    re-pattern))
+        add-tools? (update :resource-paths rinto [(tools-jar-path)])
+        shorten (update :resource-paths
+                        rinto
+                        (into []
+                              (remove nil?)
+                              [(jar-for! (additions->files enriched-deps-from-dependencies))
+                               (jar-for! (additions->files enriched-deps-from-managed-deps))]))
+        (seq java-source-paths) (update :resource-paths (fn [rp]
+                                                          (let [corpus (java-source-paths-to-add rp)]
+                                                            (if (seq corpus)
+                                                              (into corpus rp)
+                                                              rp))))
+        true (update :resource-paths into (jdk-sources/resources-to-add))))))
 
 (defmacro time
   {:style/indent 1}

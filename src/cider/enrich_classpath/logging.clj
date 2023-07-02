@@ -2,34 +2,35 @@
   (:import
    (clojure.lang IFn)))
 
-(def info-lock (Object.))
-
 ;; These logging helpers ease developing the plugin itself
 ;; (since leiningen.core cannot be required in rich repls, deps.edn projects, etc)
+
+(def lein? (try
+             (require 'leiningen.core.main)
+             true
+             (catch Exception e
+               false)))
+
 (def debug-lock (Object.))
 
-(defn debug [x]
-  (locking debug-lock
-    (try
-      (require 'leiningen.core.main)
-      (-> 'leiningen.core.main/debug ^IFn resolve (.invoke x))
-      (catch Exception e
-        (println x)))))
-
-(defn info [x]
-  (locking info-lock
-    (try
-      (require 'leiningen.core.main)
-      (-> 'leiningen.core.main/info ^IFn resolve (.invoke x))
-      (catch Exception e
-        (println x)))))
+(def info-lock (Object.))
 
 (def warn-lock (Object.))
 
+(defn debug [x]
+  (locking debug-lock
+    (if lein?
+      (-> 'leiningen.core.main/debug ^IFn (resolve) (.invoke x))
+      (println x))))
+
+(defn info [x]
+  (locking info-lock
+    (if lein?
+      (-> 'leiningen.core.main/info ^IFn (resolve) (.invoke x))
+      (println x))))
+
 (defn warn [x]
-  (locking warn-lock
-    (try
-      (require 'leiningen.core.main)
-      (-> 'leiningen.core.main/warn ^IFn resolve (.invoke x))
-      (catch Exception e
-        (println x)))))
+  (if lein?
+    (locking warn-lock
+      (-> 'leiningen.core.main/warn ^IFn (resolve) (.invoke x))
+      (println x))))
