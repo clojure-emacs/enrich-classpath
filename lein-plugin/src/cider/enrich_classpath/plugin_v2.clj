@@ -38,8 +38,7 @@
                                                )]}))
 
 (defn format-jvm-opts [{:keys [jvm-opts compile-path]}]
-  (let [a (->> jvm-opts
-               (mapv pr-str))
+  (let [a jvm-opts
         b (some->> compile-path
                    not-empty
                    string/trim
