@@ -17,14 +17,17 @@ install-base: .inline-deps check-install-env
 install-deps: install-base
 	cd tools.deps; lein with-profile -user install
 
+install-plugin: install-base
+	cd lein-plugin; lein with-profile -user install
+
 # Usage: PROJECT_VERSION=1.10.0 make install
 # PROJECT_VERSION is needed because it's not computed dynamically
-install: install-base install-deps
+install: install-base install-deps install-plugin
 
 deploy: check-env inline-deps
 	lein with-profile -user,-dev,+plugin.mranderson/config deploy clojars
 	cd tools.deps; lein with-profile -user deploy clojars
-	cd ../lein-plugin; lein with-profile -user deploy clojars
+	cd lein-plugin; lein with-profile -user deploy clojars
 
 check-env:
 ifndef CLOJARS_USERNAME
