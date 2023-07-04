@@ -1,5 +1,5 @@
 # enrich-classpath
-[![Clojars Project](https://img.shields.io/clojars/v/mx.cider/enrich-classpath.svg)](https://clojars.org/mx.cider/enrich-classpath) [![Clojars Project](https://img.shields.io/clojars/v/mx.cider/tools.deps.enrich-classpath.svg)](https://clojars.org/mx.cider/tools.deps.enrich-classpath)
+[![Clojars Project](https://img.shields.io/clojars/v/mx.cider/enrich-classpath.svg)](https://clojars.org/mx.cider/enrich-classpath) [![Clojars Project](https://img.shields.io/clojars/v/mx.cider/tools.deps.enrich-classpath.svg)](https://clojars.org/mx.cider/tools.deps.enrich-classpath) [![Clojars Project](https://img.shields.io/clojars/v/mx.cider/lein-enrich-classpath.svg)](https://clojars.org/mx.cider/lein-enrich-classpath)
 
 A library (and Leiningen plugin) that, as its main feature, automatically downloads all available `.jar`s with Java sources and javadocs for a given project, so that various tooling (typically IDEs) can access it.
 
@@ -51,7 +51,7 @@ Add the following somewhere in your `~/.lein/profiles.clj` (aka your [user-wide 
 ;; Installing this plugin under the :repl profile is most recommended for best performance,
 ;; especially if you work with a monorepo with a complex build process.  
 :repl {:middleware [cider.enrich-classpath/middleware]
-       :plugins    [[mx.cider/enrich-classpath "1.10.0"]]
+       :plugins    [[mx.cider/enrich-classpath "1.11.1"]]
        ;; Optional - you can use this option to specify a different set (e.g. a smaller set like #{"sources"} is more performant)
        :enrich-classpath {:classifiers #{"sources" "javadoc"}}}
 ```
@@ -67,7 +67,7 @@ enrich-classpath has a distinct artifact intended for tools.deps usage:
 <!-- Updating the version below? Please also update it in the `clojure.sh` script -->
 
 ```clj
-mx.cider/tools.deps.enrich-classpath {:mvn/version "1.10.0"}
+mx.cider/tools.deps.enrich-classpath {:mvn/version "1.11.1"}
 ```
 
 Usage is still TBD.
