@@ -147,7 +147,39 @@ jobs:
 
       - run:
           name: Lint
-          command: cd tools.deps; lein with-profile -user,+test,+eastwood eastwood
+          working_directory: tools.deps
+          command: lein with-profile -user,+test,+eastwood eastwood
+
+  test-lein-plugin:
+    parameters:
+      executor:
+        type: executor
+    executor: << parameters.executor >>
+    environment:
+      PROJECT_VERSION: 999.99.9
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - v2-dependencies-{{ checksum "project.clj" }}
+
+      - run:
+          name: Fetch dependencies
+          command: "$LEIN_DEPS_COMMAND || $LEIN_DEPS_COMMAND || $LEIN_DEPS_COMMAND"
+
+      - run:
+          name: Install
+          command: make install-base
+
+      - run:
+          name: Test
+          working_directory: lein-plugin
+          command: lein with-profile -user,-dev test || lein with-profile -user,-dev test || lein with-profile -user,-dev test
+
+      - run:
+          name: Lint
+          working_directory: lein-plugin
+          command: lein with-profile -user,+test,+eastwood eastwood
 
   deploy:
     executor: openjdk8_deploy
@@ -178,7 +210,19 @@ workflows:
               integration_test_parallelism: ["1"]
               shorten: ["true", "false"]
               slice: ["1", "2", "3", "4", "5"]
+          requires:
+            - test-deps-edn
+            - test-lein-plugin
       - test-deps-edn:
+          filters:
+            branches:
+              only: /.*/
+            tags:
+              only: /^v\d+\.\d+\.\d+(-alpha\d+)?$/
+          matrix:
+            parameters:
+              executor: [openjdk8, openjdk11, openjdk16, openjdk17]
+      - test-lein-plugin:
           filters:
             branches:
               only: /.*/
@@ -191,6 +235,7 @@ workflows:
           requires:
             - test
             - test-deps-edn
+            - test-lein-plugin
           filters:
             branches:
               ignore: /.*/

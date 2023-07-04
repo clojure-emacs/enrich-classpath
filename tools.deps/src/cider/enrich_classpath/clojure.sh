@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
-# sample usage: src/cider/enrich_classpath/clojure.sh clojure -Asome-alias <<< "(System/getProperty \"java.class.path\")"
+# sample usage: clojure.sh clojure -Asome-alias <<< "(System/getProperty \"java.class.path\")"
 
 clojure="$1"
 # remove it from "$@"/"$*":
@@ -22,8 +22,10 @@ else
   here="$PWD"
 
   # don't let local deps.edn files interfere:
+  # XXX prefer a tmp dir. Make x-platform
   cd
 
+  # enrich-classpath will emit a command starting by "clojure", or print a stacktrace:
   output=$(2>&1 "$clojure" -Sforce -Srepro -J-XX:-OmitStackTraceInFastThrow -J-Dclojure.main.report=stderr -Sdeps '{:deps {mx.cider/tools.deps.enrich-classpath {:mvn/version "1.10.0"}}}' -M -m cider.enrich-classpath.clojure "$clojure" "$here" "true" "$@")
   cmd=$(tail -n1 <(echo "$output"))
 

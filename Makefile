@@ -24,6 +24,7 @@ install: install-base install-deps
 deploy: check-env inline-deps
 	lein with-profile -user,-dev,+plugin.mranderson/config deploy clojars
 	cd tools.deps; lein with-profile -user deploy clojars
+	cd ../lein-plugin; lein with-profile -user deploy clojars
 
 check-env:
 ifndef CLOJARS_USERNAME
