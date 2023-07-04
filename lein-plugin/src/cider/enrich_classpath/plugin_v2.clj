@@ -57,6 +57,7 @@
         nrepl-options (format-nrepl-options repl-options)
         sep (System/getProperty "path.separator")
         orig (cond-> project
+               ;; XXX condition could be better: instead of this, resolve deps+mged-deps, check all of them (i.e. the transitives ones)
                (not-any? (comp '#{nrepl/nrepl nrepl} first) (:dependencies project))
                (update :dependencies conj '[nrepl/nrepl "1.0.0"])
 
@@ -85,7 +86,7 @@
              (remove empty?)
              (string/join sep))
 
-        enriched-classpath (str orig ":" suffix)]
+        enriched-classpath (str orig sep suffix)]
     (format "%s -cp %s%sclojure.main -m nrepl.cmdline %s"
             java
             enriched-classpath
