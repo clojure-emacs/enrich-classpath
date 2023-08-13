@@ -25,18 +25,6 @@
        (reduce into [])
        (string/join " ")))
 
-(comment
-  (format-nrepl-options {:transport 'a/b
-                         :nrepl-handler 'b/c
-                         :socket "sfsf"
-                         :host "l"
-                         :port 23423
-                         :nrepl-middleware '[foo/bar
-                                             quux/quuz
-                                             baz
-                                             (fn []
-                                               )]}))
-
 (defn format-jvm-opts [{:keys [jvm-opts compile-path]}]
   (let [a jvm-opts
         b (some->> compile-path
@@ -49,6 +37,9 @@
     (if res
       (str " " res " ")
       "")))
+
+(defn wrap-silently [init]
+  (list `do (list `with-out-str (list `binding [`*err* `*out*] init)) nil))
 
 (defn middleware* [{:keys [repl-options] :as project}]
   (let [java (or (some-> project :java not-empty string/trim)
@@ -85,11 +76,22 @@
              (remove empty?)
              (string/join sep))
 
-        enriched-classpath (str orig sep suffix)]
-    (format "%s -cp %s%sclojure.main -m nrepl.cmdline %s"
+        enriched-classpath (str orig sep suffix)
+        {:keys [init]} repl-options
+        init-form (or (when (and init
+                                 (try
+                                   (not (empty? init))
+                                   (catch Exception _
+                                     true)))
+                        (str " --eval "
+                             (pr-str (pr-str (wrap-silently init)))
+                             " "))
+                      " ")]
+    (format "%s -cp %s%sclojure.main%s-m nrepl.cmdline %s"
             java
             enriched-classpath
             (format-jvm-opts project)
+            init-form
             nrepl-options)))
 
 (defn middleware [project]
