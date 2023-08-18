@@ -19,11 +19,36 @@
         zis (-> target io/input-stream ZipInputStream.)]
     (try
       (while-let [entry (-> zis .getNextEntry)]
-        (vswap! v conj (-> ^ZipEntry entry .getName)))
+        (vswap! v conj (-> ^ZipEntry entry .getName (string/split #"/"))))
       (catch ZipException _)
       (finally
         (-> zis .close)))
     @v))
+
+(def factory-files
+  "https://github.com/clojure-emacs/enrich-classpath/issues/27"
+  #{"javax.xml.bind.JAXBContext"
+    "javax.xml.datatype.DatatypeFactory"
+    "javax.xml.parsers.DocumentBuilderFactory"
+    "javax.xml.parsers.SAXParserFactory"
+    "javax.xml.soap.MessageFactory"
+    "javax.xml.soap.SOAPConnectionFactory"
+    "javax.xml.soap.SOAPFactory"
+    "javax.xml.stream.XMLEventFactory"
+    "javax.xml.stream.XMLInputFactory"
+    "javax.xml.stream.XMLOutputFactory"
+    "javax.xml.transform.TransformerFactory"
+    "javax.xml.validation.SchemaFactory"
+    "javax.xml.ws.Service"
+    "javax.xml.xpath.XPathFactory"
+    "org.apache.xerces.xni.parser.XMLParserConfiguration"
+    "org.w3c.dom.DOMImplementationSourceList"
+    "org.xml.sax.XMLReader"
+    "org.xml.sax.Driver"
+    "org.xml.sax.helpers.XMLReaderFactory"})
+
+(def factory-file-like-re
+  #"^([a-z\d]+\.)+[A-Z]")
 
 (defn bad-source? [[id version _classifier-keyword classifier]]
   {:pre [(symbol? id)
@@ -40,8 +65,14 @@
           artifact (str artifactid "-" version "-" classifier  ".jar")
           ^File file (io/file file artifactid version artifact)]
       (when (-> file .exists)
-        (->> file
-             ls-zip
-             (not-any? (fn [^String s]
-                         (or (-> s (.endsWith ".java"))
-                             (-> s (.endsWith ".scala"))))))))))
+        (let [contained-files (ls-zip file)]
+          (boolean (or (not-any? (fn [fragments]
+                                   (let [^String s (last fragments)]
+                                     (or (-> s (.endsWith ".java"))
+                                         (-> s (.endsWith ".scala")))))
+                                 contained-files)
+                       (some (fn [[dir :as fragments]]
+                               (let [filename (peek fragments)]
+                                 (or (contains? factory-files filename)
+                                     (re-find factory-file-like-re filename))))
+                             contained-files))))))))
