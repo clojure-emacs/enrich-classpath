@@ -183,20 +183,7 @@ since a git repo inherently cannot resolve to a .jar artifact"
                                                                [commons-codec "1.6" :classifier "sources"]
                                                                [joda-time "2.8.2" :classifier "sources"]
                                                                [ch.qos.logback/logback-access "1.2.3" :classifier "sources"]
-                                                               [ch.qos.logback/logback-classic "1.2.3" :classifier "sources"]
                                                                [ch.qos.logback/logback-core "1.2.3" :classifier "sources"]
-                                                               [com.fasterxml.jackson.core/jackson-core
-                                                                "2.9.0"
-                                                                :classifier
-                                                                "sources"]
-                                                               [com.fasterxml.jackson.dataformat/jackson-dataformat-cbor
-                                                                "2.9.0"
-                                                                :classifier
-                                                                "sources"]
-                                                               [com.fasterxml.jackson.dataformat/jackson-dataformat-smile
-                                                                "2.9.0"
-                                                                :classifier
-                                                                "sources"]
                                                                [com.typesafe/config "1.2.0" :classifier "sources"]
                                                                [de.kotka/lazymap "3.1.0" :exclusions [[org.clojure/clojure]]]
                                                                [javax.servlet/javax.servlet-api "3.1.0" :classifier "sources"]
@@ -204,82 +191,22 @@ since a git repo inherently cannot resolve to a .jar artifact"
                                                                [org.clojure/clojure "1.10.1" :classifier "sources"]
                                                                [org.codehaus.janino/commons-compiler "3.0.8" :classifier "sources"]
                                                                [org.codehaus.janino/janino "3.0.8" :classifier "sources"]
-                                                               [org.eclipse.jetty/jetty-client
-                                                                "9.4.28.v20200408"
-                                                                :classifier
-                                                                "sources"]
-                                                               [org.eclipse.jetty/jetty-continuation
-                                                                "9.4.28.v20200408"
-                                                                :classifier
-                                                                "sources"]
-                                                               [org.eclipse.jetty/jetty-http
-                                                                "9.4.28.v20200408"
-                                                                :classifier
-                                                                "sources"]
-                                                               [org.eclipse.jetty/jetty-io
-                                                                "9.4.28.v20200408"
-                                                                :classifier
-                                                                "sources"]
-                                                               [org.eclipse.jetty/jetty-jmx
-                                                                "9.4.28.v20200408"
-                                                                :classifier
-                                                                "sources"]
-                                                               [org.eclipse.jetty/jetty-proxy
-                                                                "9.4.28.v20200408"
-                                                                :classifier
-                                                                "sources"]
-                                                               [org.eclipse.jetty/jetty-security
-                                                                "9.4.28.v20200408"
-                                                                :classifier
-                                                                "sources"]
-                                                               [org.eclipse.jetty/jetty-server
-                                                                "9.4.28.v20200408"
-                                                                :classifier
-                                                                "sources"]
-                                                               [org.eclipse.jetty/jetty-server
-                                                                "9.4.28.v20200408"
-                                                                :exclusions
-                                                                [[org.eclipse.jetty.orbit/javax.servlet]]]
-                                                               [org.eclipse.jetty/jetty-servlet
-                                                                "9.4.28.v20200408"
-                                                                :classifier
-                                                                "sources"]
-                                                               [org.eclipse.jetty/jetty-servlets
-                                                                "9.4.28.v20200408"
-                                                                :classifier
-                                                                "sources"]
-                                                               [org.eclipse.jetty/jetty-util
-                                                                "9.4.28.v20200408"
-                                                                :classifier
-                                                                "sources"]
-                                                               [org.eclipse.jetty/jetty-webapp
-                                                                "9.4.28.v20200408"
-                                                                :classifier
-                                                                "sources"]
-                                                               [org.eclipse.jetty/jetty-xml
-                                                                "9.4.28.v20200408"
-                                                                :classifier
-                                                                "sources"]
-                                                               [org.eclipse.jetty.websocket/websocket-api
-                                                                "9.4.28.v20200408"
-                                                                :classifier
-                                                                "sources"]
-                                                               [org.eclipse.jetty.websocket/websocket-client
-                                                                "9.4.28.v20200408"
-                                                                :classifier
-                                                                "sources"]
-                                                               [org.eclipse.jetty.websocket/websocket-common
-                                                                "9.4.28.v20200408"
-                                                                :classifier
-                                                                "sources"]
-                                                               [org.eclipse.jetty.websocket/websocket-server
-                                                                "9.4.28.v20200408"
-                                                                :classifier
-                                                                "sources"]
-                                                               [org.eclipse.jetty.websocket/websocket-servlet
-                                                                "9.4.28.v20200408"
-                                                                :classifier
-                                                                "sources"]
+                                                               [org.eclipse.jetty/jetty-client "9.4.28.v20200408" :classifier "sources"]
+                                                               [org.eclipse.jetty/jetty-continuation "9.4.28.v20200408" :classifier "sources"]
+                                                               [org.eclipse.jetty/jetty-io "9.4.28.v20200408" :classifier "sources"]
+                                                               [org.eclipse.jetty/jetty-jmx "9.4.28.v20200408" :classifier "sources"]
+                                                               [org.eclipse.jetty/jetty-proxy "9.4.28.v20200408" :classifier "sources"]
+                                                               [org.eclipse.jetty/jetty-security "9.4.28.v20200408" :classifier "sources"]
+                                                               [org.eclipse.jetty/jetty-server "9.4.28.v20200408" :classifier "sources"]
+                                                               [org.eclipse.jetty/jetty-server "9.4.28.v20200408" :exclusions [[org.eclipse.jetty.orbit/javax.servlet]]]
+                                                               [org.eclipse.jetty/jetty-servlet "9.4.28.v20200408" :classifier "sources"]
+                                                               [org.eclipse.jetty/jetty-servlets "9.4.28.v20200408" :classifier "sources"]
+                                                               [org.eclipse.jetty/jetty-util "9.4.28.v20200408" :classifier "sources"]
+                                                               [org.eclipse.jetty/jetty-webapp "9.4.28.v20200408" :classifier "sources"]
+                                                               [org.eclipse.jetty/jetty-xml "9.4.28.v20200408" :classifier "sources"]
+                                                               [org.eclipse.jetty.websocket/websocket-api "9.4.28.v20200408" :classifier "sources"]
+                                                               [org.eclipse.jetty.websocket/websocket-client "9.4.28.v20200408" :classifier "sources"]
+                                                               [org.eclipse.jetty.websocket/websocket-servlet "9.4.28.v20200408" :classifier "sources"]
                                                                [org.gnu.gettext/libintl "0.18.3" :classifier "sources"]
                                                                [org.ini4j/ini4j "0.5.2" :classifier "sources"]
                                                                [org.ow2.asm/asm-all "4.2" :classifier "sources"]

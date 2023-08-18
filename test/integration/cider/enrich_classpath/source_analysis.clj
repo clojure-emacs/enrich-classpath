@@ -17,4 +17,10 @@
     '[org.clojure/tools.namespace "0.3.1" :classifier "sources"] true
 
     "The source artifact for clojure.core is not a bad source, because it bundles .java files"
-    '[org.clojure/clojure "1.10.3" :classifier "sources"] false))
+    '[org.clojure/clojure "1.10.3" :classifier "sources"] false
+
+    "A source artifact including a factory file is a bad source"
+    '[net.sourceforge.nekohtml/nekohtml "1.9.22" :classifier "sources"] true
+
+    "A source artifact including a factory file is a bad source"
+    '[ch.qos.logback/logback-classic "1.2.3" :classifier "sources"] true))
