@@ -32,7 +32,8 @@ else
   cd "$here"
 
   if grep --silent "^$clojure" <<< "$cmd"; then
-    $cmd
+    # eval is necessary because $cmd contains arguments that have been processed through pr-str.
+    eval "$cmd"
   else
     # Print errors:
     echo "$output"
