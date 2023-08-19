@@ -128,6 +128,7 @@ jobs:
       PROJECT_VERSION: 999.99.9
     steps:
       - checkout
+      - shellcheck/install
       - restore_cache:
           keys:
             - v2-dependencies-{{ checksum "project.clj" }}
@@ -149,6 +150,11 @@ jobs:
           name: Lint
           working_directory: tools.deps
           command: lein with-profile -user,+test,+eastwood eastwood
+
+      - run:
+          name: Shellcheck
+          working_directory: tools.deps
+          command: shellcheck src/cider/enrich_classpath/clojure.sh
 
   test-lein-plugin:
     parameters:
