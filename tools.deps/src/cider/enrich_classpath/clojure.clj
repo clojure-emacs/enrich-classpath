@@ -116,7 +116,7 @@
                                       [9 (or lib-name path-key)]))))
                        (map first)
                        (string/join File/pathSeparator))]
-    (-> args
+    (-> (mapv pr-str args)
         (conj "-Sforce" "-Srepro" "-J-XX:-OmitStackTraceInFastThrow" "-J-Dclojure.main.report=stderr" "-Scp" classpath)
         (commandize clojure))))
 

@@ -12,6 +12,8 @@
                              ["-Asome-alias"]
                              false)]
         (testing actual
+          (is (-> actual (.contains "\"-Asome-alias\""))
+              "Applies `pr-str` over args")
           (is (-> actual (.contains "src:test:other:the-extra-path:resource:resources")))
           (is (-> actual (.contains "the-extra-path")))
           (is (-> actual (.contains "refactor-nrepl")))
