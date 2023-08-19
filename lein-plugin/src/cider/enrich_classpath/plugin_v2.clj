@@ -38,8 +38,16 @@
       (str " " res " ")
       "")))
 
-(defn wrap-silently [init]
-  (list `do (list `with-out-str (list `binding [`*err* `*out*] init)) nil))
+(defn wrap-try
+  "Wraps `init` in a try/catch because otherwise `clojure.main`
+  can fail at startup, while 'init' errors can often be remediated by the user later."
+  [init]
+  ;; Note that we don't need to suppress output (I formerly did that for stdout/stderr).
+  ;; This code runs after the classpath has been enriched and the `java` command has been generated.
+  (list `try
+        init
+        (list `catch `Throwable 'e
+              (list '.printStackTrace 'e))))
 
 (defn middleware* [{:keys [repl-options] :as project}]
   (let [java (or (some-> project :java not-empty string/trim)
@@ -84,7 +92,7 @@
                                    (catch Exception _
                                      true)))
                         (str " --eval "
-                             (pr-str (pr-str (wrap-silently init)))
+                             (pr-str (pr-str (wrap-try init)))
                              " "))
                       " ")]
     (format "%s -cp %s%sclojure.main%s-m nrepl.cmdline %s"
