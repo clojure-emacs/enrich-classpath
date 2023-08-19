@@ -4,7 +4,8 @@
    [cider.enrich-classpath.jdk :as jdk]
    [clojure.java.io :as io]
    [clojure.string :as string]
-   [clojure.tools.deps :as tools.deps])
+   [clojure.tools.deps :as tools.deps]
+   [clojure.tools.deps.util.dir :refer [with-dir]])
   (:import
    (java.io File)))
 
@@ -24,10 +25,14 @@
                                             (string/split #":")))))
                             (map keyword))
                       args)
+        deps-dir (io/file pwd)
+        deps-filename (str (io/file pwd deps-edn-filename))
         {:keys [paths deps]
          {:keys [extra-paths extra-deps]} :argmap
-         :as basis} (tools.deps/create-basis {:project (-> pwd (io/file deps-edn-filename) str)
-                                              :aliases aliases})
+         :as basis} (with-dir deps-dir
+                      ;; `with-dir` allows us to use relative directories unrelated to the JVM's CWD.
+                      (tools.deps/create-basis {:aliases aliases
+                                                :project deps-filename}))
         paths (into paths extra-paths)
         deps (into deps extra-deps)
         original-paths-set (set paths)
