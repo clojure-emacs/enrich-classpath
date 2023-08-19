@@ -5,7 +5,7 @@
    [clojure.test :refer [deftest is testing use-fixtures]]))
 
 (use-fixtures :each (fn [t]
-                      (with-redefs [sut/wrap-silently identity]
+                      (with-redefs [sut/wrap-try identity]
                         (t))))
 
 (def classpath-starts-with
