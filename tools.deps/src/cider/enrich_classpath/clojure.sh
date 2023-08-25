@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
+# This wrapper script adds enrich-classpath's (https://github.com/clojure-emacs/enrich-classpath) functionalities to the `clojure` binary.
+# It works by accepting the `clojure` binary as the first argument, and whatever arguments you'd pass to `clojure` as the rest.
 # sample usage: clojure.sh clojure -Asome-alias <<< "(System/getProperty \"java.class.path\")"
 
 clojure="$1"
@@ -26,7 +28,7 @@ else
   cd "$there"
 
   # enrich-classpath will emit a command starting by "clojure", or print a stacktrace:
-  output=$(2>&1 "$clojure" -Sforce -Srepro -J-XX:-OmitStackTraceInFastThrow -J-Dclojure.main.report=stderr -Sdeps '{:deps {mx.cider/tools.deps.enrich-classpath {:mvn/version "1.14.0"}}}' -M -m cider.enrich-classpath.clojure "$clojure" "$here" "true" "$@")
+  output=$(2>&1 "$clojure" -Sforce -Srepro -J-XX:-OmitStackTraceInFastThrow -J-Dclojure.main.report=stderr -Sdeps '{:deps {mx.cider/tools.deps.enrich-classpath {:mvn/version "1.15.0"}}}' -M -m cider.enrich-classpath.clojure "$clojure" "$here" "true" "$@")
   cmd=$(tail -n1 <(echo "$output"))
 
   cd "$here"
