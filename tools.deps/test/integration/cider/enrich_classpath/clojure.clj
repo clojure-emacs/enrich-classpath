@@ -20,6 +20,8 @@
           (is (-> actual (.contains "-Scp")))
           (is (-> actual (.contains "src.zip")))
           (is (-> actual (.contains "-sources.jar")))
+          (is (-> actual (.contains "grpc-protobuf-1.14.0-sources.jar"))
+              "Includes a source from a dependency fetched through a `:local/root` reference")
           (is (-> actual (.contains "-javadoc.jar")))
           (when (re-find #"^1\.8\." (System/getProperty "java.version"))
             (is (-> actual (.contains "unzipped-jdk-sources"))))))))

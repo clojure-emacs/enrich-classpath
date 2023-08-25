@@ -1,0 +1,1 @@
+{:deps {io.grpc/grpc-protobuf {:mvn/version "1.14.0"}}}

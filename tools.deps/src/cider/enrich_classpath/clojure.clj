@@ -27,24 +27,26 @@
                       args)
         deps-dir (io/file pwd)
         deps-filename (str (io/file pwd deps-edn-filename))
-        {:keys [paths deps]
-         {:keys [extra-paths extra-deps]} :argmap
+        {original-deps :deps
+         :keys [paths libs]
+         {:keys [extra-paths]} :argmap
          :as basis} (with-dir deps-dir
                       ;; `with-dir` allows us to use relative directories unrelated to the JVM's CWD.
                       (tools.deps/create-basis {:aliases aliases
                                                 :project deps-filename}))
+        ;; these are the deps after resolving aliases, and `:local/root` references:
+        deps (into []
+                   (keep (fn [[artifact-name {mv :mvn/version}]]
+                           (when mv
+                             [artifact-name mv])))
+                   libs)
         paths (into paths extra-paths)
-        deps (into deps extra-deps)
         original-paths-set (set paths)
-        original-deps-set (->> deps (map first) set)
+        original-deps-set (->> original-deps (map first) set)
         shortened-jar-signature (string/join File/separator
                                              [".mx.cider" "enrich-classpath" (jdk/digits-str)])
         {:keys [dependencies
-                resource-paths]} (enrich-classpath/middleware {:dependencies (->> deps
-                                                                                  (keep (fn [[artifact-name {mv :mvn/version}]]
-                                                                                          (when mv
-                                                                                            [artifact-name mv])))
-                                                                                  (vec))
+                resource-paths]} (enrich-classpath/middleware {:dependencies deps
                                                                :enrich-classpath {:shorten shorten?}
                                                                :resource-paths paths})
         {:keys [classpath]} (tools.deps/calc-basis {:paths paths
