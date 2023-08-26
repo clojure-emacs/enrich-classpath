@@ -131,10 +131,12 @@
                  (impl clojure "deps.edn" pwd (vec args) shorten?)
                  (catch AssertionError e
                    (-> e .printStackTrace)
-                   (commandize args clojure))
+                   ;; args are pr-stred to match the format emitted by the main code path:
+                   (commandize (mapv pr-str args) clojure))
                  (catch Exception e
                    (-> e .printStackTrace)
-                   (commandize args clojure))))
+                   ;; args are pr-stred to match the format emitted by the main code path:
+                   (commandize (mapv pr-str args) clojure))))
       (finally
         (shutdown-agents))))
   (System/exit 0))
