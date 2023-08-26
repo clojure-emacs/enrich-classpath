@@ -1,0 +1,1 @@
+{:deps {com.google.cloud.opentelemetry/exporter-trace {:mvn/version "0.25.2"}}}

@@ -1,1 +1,2 @@
-{:deps {io.grpc/grpc-protobuf {:mvn/version "1.14.0"}}}
+{:deps {io.grpc/grpc-protobuf {:mvn/version "1.14.0"}
+        com.fasterxml.jackson.core/jackson-databind {:mvn/version "2.8.8"}}}

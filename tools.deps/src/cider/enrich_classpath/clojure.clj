@@ -28,7 +28,7 @@
         deps-dir (io/file pwd)
         deps-filename (str (io/file pwd deps-edn-filename))
         {original-deps :deps
-         :keys [paths libs]
+         :keys [paths libs :mvn/repos]
          {:keys [extra-paths]} :argmap
          :as basis} (with-dir deps-dir
                       ;; `with-dir` allows us to use relative directories unrelated to the JVM's CWD.
@@ -50,6 +50,7 @@
                                                                :enrich-classpath {:shorten shorten?}
                                                                :resource-paths paths})
         {:keys [classpath]} (tools.deps/calc-basis {:paths paths
+                                                    :mvn/repos repos
                                                     :deps (->> dependencies
                                                                (map (fn [[k v marker classifier]]
                                                                       [(cond-> k

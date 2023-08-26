@@ -2,6 +2,7 @@
   (:require
    [cider.enrich-classpath.clojure :as sut]
    [cider.enrich-classpath.jdk :as jdk]
+   [clojure.java.io :as io]
    [clojure.test :refer [deftest is testing]]))
 
 (deftest works
@@ -42,4 +43,18 @@
           (is (not (-> actual (.contains "-javadoc.jar"))))
           (is  (-> actual (.contains (str ".mx.cider/enrich-classpath/" (jdk/digits-str)))))
           (when (re-find #"^1\.8\." (System/getProperty "java.version"))
-            (is (-> actual (.contains "unzipped-jdk-sources")))))))))
+            (is (-> actual (.contains "unzipped-jdk-sources"))))))))
+
+  (is (any? (println (sut/impl "clojure"
+                               "deps.edn"
+                               (str (io/file (System/getProperty "user.dir") "test-resources" "extra-project"))
+                               []
+                               false)))
+      "Can run a once-problematic project")
+
+  (is (any? (println (sut/impl "clojure"
+                               "deps.edn"
+                               (str (io/file (System/getProperty "user.dir") "test-resources" "another-project"))
+                               []
+                               false)))
+      "Can run a once-problematic project"))
