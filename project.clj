@@ -1,5 +1,7 @@
-(def project-version (or (not-empty (System/getenv "PROJECT_VERSION"))
-                         "0.0.0"))
+(def project-version (if (System/getenv "CIRCLE_TAG")
+                       (doto (System/getenv "PROJECT_VERSION") assert)
+                       (or (not-empty (System/getenv "PROJECT_VERSION"))
+                           "RELEASE")))
 
 (defproject mx.cider/enrich-classpath project-version
   :description "Makes available .jars with Java sources and javadocs for a given project."

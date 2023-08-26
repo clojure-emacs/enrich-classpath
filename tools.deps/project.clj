@@ -1,7 +1,7 @@
 (def project-version (if (System/getenv "CIRCLE_TAG")
                        (doto (System/getenv "PROJECT_VERSION") assert)
                        (or (not-empty (System/getenv "PROJECT_VERSION"))
-                           "n/a")))
+                           "RELEASE")))
 
 (defproject mx.cider/tools.deps.enrich-classpath project-version
   :description "mx.cider/enrich-classpath with dependencies specific to tools.deps usage."

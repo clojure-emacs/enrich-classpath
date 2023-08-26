@@ -2,6 +2,7 @@
   (:require
    [cider.enrich-classpath :as enrich-classpath]
    [cider.enrich-classpath.jdk :as jdk]
+   [clojure.edn :as edn]
    [clojure.java.io :as io]
    [clojure.string :as string]
    [clojure.tools.deps :as tools.deps]
@@ -18,22 +19,45 @@
   {:pre [(vector? args)]} ;; for conj
   (let [aliases (into #{}
                       (comp (mapcat (fn [^String s]
-                                      (when (-> s (.startsWith "-A"))
-                                        (-> s
-                                            (string/replace #"-A:" "")
-                                            (string/replace #"-A" "")
-                                            (string/split #":")))))
+                                      (or (when (-> s (.startsWith "-A"))
+                                            (-> s
+                                                (string/replace #"-A:" "")
+                                                (string/replace #"-A" "")
+                                                (string/split #":")))
+                                          (when (-> s (.startsWith "-M"))
+                                            (-> s
+                                                (string/replace #"-M:" "")
+                                                (string/replace #"-M" "")
+                                                (string/split #":"))))))
                             (map keyword))
                       args)
+        args-max-index (-> args count dec)
+        [extra-flag extra-value] (reduce-kv (fn [acc ^long i x]
+                                              (let [j (inc i)]
+                                                (when-let [v (and (<= j args-max-index)
+                                                                  (#{"-Sdeps" (pr-str "-Sdeps")} (nth args i))
+                                                                  (nth args j))]
+                                                  (reduced [x v]))))
+                                            nil
+                                            args)
+        main (some (fn [s]
+                     (when (or (string/starts-with? s "-M")
+                               (string/starts-with? s "\"-M"))
+                       s))
+                   args)
         deps-dir (io/file pwd)
         deps-filename (str (io/file pwd deps-edn-filename))
         {original-deps :deps
          :keys [paths libs :mvn/repos]
-         {:keys [extra-paths]} :argmap
+         {:keys [extra-paths main-opts]} :argmap
          :as basis} (with-dir deps-dir
                       ;; `with-dir` allows us to use relative directories unrelated to the JVM's CWD.
                       (tools.deps/create-basis {:aliases aliases
-                                                :project deps-filename}))
+                                                :project deps-filename
+                                                :extra (some-> extra-value edn/read-string)}))
+        args (into []
+                   (remove (hash-set main extra-flag extra-value))
+                   args)
         ;; these are the deps after resolving aliases, and `:local/root` references:
         deps (into []
                    (keep (fn [[artifact-name {mv :mvn/version}]]
@@ -121,6 +145,9 @@
                        (string/join File/pathSeparator))]
     (-> (mapv pr-str args)
         (conj "-Sforce" "-Srepro" "-J-XX:-OmitStackTraceInFastThrow" "-J-Dclojure.main.report=stderr" "-Scp" classpath)
+        (into (if (seq main-opts)
+                main-opts
+                []))
         (commandize clojure))))
 
 (defn -main [clojure pwd shorten & args]
