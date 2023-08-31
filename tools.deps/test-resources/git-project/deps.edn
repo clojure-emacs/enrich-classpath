@@ -1,0 +1,8 @@
+{:paths ["src"]
+ :deps  {org.clojure/clojure   {:mvn/version "1.12.0-alpha2"}
+         com.cnuernber/charred {:mvn/version "1.008"}
+         toml/toml             {:mvn/version "0.1.3"}
+         clj-commons/clj-yaml  {:mvn/version "0.7.107"}
+         meander/epsilon       {:mvn/version "0.0.650"}
+         clj-hcl/clj-hcl       {:git/url "https://github.com/viesti/clj-hcl.git"
+                                :git/sha "571c4cf715e34fad9c8f09c7b5319f8d4c395d90"}}}
