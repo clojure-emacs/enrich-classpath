@@ -51,7 +51,7 @@ Add the following somewhere in your `~/.lein/profiles.clj` (aka your [user-wide 
 ;; Installing this plugin under the :repl profile is most recommended for best performance,
 ;; especially if you work with a monorepo with a complex build process.  
 :repl {:middleware [cider.enrich-classpath/middleware]
-       :plugins    [[mx.cider/enrich-classpath "1.15.3"]]
+       :plugins    [[mx.cider/enrich-classpath "1.15.4"]]
        ;; Optional - you can use this option to specify a different set (e.g. a smaller set like #{"sources"} is more performant)
        :enrich-classpath {:classifiers #{"sources" "javadoc"}}}
 ```
@@ -67,7 +67,7 @@ enrich-classpath has a distinct artifact intended for tools.deps usage:
 <!-- Updating the version below? Please also update it in the `clojure.sh` script -->
 
 ```clj
-mx.cider/tools.deps.enrich-classpath {:mvn/version "1.15.3"}
+mx.cider/tools.deps.enrich-classpath {:mvn/version "1.15.4"}
 ```
 
 Usage is still TBD.
