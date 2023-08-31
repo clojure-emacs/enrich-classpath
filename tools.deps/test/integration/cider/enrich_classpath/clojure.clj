@@ -53,6 +53,14 @@
                       false))
       "Can run a once-problematic project")
 
+  (is (string/includes? (sut/impl "clojure"
+                                  "deps.edn"
+                                  (str (io/file (System/getProperty "user.dir") "test-resources" "git-project"))
+                                  []
+                                  false)
+                        "gitlibs/libs/clj-hcl/clj-hcl/571c4cf715e34fad9c8f09c7b5319f8d4c395d90/src")
+      "Includes gitlibs")
+
   (is (any? (sut/impl "clojure"
                       "deps.edn"
                       (str (io/file (System/getProperty "user.dir") "test-resources" "another-project"))

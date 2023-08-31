@@ -59,31 +59,40 @@
                    (remove (hash-set main extra-flag extra-value))
                    args)
         ;; these are the deps after resolving aliases, and `:local/root` references:
-        deps (into []
-                   (keep (fn [[artifact-name {mv :mvn/version}]]
-                           (when mv
-                             [artifact-name mv])))
-                   libs)
+        maven-deps (into []
+                         (keep (fn [[artifact-name {mv :mvn/version}]]
+                                 (when mv
+                                   [artifact-name mv])))
+                         libs)
+        other-deps (into []
+                         (remove (fn [[_ {mv :mvn/version}]]
+                                   mv))
+                         libs)
         paths (into paths extra-paths)
         original-paths-set (set paths)
         original-deps-set (->> original-deps (map first) set)
         shortened-jar-signature (string/join File/separator
                                              [".mx.cider" "enrich-classpath" (jdk/digits-str)])
-        {:keys [dependencies
-                resource-paths]} (enrich-classpath/middleware {:dependencies deps
+        {maven-dependencies :dependencies
+         :keys [resource-paths]} (enrich-classpath/middleware {:dependencies maven-deps
                                                                :enrich-classpath {:shorten shorten?}
                                                                :resource-paths paths})
         {:keys [classpath]} (tools.deps/calc-basis {:paths paths
                                                     :mvn/repos repos
-                                                    :deps (->> dependencies
-                                                               (map (fn [[k v marker classifier]]
-                                                                      [(cond-> k
-                                                                         (#{:classifier} marker)
-                                                                         (str "$" classifier)
+                                                    :deps (merge (->> maven-dependencies
+                                                                      (map (fn [[k v marker classifier]]
+                                                                             [(cond-> k
+                                                                                (#{:classifier} marker)
+                                                                                (str "$" classifier)
 
-                                                                         true symbol)
-                                                                       {:mvn/version v}]))
-                                                               (into {}))})
+                                                                                true symbol)
+                                                                              {:mvn/version v}]))
+                                                                      (into {}))
+                                                                 (->> other-deps
+                                                                      (keep (fn [[dep m]]
+                                                                              (when-let [git (not-empty (select-keys m [:git/url :git/sha :git/tag :sha :tag]))]
+                                                                                [dep git])))
+                                                                      (into {})))})
         ;; Avoids
         ;; `WARNING: Use of :paths external to the project has been deprecated, please remove: ...`:
         classpath (->> resource-paths
