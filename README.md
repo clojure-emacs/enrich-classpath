@@ -51,7 +51,7 @@ It will work as usual, for Lein and tools.deps projects alike. There's a fallbac
 
 If you want to `cider-connect`, CIDER cannot automatically add enrich-classpath for you.
 
-See next section for a recipe.
+See the next section for a recipe.
 
 ### Any Lein or tools.deps project
 
@@ -66,7 +66,7 @@ You can enjoy a highly optimized setup as follows:
 * Run `make`
   * If using Leiningen, it will launch a nREPL server that you can connect to
     * project.clj `:repl-options` will be honored, if found: `:host :port :transport :nrepl-handler :socket :nrepl-middleware`
-    * a terminal REPL will be launched.
+    * a terminal REPL will also be available.
   * If using Clojure CLI, it will honor your `-M` program (as specified in the Makefile which you should have edited)
     * Your main program can launch a repl, a nrepl server, both, or anything really.
     * Note that no nREPL server is launched, for this case, unlike we do for Leiningen.
