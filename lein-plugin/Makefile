@@ -3,9 +3,6 @@ HOME=$(shell echo $$HOME)
 HERE=$(shell echo $$PWD)
 
 # This makefile offers high-performance (cached) wrappers that enrich the classpath, for optimal IDE functioning.
-# We suggest that you copy/merge this file into your project.
-# We believe it's best to give you something that you can freely understand and hack locally.
-# The tradeoff is that you may have to catch up with important fixes/improvements to this Makefile, if any.
 # Feel free to suggest any improvements at:
 # https://github.com/clojure-emacs/enrich-classpath/issues
 
@@ -14,13 +11,13 @@ HERE=$(shell echo $$PWD)
 .DEFAULT_GOAL := lein-repl
 
 # The Lein profiles that will be selected.
-# Feel free to upgrade this, or to override it with an env var named LEIN_PROFILES.
+# Feel free to upgrade this, or to override it with an env var.
 # Expected format: "+dev,+test"
 # Don't use spaces here.
 LEIN_PROFILES ?= "+dev,+test"
 
 # The Clojure CLI aliases that will be selected for main options.
-# Feel free to upgrade this, or to override it with an env var named DEPS_MAIN_OPTS.
+# Feel free to upgrade this, or to override it with an env var.
 # Expected format: "-M:alias1:alias2"
 DEPS_MAIN_OPTS ?= "-M:dev:test"
 
@@ -38,7 +35,7 @@ lein-repl: .enrich-classpath-lein-repl
 	@if grep --silent " -cp " .enrich-classpath-lein-repl; then \
 		eval $$(cat .enrich-classpath-lein-repl); \
 	else \
-		echo "Falling back to lein repl... (you can avoid further falling back by removing .enrich-classpath-lein-repl)"; \
+		echo "Falling back to lein repl..."; \
 		lein with-profiles $(LEIN_PROFILES) repl; \
 	fi
 
@@ -52,6 +49,6 @@ deps-repl: .enrich-classpath-deps-repl
 	@if grep --silent "^clojure" .enrich-classpath-deps-repl; then \
 		eval $$(cat .enrich-classpath-deps-repl); \
 	else \
-		echo "Falling back to Clojure repl... (you can avoid further falling back by removing .enrich-classpath-deps-repl)"; \
+		echo "Falling back to Clojure repl..."; \
 		clojure $(DEPS_MAIN_OPTS); \
 	fi

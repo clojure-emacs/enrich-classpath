@@ -1,12 +1,11 @@
 (ns cider.enrich-classpath.plugin-v2
   (:refer-clojure :exclude [time])
   (:require
-   [leiningen.core.classpath :as leiningen.classpath]
    [cider.enrich-classpath :as enrich-classpath]
    [cider.enrich-classpath.logging :refer [debug info warn]]
-   [leiningen.core.main]
    [clojure.string :as string]
-   [clojure.edn :as edn]))
+   [leiningen.core.classpath :as leiningen.classpath]
+   [leiningen.core.main]))
 
 (defn format-nrepl-options [{:keys [transport nrepl-handler socket nrepl-middleware host port]}]
   (->> [["--transport" (when (qualified-symbol? transport)
@@ -41,13 +40,33 @@
 (defn wrap-try
   "Wraps `init` in a try/catch because otherwise `clojure.main`
   can fail at startup, while 'init' errors can often be remediated by the user later."
-  [init]
+  [init-ns init global-vars]
   ;; Note that we don't need to suppress output (I formerly did that for stdout/stderr).
   ;; This code runs after the classpath has been enriched and the `java` command has been generated.
-  (list `try
-        init
-        (list `catch `Throwable 'e
-              (list '.printStackTrace 'e))))
+  (let [{clojure-global-vars true
+         other-global-vars   false} (group-by (fn [[sym]]
+                                                (contains? #{nil "clojure.core"} (namespace sym)))
+                                              global-vars)]
+    (apply list `try (reduce into [] [(mapv (fn [[var-sym value]]
+                                              (list `set! var-sym value))
+                                            clojure-global-vars)
+                                      (when init-ns
+                                        [(list `doto (list `quote init-ns) `require `in-ns)])
+                                      (mapv (fn [[var-sym value]]
+                                              (list `set! var-sym value))
+                                            other-global-vars)
+                                      (when init
+                                        [init])
+                                      [(list `catch `Throwable 'e
+                                             (list '.printStackTrace 'e))]]))))
+
+(defn build-init-form [{{:keys [init init-ns]} :repl-options
+                        :keys [global-vars]}]
+  (or (when (or init init-ns global-vars)
+        (str " --eval "
+             (pr-str (pr-str (wrap-try init-ns init global-vars)))
+             " "))
+      " "))
 
 (defn middleware* [{:keys [repl-options] :as project}]
   (let [java (or (some-> project :java not-empty string/trim)
@@ -85,16 +104,7 @@
              (string/join sep))
 
         enriched-classpath (str orig sep suffix)
-        {:keys [init]} repl-options
-        init-form (or (when (and init
-                                 (try
-                                   (not (empty? init))
-                                   (catch Exception _
-                                     true)))
-                        (str " --eval "
-                             (pr-str (pr-str (wrap-try init)))
-                             " "))
-                      " ")]
+        init-form (build-init-form project)]
     (format "%s -cp %s%sclojure.main%s-m nrepl.cmdline %s"
             java
             enriched-classpath
@@ -107,8 +117,3 @@
   (println (middleware* project))
   ;; XXX exit 1 too
   (leiningen.core.main/exit 0))
-
-;; export PROJECT_VERSION=0.0.0
-;; make install
-;; cd lein-sample
-;; lein repl
