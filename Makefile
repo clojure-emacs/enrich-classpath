@@ -20,7 +20,7 @@ install-deps: install-base
 install-plugin: install-base
 	cd lein-plugin; lein with-profile -user install
 
-# Usage: PROJECT_VERSION=1.15.5 make install
+# Usage: PROJECT_VERSION=1.16.0 make install
 # PROJECT_VERSION is needed because it's not computed dynamically
 install: install-base install-deps install-plugin
 
