@@ -1,7 +1,9 @@
 # enrich-classpath
 [![Clojars Project](https://img.shields.io/clojars/v/mx.cider/enrich-classpath.svg)](https://clojars.org/mx.cider/enrich-classpath) [![Clojars Project](https://img.shields.io/clojars/v/mx.cider/tools.deps.enrich-classpath.svg)](https://clojars.org/mx.cider/tools.deps.enrich-classpath) [![Clojars Project](https://img.shields.io/clojars/v/mx.cider/lein-enrich-classpath.svg)](https://clojars.org/mx.cider/lein-enrich-classpath)
 
-A library (and Leiningen plugin) that, as its main feature, automatically downloads all available `.jar`s with Java sources and javadocs for a given project, so that various tooling (typically IDEs) can access it.
+A library (and Leiningen plugin, and Clojure CLI program) that, as its main feature, automatically downloads all available `.jar`s with Java sources and javadocs for a given project, so that various tooling (typically IDEs) can access it.
+
+This allows improved Java-facing IDE functionalities: navigation, documentation, completion and stacktraces.
 
 It behaves gracefully even in face of `:managed-dependencies`, `:pedantic?`, in- and inter-process parallel invocations of Lein, etc.
 
@@ -41,36 +43,56 @@ A great real-world lib that would be enhanced by this program is Orchard's [sour
 
 ## Installation and usage
 
-### Leiningen
+> **NOTE:**
+> In general, you are not expected to add any dependency or plugin to project.clj or deps.edn. Please read the following instructions carefully.  
 
-Add the following somewhere in your `~/.lein/profiles.clj` (aka your [user-wide profile](https://github.com/technomancy/leiningen/blob/0f456829a8b21335aa86390f3ee3d0dcc68410d6/doc/PROFILES.md#declaring-profiles)):
+### Emacs `cider-jack-in`
 
-<!-- Updating the version below? Please also update it in the `clojure.sh` script -->
+If you use Emacs CIDER, customize `cider-enrich-classpath` to `t` and simply `cider-jack-in` as normal.
 
-```clj
-;; Installing this plugin under the :repl profile is most recommended for best performance,
-;; especially if you work with a monorepo with a complex build process.  
-:repl {:middleware [cider.enrich-classpath/middleware]
-       :plugins    [[mx.cider/enrich-classpath "1.15.5"]]
-       ;; Optional - you can use this option to specify a different set (e.g. a smaller set like #{"sources"} is more performant)
-       :enrich-classpath {:classifiers #{"sources" "javadoc"}}}
-```
+It will work as usual, for Lein and tools.deps projects alike. There's a fallback to the normal commands, in case something went wrong.
 
-> If adding this middleware on a per-project basis, make sure it's not turned on by default, simply because other people might not appreciate a slower (first) dependency resolution for a functionality that they might not use. [Profiles](https://github.com/technomancy/leiningen/blob/master/doc/PROFILES.md) help.
+### Emacs `cider-connect`
 
-After that, `lein repl` and similar commands will download each artifact of your dependency tree with `"sources"` and `"javadoc"` Maven classifiers, if such an artifact exists (normally these only exist for Java dependencies, not Clojure ones), and place it in the classpath for your REPL process. 
+If you want to `cider-connect`, CIDER cannot automatically add enrich-classpath for you.
 
-### tools.deps
+See next section for a recipe.
 
-enrich-classpath has a distinct artifact intended for tools.deps usage:
+### Any Lein or tools.deps project
 
-<!-- Updating the version below? Please also update it in the `clojure.sh` script -->
+You can enjoy a highly optimized setup as follows:
 
-```clj
-mx.cider/tools.deps.enrich-classpath {:mvn/version "1.15.5"}
-```
+* Copy the [example Makefile](./examples/Makefile) to your project
+  * Or merge it into your existing Makefile
+* Change its `.DEFAULT_GOAL := lein-repl` to `deps-repl` if you are a tools.deps user
+  * Or perhaps remove it if you want the Makefile to do something else by default.
+* Edit its `LEIN_PROFILES`/`DEPS_MAIN_OPTS` to match the profiles/aliases you intend to use during development
+* Run `make`
+  * If using Leiningen, it will launch a nREPL server that you can connect to
+    * project.clj `:repl-options` will be honored, if found: `:host :port :transport :nrepl-handler :socket :nrepl-middleware`
+    * no terminal REPL will be launched.
+  * If using Clojure CLI, it will honor your `-M` program (as specified in the Makefile which you should have edited)
+    * Your main program can launch a repl, a nrepl server, both, or anything really.
+    * Note that no nREPL server is launched, for this case, unlike we do for Leiningen.
 
-Usage is still TBD.
+#### Rationale
+
+The suggested choice of Make might surprise you. However its caching (that can accurately be invalidated by modifying `project.clj`, `deps.edn` and a variety of similar files) is a very good fit for Make's offering.
+
+The Clojure CLI popularized this style of caching (which doesn't use Makefiles internally, but is essentially equivalent).
+
+Also note that, because we suggest that you can copy a Makefile, you can always modify it at will, and study its functioning for suggesting improvements or creating alternatives. Oftentimes tools aren't as transparent/inviting. 
+
+If you are a Leiningen user, you will also enjoy the following advantages (vs. a traditional `lein` invocation)
+
+* Instant startup, as enabled by the caching
+  * i.e. no time is spent doing any Lein or enrich-classpath work
+  * You will only experience the startup time directly related to Clojure
+* Only one JVM will be spun up, instead of two
+  * Leiningen typically allocates two JVMs per REPL, which isn't optimal
+* More clearly understandable `java` processes
+  * Typically, Leiningen would spawn `java` processes that aren't as easy to inspect as a Clojure CLI one.
+    * e.g. it has a opaque "init" form stored in a tmp directory, making some stacktraces more confusing.
 
 ## Notes on caching
 
@@ -139,10 +161,11 @@ In all cases, repositories detected as unreachable (because of DNS, auth, etc) w
 
 ## Troubleshooting
 
-If this program is not behaving as it should, you can debug it in isolation with the following command:
+If this program is not behaving as it should, you can debug it in isolation by prefixing `DEBUG=true` to its invocation:
 
 ```
-DEBUG=true lein with-profile +repl deps
+# Per Makefile linked to above
+DEBUG=true make lein-repl
 ```
 
 The following entries can be possibly logged:
