@@ -1,11 +1,12 @@
-(ns cider.enrich-classpath.plugin-v2-test
+(ns integration.cider.enrich-classpath.plugin-v2
   (:require
    [cider.enrich-classpath.plugin-v2 :as sut]
    [clojure.string :as string]
    [clojure.test :refer [deftest is testing use-fixtures]]))
 
 (use-fixtures :each (fn [t]
-                      (with-redefs [sut/wrap-try identity]
+                      (with-redefs [sut/wrap-try (fn [_ x _]
+                                                   x)]
                         (t))))
 
 (def classpath-starts-with
@@ -33,7 +34,7 @@
         (string/split all #"\s")
 
         classpath (-> classpath
-                      (string/replace (System/getProperty "user.home" ) "~")
+                      (string/replace (System/getProperty "user.home") "~")
                       (string/replace "~/repo/" "~/enrich-classpath/")
                       (string/replace #".mx.cider/enrich-classpath/\d+/\d+/\d+.jar"
                                       ".mx.cider/enrich-classpath/<shortened>.jar"))]
