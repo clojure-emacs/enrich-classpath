@@ -62,10 +62,11 @@ You can enjoy a highly optimized setup as follows:
 * Change its `.DEFAULT_GOAL := lein-repl` to `deps-repl` if you are a tools.deps user
   * Or perhaps remove it if you want the Makefile to do something else by default.
 * Edit its `LEIN_PROFILES`/`DEPS_MAIN_OPTS` to match the profiles/aliases you intend to use during development
+  * You can also set `LEIN_PROFILES`/`DEPS_MAIN_OPTS` as env vars, which will take precedence.
 * Run `make`
   * If using Leiningen, it will launch a nREPL server that you can connect to
     * project.clj `:repl-options` will be honored, if found: `:host :port :transport :nrepl-handler :socket :nrepl-middleware`
-    * no terminal REPL will be launched.
+    * a terminal REPL will be launched.
   * If using Clojure CLI, it will honor your `-M` program (as specified in the Makefile which you should have edited)
     * Your main program can launch a repl, a nrepl server, both, or anything really.
     * Note that no nREPL server is launched, for this case, unlike we do for Leiningen.
