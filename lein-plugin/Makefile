@@ -10,14 +10,14 @@ HERE=$(shell echo $$PWD)
 # Feel free to choose one of: lein-repl | deps-repl
 .DEFAULT_GOAL := lein-repl
 
-# The Lein profiles that will be selected.
-# Feel free to upgrade this, or to override it with an env var.
+# The Lein profiles that will be selected for `lein-repl`.
+# Feel free to upgrade this, or to override it with an env var named LEIN_PROFILES.
 # Expected format: "+dev,+test"
 # Don't use spaces here.
 LEIN_PROFILES ?= "+dev,+test"
 
-# The Clojure CLI aliases that will be selected for main options.
-# Feel free to upgrade this, or to override it with an env var.
+# The Clojure CLI aliases that will be selected for main options for `deps-repl`.
+# Feel free to upgrade this, or to override it with an env var named DEPS_MAIN_OPTS.
 # Expected format: "-M:alias1:alias2"
 DEPS_MAIN_OPTS ?= "-M:dev:test"
 
@@ -39,7 +39,7 @@ lein-repl: .enrich-classpath-lein-repl
 		lein with-profiles $(LEIN_PROFILES) repl; \
 	fi
 
-# Create and cache a `java` command. deps.edn is mandatory; the others are optional but are taken into account for cache recomputation.
+# Create and cache a `clojure` command. deps.edn is mandatory; the others are optional but are taken into account for cache recomputation.
 # It's important not to silence with step with @ syntax, so that Enrich progress can be seen as it resolves dependencies.
 .enrich-classpath-deps-repl: Makefile deps.edn $(wildcard $(HOME)/.clojure/deps.edn) $(wildcard $(XDG_CONFIG_HOME)/.clojure/deps.edn)
 	cd $$(mktemp -d -t enrich-classpath.XXXXXX); clojure -Sforce -Srepro -J-XX:-OmitStackTraceInFastThrow -J-Dclojure.main.report=stderr -Sdeps '{:deps {mx.cider/tools.deps.enrich-classpath {:mvn/version $(ENRICH_CLASSPATH_VERSION)}}}' -M -m cider.enrich-classpath.clojure "clojure" "$(HERE)" "true" $(DEPS_MAIN_OPTS) | grep "^clojure" > $(HERE)/$@

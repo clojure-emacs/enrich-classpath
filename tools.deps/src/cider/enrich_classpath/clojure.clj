@@ -49,6 +49,7 @@
         deps-filename (str (io/file pwd deps-edn-filename))
         {original-deps :deps
          :keys [paths libs :mvn/repos]
+         calculated-jvm-opts :jvm-opts
          {:keys [extra-paths main-opts]} :argmap
          :as basis} (with-dir deps-dir
                       ;; `with-dir` allows us to use relative directories unrelated to the JVM's CWD.
@@ -154,6 +155,10 @@
                        (string/join File/pathSeparator))]
     (-> (mapv pr-str args)
         (conj "-Sforce" "-Srepro" "-J-XX:-OmitStackTraceInFastThrow" "-J-Dclojure.main.report=stderr" "-Scp" classpath)
+        (into (if (or (some jdk/javac-tree-like calculated-jvm-opts)
+                      (jdk/jdk8?))
+                []
+                [(str "-J" jdk/javac-tree-opens)]))
         (into (if (seq main-opts)
                 main-opts
                 []))
