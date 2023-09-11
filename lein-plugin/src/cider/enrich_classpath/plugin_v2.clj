@@ -2,6 +2,7 @@
   (:refer-clojure :exclude [time])
   (:require
    [cider.enrich-classpath :as enrich-classpath]
+   [cider.enrich-classpath.jdk :as jdk]
    [cider.enrich-classpath.logging :refer [debug info warn]]
    [clojure.string :as string]
    [leiningen.core.classpath :as leiningen.classpath]
@@ -31,7 +32,8 @@
                    string/trim
                    (str "-Dclojure.compile.path="))
         all (cond-> a
-              b (conj b))
+              b (conj b)
+              true jdk/maybe-add-opens)
         res (not-empty (string/join " " all))]
     (if res
       (str " " res " ")

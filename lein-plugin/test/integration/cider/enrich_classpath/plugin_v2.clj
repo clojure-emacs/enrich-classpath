@@ -1,5 +1,6 @@
 (ns integration.cider.enrich-classpath.plugin-v2
   (:require
+   [cider.enrich-classpath.jdk :refer [jdk8?]]
    [cider.enrich-classpath.plugin-v2 :as sut]
    [clojure.string :as string]
    [clojure.test :refer [deftest is testing use-fixtures]]))
@@ -30,14 +31,20 @@
                                                       [org.slf4j/slf4j-api "1.7.25"]
                                                       [org.clojure/tools.reader "1.0.0-beta4"]]})
 
-        [java cp classpath jvmopt1 jvmopt2 compile-path clojure-main eval-flag eval-code m nrepl host localhost port portno :as segments]
-        (string/split all #"\s")
+        segments (string/split all #"\s")
+
+        [java cp classpath jvmopt1 jvmopt2 compile-path]
+        segments
+
+        [add-opens clojure-main eval-flag eval-code m nrepl host localhost port portno]
+        (take-last 10 segments)
 
         classpath (-> classpath
                       (string/replace (System/getProperty "user.home") "~")
                       (string/replace "~/repo/" "~/enrich-classpath/")
                       (string/replace #".mx.cider/enrich-classpath/\d+/\d+/\d+.jar"
-                                      ".mx.cider/enrich-classpath/<shortened>.jar"))]
+                                      ".mx.cider/enrich-classpath/<shortened>.jar"))
+        expected-add-opens "--add-opens=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED"]
     (testing all
       (is (= "java" java))
       (is (= "-cp" cp))
@@ -45,6 +52,10 @@
       (is (= "-Dfoo=bar" jvmopt1))
       (is (= "-Xyz" jvmopt2))
       (is (= "-Dclojure.compile.path=the-compile-path" compile-path))
+      (if (jdk8?)
+        (is (not= expected-add-opens add-opens)
+            "Does not add the opens for this JDK")
+        (is (= expected-add-opens add-opens)))
       (is (= "clojure.main" clojure-main))
       (is (= "--eval" eval-flag))
       (is (= "\"(clojure.core/+)\"" eval-code))
