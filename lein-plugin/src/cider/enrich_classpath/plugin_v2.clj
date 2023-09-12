@@ -6,7 +6,8 @@
    [cider.enrich-classpath.logging :refer [debug info warn]]
    [clojure.string :as string]
    [leiningen.core.classpath :as leiningen.classpath]
-   [leiningen.core.main]))
+   [leiningen.core.main]
+   [leiningen.javac :as javac]))
 
 (defn format-nrepl-options [{:keys [transport nrepl-handler socket nrepl-middleware host port]}]
   (->> [["--transport" (when (qualified-symbol? transport)
@@ -70,7 +71,35 @@
              " "))
       " "))
 
-(defn middleware* [{:keys [repl-options] :as project}]
+(defn remove-enrich-middleware [mw]
+  (into []
+        (remove #{`middleware
+                  'cider.enrich-classpath/middleware})
+        mw))
+
+(defn remove-enrich-middleware-from-map [m]
+  (into {}
+        (map (fn [[profile-name profile-content]]
+               [profile-name (cond-> profile-content
+                               (and (map? profile-content) ;; avoid hitting composite profiles
+                                    (:middleware profile-content))
+                               (update :middleware remove-enrich-middleware))]))
+        m))
+
+(defn middleware* [{:keys [repl-options java-source-paths] :as project}]
+
+  (when (seq java-source-paths)
+    (binding [leiningen.core.main/*exit-process?* false]
+      (warn "enrich-classpath has triggered javac.")
+      (javac/javac (with-meta (-> project
+                                  (update :middleware remove-enrich-middleware)
+                                  (update :profiles remove-enrich-middleware-from-map))
+                     (-> project
+                         meta
+                         (update-in [:without-profiles :middleware] remove-enrich-middleware)
+                         (update-in [:without-profiles :profiles] remove-enrich-middleware-from-map)
+                         (update :profiles remove-enrich-middleware-from-map))))))
+
   (let [java (or (some-> project :java not-empty string/trim)
                  "java")
         nrepl-options (format-nrepl-options repl-options)
