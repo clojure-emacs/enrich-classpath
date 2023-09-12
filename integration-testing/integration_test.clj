@@ -462,7 +462,7 @@
                                                 (map run))
           [count-with count-without] (->> runs (map count))
           f (fn [classpath-entry-string]
-              (string/includes? classpath-entry-string (str ".mx.cider/enrich-classpath/" (jdk/digits-str))))]
+              (string/includes? classpath-entry-string (str "mx.cider/enrich-classpath/" (jdk/digits-str))))]
       (if exercising-shorten?
         (assert (some f enriched-run) enriched-run)
         (do

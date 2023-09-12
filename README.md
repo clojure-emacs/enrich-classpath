@@ -100,11 +100,11 @@ Each time a source or javadoc `.jar` is found, the found artifact will be logged
 :cider.enrich-classpath/found [org.clojure/clojure "1.10.1" :classifier "sources"]
 ```
 
-After a successful run, a cache file is written to `~/.enrich-classpath-cache`. This file is shared across all projects, and will automatically grow via merge. So the first few runs in a variety of projects will result in a slow dependency resolution, and after that it will stabilize in those projects (and best-case scenario, also in _other_ projects)
+After a successful run, a cache file is written to `~/.cache/enrich-classpath-cache` (honoring `XDG_CACHE_HOME`). This file is shared across all projects, and will automatically grow via merge. So the first few runs in a variety of projects will result in a slow dependency resolution, and after that it will stabilize in those projects (and best-case scenario, also in _other_ projects)
 
 Given a project with 100% cache hits (which eventually will be the case in all your projects, after a while), this program's runtime overhead will be essentially zero.
 
-The `~/.enrich-classpath-cache` file has a stable format. You can version-control it, so that if you setup a new machine you won't have cache misses.
+The `~/.cache/enrich-classpath-cache` file has a stable format. You can version-control it, so that if you setup a new machine you won't have cache misses.
 
 ## Options
 
@@ -174,7 +174,7 @@ The following entries can be possibly logged:
 * `:cider.enrich-classpath/omitting-empty-source` - a given source artifact (.jar) was found, but it didn't have actual Java sources in it, so it won't be added to the classpath.
 * `:cider.enrich-classpath/no-jdk-sources-found` - no JDK sources could be found. Your JDK distribution (on `apt`, `rpm`, etc) probably didn't include any sources, and they should be installed separately (e.g. `sudo apt install openjdk-11-source`).
 
-If you wish to start from a clean slate (given that resolutions are cached, even in face of timeout), you can remove the `~/.enrich-classpath-cache` file. 
+If you wish to start from a clean slate (given that resolutions are cached, even in face of timeout), you can remove the `~/.cache/enrich-classpath-cache` file. 
 
 ## License
 
