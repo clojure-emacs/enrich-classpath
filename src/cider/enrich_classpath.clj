@@ -10,6 +10,7 @@
    [cider.enrich-classpath.logging :refer [debug info warn]]
    [cider.enrich-classpath.source-analysis :refer [bad-source?]]
    [cider.enrich-classpath.version :as version]
+   [cider.enrich-classpath.xdg :as xdg]
    [clojure.java.io :as io]
    [clojure.string :as string]
    [clojure.walk :as walk]
@@ -21,9 +22,8 @@
    (java.util.regex Pattern)))
 
 (def ^String cache-filename
-  (-> "user.home"
-      System/getProperty
-      (File. ".enrich-classpath-cache")
+  (-> xdg/cache-root
+      (File. "enrich-classpath-cache")
       (str)))
 
 (defn serialize

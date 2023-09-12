@@ -84,7 +84,7 @@ jobs:
 
       - run:
           name: Lint
-          command: lein with-profile -user,+test,+eastwood eastwood
+          command: lein with-profile -user,-dev,+test,+eastwood eastwood
 
       - run:
           name: Test
@@ -149,7 +149,7 @@ jobs:
       - run:
           name: Lint
           working_directory: tools.deps
-          command: lein with-profile -user,+test,+eastwood eastwood
+          command: lein with-profile -user,-dev,+test,+eastwood eastwood
 
       - run:
           name: Shellcheck
@@ -185,7 +185,7 @@ jobs:
       - run:
           name: Lint
           working_directory: lein-plugin
-          command: lein with-profile -user,+test,+eastwood eastwood
+          command: lein with-profile -user,-dev,+test,+eastwood eastwood
 
   deploy:
     executor: openjdk8_deploy

@@ -42,7 +42,7 @@
           (is (-> actual (.contains "src.zip")))
           (is (not (-> actual (.contains "-sources.jar"))))
           (is (not (-> actual (.contains "-javadoc.jar"))))
-          (is  (-> actual (.contains (str ".mx.cider/enrich-classpath/" (jdk/digits-str)))))
+          (is  (-> actual (.contains (str "mx.cider/enrich-classpath/" (jdk/digits-str)))))
           (when (re-find #"^1\.8\." (System/getProperty "java.version"))
             (is (-> actual (.contains "unzipped-jdk-sources"))))))))
 

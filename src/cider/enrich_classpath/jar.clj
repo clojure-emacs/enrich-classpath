@@ -1,6 +1,7 @@
 (ns cider.enrich-classpath.jar
   (:require
    [cider.enrich-classpath.jdk :as jdk]
+   [cider.enrich-classpath.xdg :as xdg]
    [clojure.java.io :as io]
    [clojure.string :as string])
   (:import
@@ -54,9 +55,8 @@ Created-By: mx.cider/enrich-classpath
                          (seq))]
     (let [corpus-crc (-> corpus string/join crc32)
           dir-crc (-> "user.dir" System/getProperty crc32)
-          dir (-> "user.home"
-                  System/getProperty
-                  (io/file ".mx.cider" "enrich-classpath" (jdk/digits-str) dir-crc)
+          dir (-> xdg/cache-root
+                  (io/file "mx.cider" "enrich-classpath" (jdk/digits-str) dir-crc)
                   (doto .mkdirs))
           filename (-> dir
                        (io/file (str corpus-crc ".jar"))

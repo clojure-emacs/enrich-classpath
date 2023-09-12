@@ -73,7 +73,7 @@
         original-paths-set (set paths)
         original-deps-set (->> original-deps (map first) set)
         shortened-jar-signature (string/join File/separator
-                                             [".mx.cider" "enrich-classpath" (jdk/digits-str)])
+                                             ["mx.cider" "enrich-classpath" (jdk/digits-str)])
         {maven-dependencies :dependencies
          :keys [resource-paths]} (enrich-classpath/middleware {:dependencies maven-deps
                                                                :enrich-classpath {:shorten shorten?}

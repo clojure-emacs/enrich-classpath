@@ -265,7 +265,7 @@ since a git repo inherently cannot resolve to a .jar artifact"
 (deftest add
   (let [base-dependencies '[[org.clojure/clojure "1.10.3"]]
         shortened-jar? (fn [entry]
-                         (string/includes? entry ".mx.cider/enrich-classpath"))]
+                         (string/includes? entry "mx.cider/enrich-classpath"))]
     (testing "`:shorten` option: false"
       (let [{:keys [resource-paths]
              found-dependencies :dependencies} (sut/add {:dependencies base-dependencies

@@ -10,7 +10,8 @@
                 :abort
                 ;; :pedantic? can be problematic for certain local dev workflows:
                 false)
-  :profiles {:test     {:dependencies [[leiningen "2.10.0" :exclusions [nrepl]]]}
+  :profiles {:dev      {:source-paths ["../src" "../test"]}
+             :test     {:dependencies [[leiningen "2.10.0" :exclusions [nrepl]]]}
              :eastwood {:plugins  [[jonase/eastwood "1.4.0"]]
                         :eastwood {:add-linters [:boxed-math
                                                  :performance]}}}

@@ -3,6 +3,7 @@
    [cider.enrich-classpath.jdk :as jdk]
    [cider.enrich-classpath.locks :refer [locking-file]]
    [cider.enrich-classpath.logging :refer [warn]]
+   [cider.enrich-classpath.xdg :as xdg]
    [clojure.java.io :as io]
    [clojure.string :as string])
   (:import
@@ -33,7 +34,7 @@
       (warn :cider.enrich-classpath/no-jdk-sources-found))
     v))
 
-(def base-prefix ".mx.cider")
+(def base-prefix "mx.cider")
 
 (defn external-resource ^URL [path]
   (when-let [obj (io/resource path)]
@@ -78,8 +79,7 @@
 
 (defn uncompressed-sources-dir []
   (let [id (jdk/digits-str)]
-    (-> "user.home"
-        System/getProperty
+    (-> xdg/cache-root
         (io/file base-prefix "unzipped-jdk-sources" id)
         str)))
 
