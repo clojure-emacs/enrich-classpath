@@ -61,6 +61,21 @@
                         "gitlibs/libs/clj-hcl/clj-hcl/571c4cf715e34fad9c8f09c7b5319f8d4c395d90/src")
       "Includes gitlibs")
 
+  (let [cp (sut/impl "clojure"
+                     "deps.edn"
+                     (str (io/file (System/getProperty "user.dir")
+                                   "test-resources"
+                                   "local-root-dotdot"
+                                   "grandchild"))
+                     []
+                     false)]
+    (is (string/includes? cp
+                          "a-unique-source-path")
+        "Includes `:local/root`s expressed as `..` or `../<dir>` ")
+    (is (string/includes? cp
+                          "org/clojars/brenton/google-diff-match-patch/0.1/google-diff-match-patch-0.1.jar")
+        "Includes `:local/root`s expressed as `..` or `../<dir>` "))
+
   (is (any? (sut/impl "clojure"
                       "deps.edn"
                       (str (io/file (System/getProperty "user.dir") "test-resources" "another-project"))

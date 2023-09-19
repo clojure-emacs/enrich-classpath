@@ -91,8 +91,9 @@
                                                                       (into {}))
                                                                  (->> other-deps
                                                                       (keep (fn [[dep m]]
-                                                                              (when-let [git (not-empty (select-keys m [:git/url :git/sha :git/tag :sha :tag]))]
-                                                                                [dep git])))
+                                                                              (when-let [git-or-local (not-empty (select-keys m [:git/url :git/sha :git/tag :sha :tag
+                                                                                                                                 :local/root]))]
+                                                                                [dep git-or-local])))
                                                                       (into {})))})
         ;; Avoids
         ;; `WARNING: Use of :paths external to the project has been deprecated, please remove: ...`:
