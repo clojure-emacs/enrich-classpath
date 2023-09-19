@@ -1,0 +1,2 @@
+{:paths ["a-unique-source-path"]
+ :deps {org.clojars.brenton/google-diff-match-patch {:mvn/version "0.1"}}}
