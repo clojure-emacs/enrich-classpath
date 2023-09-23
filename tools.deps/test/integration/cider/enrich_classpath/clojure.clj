@@ -11,10 +11,10 @@
     (testing "Returns a valid command with an -Scp specifying an enriched classpath, carefully sorted, and honoring aliases"
       (let [actual (sut/impl "clojure" "sample.deps.edn"
                              (System/getProperty "user.dir")
-                             ["-Asome-alias"]
+                             ["-A:some-alias"]
                              false)]
         (testing actual
-          (is (-> actual (.contains "\"-Asome-alias\""))
+          (is (-> actual (.contains "\"-A:some-alias\""))
               "Applies `pr-str` over args")
           (is (-> actual (.contains "src:test:other:the-extra-path:resource:resources")))
           (is (-> actual (.contains "the-extra-path")))
@@ -32,7 +32,7 @@
     (testing "Returns a valid command with an -Scp specifying an enriched classpath, carefully sorted, and honoring aliases"
       (let [actual (sut/impl "clojure" "sample.deps.edn"
                              (System/getProperty "user.dir")
-                             ["-Asome-alias"]
+                             ["-A:some-alias"]
                              true)]
         (testing actual
           (is (-> actual (.contains "src:test:other:the-extra-path:resource:resources")))
@@ -104,3 +104,14 @@
       (if (jdk/jdk8?)
         (is (not (string/includes? v opens)))
         (is (string/includes? v opens))))))
+
+(deftest classpath-overrides
+  (let [cp (sut/impl "clojure"
+                     "deps.edn"
+                     (str (io/file (System/getProperty "user.dir") "test-resources" "flowstorm"))
+                     ["-A:flowstorm"]
+                     false)]
+    (is (string/includes? cp "com/github/jpmonettas/clojure/1.12.0-alpha4_3/clojure-1.12.0-alpha4_3.jar")
+        "Honors `:classpath-overrides`")
+    (is (not (string/includes? cp "org/clojure/clojure"))
+        "Honors `:classpath-overrides`")))
