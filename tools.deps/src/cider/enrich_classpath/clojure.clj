@@ -50,7 +50,7 @@
         {original-deps :deps
          :keys [paths libs :mvn/repos]
          calculated-jvm-opts :jvm-opts
-         {:keys [extra-paths main-opts]} :argmap
+         {:keys [extra-paths main-opts classpath-overrides]} :argmap
          :as basis} (with-dir deps-dir
                       ;; `with-dir` allows us to use relative directories unrelated to the JVM's CWD.
                       (tools.deps/create-basis {:aliases aliases
@@ -59,11 +59,14 @@
         args (into []
                    (remove (hash-set main extra-flag extra-value))
                    args)
+        classpath-overrides-keys (-> classpath-overrides keys set)
+        classpath-overrides-vector (vec classpath-overrides-keys)
         ;; these are the deps after resolving aliases, and `:local/root` references:
         maven-deps (into []
                          (keep (fn [[artifact-name {mv :mvn/version}]]
-                                 (when mv
-                                   [artifact-name mv])))
+                                 (when (and mv
+                                            (not (classpath-overrides-keys artifact-name)))
+                                   [artifact-name mv :exclusions classpath-overrides-vector])))
                          libs)
         other-deps (into []
                          (remove (fn [[_ {mv :mvn/version}]]
@@ -80,6 +83,7 @@
                                                                :resource-paths paths})
         {:keys [classpath]} (tools.deps/calc-basis {:paths paths
                                                     :mvn/repos repos
+                                                    :classpath-overrides classpath-overrides
                                                     :deps (merge (->> maven-dependencies
                                                                       (map (fn [[k v marker classifier]]
                                                                              [(cond-> k
@@ -87,7 +91,8 @@
                                                                                 (str "$" classifier)
 
                                                                                 true symbol)
-                                                                              {:mvn/version v}]))
+                                                                              {:mvn/version v
+                                                                               :exclusions classpath-overrides-vector}]))
                                                                       (into {}))
                                                                  (->> other-deps
                                                                       (keep (fn [[dep m]]
