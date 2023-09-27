@@ -86,7 +86,12 @@
                                (update :middleware remove-enrich-middleware))]))
         m))
 
-(defn middleware* [{:keys [repl-options java-source-paths] :as project}]
+(def default-main "nrepl.cmdline")
+
+(defn middleware* [{:keys [repl-options java-source-paths]
+                    {:keys [main]
+                     :or {main default-main}} :enrich-classpath
+                    :as project}]
 
   (when (seq java-source-paths)
     (binding [leiningen.core.main/*exit-process?* false]
@@ -136,12 +141,15 @@
 
         enriched-classpath (str orig sep suffix)
         init-form (build-init-form project)]
-    (format "%s -cp %s%sclojure.main%s-m nrepl.cmdline %s"
+    (format "%s -cp %s%sclojure.main%s-m %s %s"
             java
             enriched-classpath
             (format-jvm-opts project)
             init-form
-            nrepl-options)))
+            main
+            (if (= main default-main)
+              nrepl-options
+              ""))))
 
 (defn middleware [project]
   ;; XXX failsafe. as a last resource, `echo` the strace
