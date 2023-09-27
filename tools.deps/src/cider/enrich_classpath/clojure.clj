@@ -165,6 +165,10 @@
                       (jdk/jdk8?))
                 []
                 [(str "-J" jdk/javac-tree-opens)]))
+        (into (if (or (some jdk/javac-code-like calculated-jvm-opts)
+                      (jdk/jdk8?))
+                []
+                [(str "-J" jdk/javac-code-opens)]))
         (into (if (seq main-opts)
                 main-opts
                 []))
