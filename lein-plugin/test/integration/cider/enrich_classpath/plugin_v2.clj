@@ -36,15 +36,16 @@
         [java cp classpath jvmopt1 jvmopt2 compile-path]
         segments
 
-        [add-opens clojure-main eval-flag eval-code m nrepl host localhost port portno]
-        (take-last 10 segments)
+        [add-opens add-opens2 clojure-main eval-flag eval-code m nrepl host localhost port portno]
+        (take-last 11 segments)
 
         classpath (-> classpath
                       (string/replace (System/getProperty "user.home") "~")
                       (string/replace "~/repo/" "~/enrich-classpath/")
                       (string/replace #"mx.cider/enrich-classpath/\d+/\d+/\d+.jar"
                                       "mx.cider/enrich-classpath/<shortened>.jar"))
-        expected-add-opens "--add-opens=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED"]
+        expected-add-opens  "--add-opens=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED"
+        expected-add-opens2 "--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED"]
     (testing all
       (is (= "java" java))
       (is (= "-cp" cp))
@@ -56,6 +57,10 @@
         (is (not= expected-add-opens add-opens)
             "Does not add the opens for this JDK")
         (is (= expected-add-opens add-opens)))
+      (if (jdk8?)
+        (is (not= expected-add-opens2 add-opens2)
+            "Does not add the opens for this JDK")
+        (is (= expected-add-opens2 add-opens2)))
       (is (= "clojure.main" clojure-main))
       (is (= "--eval" eval-flag))
       (is (= "\"(clojure.core/+)\"" eval-code))

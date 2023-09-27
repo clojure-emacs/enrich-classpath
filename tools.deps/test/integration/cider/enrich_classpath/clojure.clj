@@ -90,7 +90,8 @@
                      (pr-str '{:deps {nrepl/nrepl {:mvn/version "1.0.0"} cider/cider-nrepl {:mvn/version "0.36.0"} refactor-nrepl/refactor-nrepl {:mvn/version "3.9.0"}} :aliases {:cider/nrepl {:main-opts ["-m" "nrepl.cmdline" "--middleware" "[refactor-nrepl.middleware/wrap-refactor,cider.nrepl/cider-middleware]"]}}})
                      "-M:dev:test:cider/nrepl"]
                     false)
-        opens "-J--add-opens=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED"]
+        opens "-J--add-opens=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED"
+        opens2 "-J--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED"]
     (testing v
       (is (string/starts-with? v
                                "clojure -Sforce -Srepro -J-XX:-OmitStackTraceInFastThrow -J-Dclojure.main.report=stderr -Scp")
@@ -103,7 +104,10 @@
           "Adds the cider-nrepl dep and program based on the -Sdeps and -M args")
       (if (jdk/jdk8?)
         (is (not (string/includes? v opens)))
-        (is (string/includes? v opens))))))
+        (is (string/includes? v opens)))
+      (if (jdk/jdk8?)
+        (is (not (string/includes? v opens2)))
+        (is (string/includes? v opens2))))))
 
 (deftest classpath-overrides
   (let [cp (sut/impl "clojure"
