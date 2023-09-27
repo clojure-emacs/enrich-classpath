@@ -65,7 +65,7 @@
 
 (defn build-init-form [{{:keys [init init-ns]} :repl-options
                         :keys [global-vars]}]
-  (or (when (or init init-ns global-vars)
+  (or (when (or init init-ns (seq global-vars))
         (str " --eval "
              (pr-str (pr-str (wrap-try init-ns init global-vars)))
              " "))
