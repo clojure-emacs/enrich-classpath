@@ -12,6 +12,9 @@
     {}
     " "
 
+    {:global-vars []}
+    " "
+
     {:repl-options {:init 2}}
     " --eval \"(try 2 (catch java.lang.Throwable e (.printStackTrace e)))\" "
 
