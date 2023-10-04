@@ -10,6 +10,10 @@ HERE=$(shell echo $$PWD)
 # Feel free to choose one of: lein-repl | deps-repl
 .DEFAULT_GOAL := lein-repl
 
+# Set bash instead of sh for the @if [[ conditions,
+# and use the usual safety flags:
+SHELL = /bin/bash -Eeu
+
 # The Lein profiles that will be selected for `lein-repl`.
 # Feel free to upgrade this, or to override it with an env var named LEIN_PROFILES.
 # Expected format: "+dev,+test"
@@ -23,7 +27,7 @@ DEPS_MAIN_OPTS ?= "-M:dev:test"
 
 # The enrich-classpath version to be injected.
 # Feel free to upgrade this.
-ENRICH_CLASSPATH_VERSION="1.15.5"
+ENRICH_CLASSPATH_VERSION="1.18.0"
 
 # Create and cache a `java` command. project.clj is mandatory; the others are optional but are taken into account for cache recomputation.
 # It's important not to silence with step with @ syntax, so that Enrich progress can be seen as it resolves dependencies.
@@ -33,8 +37,10 @@ ENRICH_CLASSPATH_VERSION="1.15.5"
 # Launches a repl, falling back to vanilla lein repl if something went wrong during classpath calculation.
 lein-repl: .enrich-classpath-lein-repl
 	@if grep --silent " -cp " .enrich-classpath-lein-repl; then \
+		export YOURKIT_SESSION_NAME="$(basename $(PWD))"; \
 		eval "$$(cat .enrich-classpath-lein-repl) --interactive"; \
 	else \
+		export YOURKIT_SESSION_NAME="$(basename $(PWD))"; \
 		echo "Falling back to lein repl..."; \
 		lein with-profiles $(LEIN_PROFILES) repl; \
 	fi

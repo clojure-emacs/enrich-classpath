@@ -10,6 +10,10 @@ HERE=$(shell echo $$PWD)
 # Feel free to choose one of: lein-repl | deps-repl
 .DEFAULT_GOAL := lein-repl
 
+# Set bash instead of sh for the @if [[ conditions,
+# and use the usual safety flags:
+SHELL = /bin/bash -Eeu
+
 # The Lein profiles that will be selected for `lein-repl`.
 # Feel free to upgrade this, or to override it with an env var named LEIN_PROFILES.
 # Expected format: "+dev,+test"
@@ -33,8 +37,10 @@ ENRICH_CLASSPATH_VERSION="1.18.0"
 # Launches a repl, falling back to vanilla lein repl if something went wrong during classpath calculation.
 lein-repl: .enrich-classpath-lein-repl
 	@if grep --silent " -cp " .enrich-classpath-lein-repl; then \
+		export YOURKIT_SESSION_NAME="$(basename $(PWD))"; \
 		eval "$$(cat .enrich-classpath-lein-repl) --interactive"; \
 	else \
+		export YOURKIT_SESSION_NAME="$(basename $(PWD))"; \
 		echo "Falling back to lein repl... (you can avoid further falling back by removing .enrich-classpath-lein-repl)"; \
 		lein with-profiles $(LEIN_PROFILES) repl; \
 	fi
