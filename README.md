@@ -112,7 +112,7 @@ This program observes a number of Lein configuration options under the `:enrich-
 
 #### `:shorten`
 
-Default: `false`.
+Default: `false` for the legacy middleware, `true` for the newer offerings.
 
 If `true`, most classpath entries will be added as a single, very thin .jar file,
 which contents will consist of a single `MANIFEST.MF` file which will point of all those classpath entries.
@@ -154,6 +154,14 @@ Defaults to your project's Lein :repositories, typically Maven Central + Clojars
 If you specify `:repositories`, they will replace Lein's entirely. 
 
 In all cases, repositories detected as unreachable (because of DNS, auth, etc) will be removed.
+
+#### `:main`
+
+_This option is specific to_ `lein-enrich-classpath` _(the newer offering for Lein)_.
+
+String. Specifies a main program other than `nrepl.cmdline` to be be run. Includes CLI arguments.
+
+Example: `"cognitect.test-runner --dir test"`
 
 ## Troubleshooting
 
