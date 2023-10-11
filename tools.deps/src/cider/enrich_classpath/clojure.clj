@@ -60,14 +60,14 @@
                    (remove (hash-set main extra-flag extra-value))
                    args)
         main-opts (reduce-kv (fn [acc ^long i x]
-                          (let [j (dec i)]
-                            (conj acc (cond-> x
-                                        (and (>= j 0)
-                                             (#{"-e" (pr-str "-e")} (nth main-opts j))
-                                             x)
-                                        pr-str))))
-                        []
-                        main-opts)
+                               (let [j (dec i)]
+                                 (conj acc (cond-> x
+                                             (and (>= j 0)
+                                                  (#{"-e" (pr-str "-e")} (nth main-opts j))
+                                                  x)
+                                             pr-str))))
+                             []
+                             main-opts)
         classpath-overrides-keys (-> classpath-overrides keys set)
         classpath-overrides-vector (vec classpath-overrides-keys)
         ;; these are the deps after resolving aliases, and `:local/root` references:
