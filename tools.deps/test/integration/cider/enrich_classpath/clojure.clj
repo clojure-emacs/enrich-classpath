@@ -119,3 +119,12 @@
         "Honors `:classpath-overrides`")
     (is (not (string/includes? cp "org/clojure/clojure"))
         "Honors `:classpath-overrides`")))
+
+(deftest eval-option
+  (let [cp (sut/impl "clojure"
+                     "deps.edn"
+                     (str (io/file (System/getProperty "user.dir") "test-resources" "eval"))
+                     ["-A:eval"]
+                     false)]
+    (is (string/includes? cp "-e \"(println \\\"foo\\\")\"")
+        "Escapes the -e value")))
