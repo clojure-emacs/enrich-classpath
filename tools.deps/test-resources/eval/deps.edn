@@ -1,0 +1,1 @@
+{:aliases {:eval {:main-opts ["-e" "(println \"foo\")"]}}}
