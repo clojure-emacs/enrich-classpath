@@ -70,12 +70,40 @@
                              main-opts)
         classpath-overrides-keys (-> classpath-overrides keys set)
         classpath-overrides-vector (vec classpath-overrides-keys)
+        ;; a dep like `incanter` with :exclusions can expand to :children like `incanter-<blah>` without inheriting those :exclusions.
+        ;; so :exclusions wouln't be fully honored, which can alter the dep tree and bring all sorts of problems.
+        ;; Prevent that:
+        fine-grained-exclusions (atom {})
+        calc-fine-grained-exclusions!
+        (fn self [artifact-name {:keys [exclusions parents]} visited]
+          (or (get @fine-grained-exclusions artifact-name)
+              (let [parents (flatten (vec ;; vec is important to use flatten properly
+                                      parents))
+                    exclusions (vec (reduce into
+                                            #{}
+                                            (conj (mapv (fn [p]
+                                                          (or (get @fine-grained-exclusions p)
+                                                              (let [criterion (hash-set p artifact-name)]
+                                                                (if (contains? @visited criterion)
+                                                                  []
+                                                                  (do
+                                                                    (swap! visited conj criterion)
+                                                                    (self p (get libs p) visited))))))
+                                                        parents)
+                                                  (vec exclusions))))]
+                (swap! fine-grained-exclusions assoc artifact-name exclusions)
+                exclusions)))
+        _ (->> libs
+               (run! (fn [[artifact-name m]]
+                       (calc-fine-grained-exclusions! artifact-name m (atom #{})))))
         ;; these are the deps after resolving aliases, and `:local/root` references:
         maven-deps (into []
                          (keep (fn [[artifact-name {mv :mvn/version}]]
                                  (when (and mv
                                             (not (classpath-overrides-keys artifact-name)))
-                                   [artifact-name mv :exclusions classpath-overrides-vector])))
+                                   [artifact-name mv :exclusions (into classpath-overrides-vector
+                                                                       (get @fine-grained-exclusions
+                                                                            artifact-name))])))
                          libs)
         other-deps (into []
                          (remove (fn [[_ {mv :mvn/version}]]
@@ -101,13 +129,15 @@
 
                                                                                 true symbol)
                                                                               {:mvn/version v
-                                                                               :exclusions classpath-overrides-vector}]))
+                                                                               :exclusions (into classpath-overrides-vector
+                                                                                                 (get @fine-grained-exclusions k))}]))
                                                                       (into {}))
                                                                  (->> other-deps
                                                                       (keep (fn [[dep m]]
-                                                                              (when-let [git-or-local (not-empty (select-keys m [:git/url :git/sha :git/tag :sha :tag
-                                                                                                                                 :local/root]))]
-                                                                                [dep git-or-local])))
+                                                                              (when (seq (select-keys m [:git/url :git/sha :git/tag :sha :tag
+                                                                                                         :local/root]))
+                                                                                ;; use m (and not the select-keys result) to honor `:exclusions`:
+                                                                                [dep m])))
                                                                       (into {})))})
         ;; Avoids
         ;; `WARNING: Use of :paths external to the project has been deprecated, please remove: ...`:

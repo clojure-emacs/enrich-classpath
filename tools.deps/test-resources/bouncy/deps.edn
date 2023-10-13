@@ -1,0 +1,149 @@
+{:paths ["src" "resources"]
+ :deps {org.clojure/clojure    {:mvn/version "1.11.1"}
+        org.clojure/core.async {:mvn/version "1.6.673"}
+        org.clojure/math.combinatorics {:mvn/version "0.2.0"}
+
+        com.rpl/specter        {:mvn/version "1.1.4"}
+        criterium/criterium    {:mvn/version "0.4.6"}
+        metosin/malli          {:mvn/version "0.11.0"}
+        meander/epsilon        {:mvn/version "0.0.650"}
+
+        org.clj-commons/digest {:mvn/version "1.4.100"}
+        org.clojure/data.zip   {:mvn/version "1.0.0"}
+        org.clojure/data.json  {:mvn/version "2.4.0"}
+
+        aero/aero              {:mvn/version "1.1.6"}
+        com.xtdb/xtdb-core     {:mvn/version "1.23.1"}
+        com.xtdb/xtdb-rocksdb  {:mvn/version "1.23.1"}
+        cheshire/cheshire      {:mvn/version "5.10.0"}
+
+        http-kit/http-kit      {:mvn/version "2.7.0-alpha4"}
+        clj-http/clj-http      {:mvn/version "3.12.3"}
+        aleph/aleph            {:mvn/version "0.6.1"}
+        manifold/manifold      {:mvn/version "0.4.0"}
+
+        ;; bouncycastle/bcprov-jdk16-nosign {:mvn/version "140"}
+        org.clojure/java.data  {:mvn/version "1.0.95"}
+
+        incanter/incanter      {:mvn/version "1.9.3"
+                                :exclusions [com.lowagie/itext]}
+
+        tesser.core/tesser.core {:mvn/version "1.0.6"}
+
+        org.mentat/emmy         {:mvn/version "0.31.0"}
+
+        techascent/tech.ml.dataset     {:mvn/version "7.000-beta-35"}
+        techascent/tech.ml.dataset.sql {:mvn/version "6.046-01"}
+        techascent/tech.ml             {:mvn/version "6.019"}
+        techascent/tech.io             {:mvn/version "4.30"}
+
+        com.cnuernber/ham-fisted {:mvn/version "1.000-beta-97"}
+        com.climate/claypoole    {:mvn/version "1.1.4"}
+
+        ;; scicloj/scicloj.ml         {:mvn/version "0.2.2"}
+        scicloj/tablecloth     {:mvn/version "7.000-beta-27"}
+
+        net.clojars.wkok/openai-clojure {:mvn/version "0.5.1"}
+
+        org.apache.commons/commons-lang3 {:mvn/version "3.12.0"}
+
+        ;; for parquet
+        ;; https://techascent.github.io/tech.ml.dataset/tech.v3.libs.parquet.html
+        org.apache.parquet/parquet-hadoop
+        {:mvn/version "1.12.0"
+         :exclusions [org.slf4j/slf4j-log4j12]}
+
+        org.apache.hadoop/hadoop-common
+        {:mvn/version "3.3.0"
+         :exclusions  [com.sun.jersey/jersey-core
+                       com.sun.jersey/jersey-json
+                       com.sun.jersey/jersey-server
+                       com.sun.jersey/jersey-servlet
+
+                       dnsjava/dnsjava
+
+                       org.eclipse.jetty/jetty-server
+                       org.eclipse.jetty/jetty-servlet
+                       org.eclipse.jetty/jetty-util
+                       org.eclipse.jetty/jetty-webapp
+
+                       javax.activation/javax.activation-api
+                       javax.servlet.jsp/jsp-api
+                       javax.servlet/javax.servlet-api
+
+                       io.netty/netty-codec
+                       io.netty/netty-handler
+                       io.netty/netty-transport
+                       io.netty/netty-transport-native-epoll
+
+                       org.codehaus.jettison/jettison
+
+                       org.apache.zookeeper/zookeeper
+
+                       org.apache.curator/curator-recipes
+                       org.apache.curator/curator-client
+                       org.apache.htrace/htrace-core4
+
+                       org.apache.hadoop.thirdparty/hadoop-shaded-protobuf_3_7
+                       org.apache.hadoop/hadoop-auth
+
+                       org.apache.kerby/kerb-core
+
+                       commons-cli/commons-cli
+                       commons-net/commons-net
+                       org.apache.commons/commons-lang3
+                       org.apache.commons/commons-text
+                       org.apache.commons/commons-configuration2
+
+                       com.google.re2j/re2j
+                       com.google.code.findbugs/jsr305
+
+                       com.jcraft/jsch
+
+                       log4j/log4j
+                       org.slf4j/slf4j-log4j12]}
+        ;; We literally need this for 1 POJO formatting object.
+        org.apache.hadoop/hadoop-mapreduce-client-core
+        {:mvn/version "3.3.0"
+         :exclusions  [org.slf4j/slf4j-log4j12
+                       org.apache.avro/avro
+                       org.apache.hadoop/hadoop-yarn-client
+                       org.apache.hadoop/hadoop-yarn-common
+                       org.apache.hadoop/hadoop-annotations
+                       org.apache.hadoop/hadoop-hdfs-client
+                       io.netty/netty
+                       com.google.inject.extensions/guice-servlet]}
+        ;; M-1 mac support for snappy
+        org.xerial.snappy/snappy-java {:mvn/version "1.1.8.4"}
+
+        ;; --------------------------------------------------
+        ;; arrow deps
+        org.apache.arrow/arrow-vector
+        {:mvn/version "6.0.0"
+         :exclusions [commons-codec/commons-codec
+                      com.fasterxml.jackson.core/jackson-core
+                      com.fasterxml.jackson.core/jackson-annotations
+                      com.fasterxml.jackson.core/jackson-databind
+                      org.slf4j/slf4j-api]}
+        com.cnuernber/jarrow   {:mvn/version "1.000"}
+        ;; --------------------------------------------------
+        io.github.nubank/morse {:git/tag "v2023.04.27.01" :git/sha "7a85e46"}
+        ;;io.github.discourje/development (:git/sha "817e0696aaefa9551caa190943e39bb8220a9100")
+        com.clojure-goes-fast/clj-async-profiler {:mvn/version "1.0.4"}
+        djblue/portal          {:mvn/version "0.38.0"}}
+ :aliases
+ {:run-m {:main-opts ["-m" "karma3.covalent"]}
+  :run-x {:ns-default karma3.covalent
+          :exec-fn greet
+          :exec-args {:name "Clojure"}}
+  :build {:deps {io.github.seancorfield/build-clj
+                 {:git/tag "v0.8.2" :git/sha "0ffdb4c"
+                  ;; since we're building an app uberjar, we do not
+                  ;; need deps-deploy for clojars.org deployment:
+                  :deps/root "slim"}}
+          :ns-default build}
+
+  :test {:extra-paths ["test"]
+         :extra-deps {org.clojure/test.check {:mvn/version "1.1.1"}
+                      io.github.cognitect-labs/test-runner
+                      {:git/tag "v0.5.0" :git/sha "48c3c67"}}}}}

@@ -1,11 +1,16 @@
 (ns integration.cider.enrich-classpath.plugin-v2
   (:require
+   [cider.enrich-classpath]
    [cider.enrich-classpath.jdk :refer [jdk8?]]
    [cider.enrich-classpath.plugin-v2 :as sut]
    [clojure.string :as string]
-   [clojure.test :refer [deftest is testing use-fixtures]]))
+   [clojure.test :refer [deftest is testing use-fixtures]])
+  (:import
+   (java.io File)))
 
 (use-fixtures :each (fn [t]
+                      (when-not (System/getenv "CI")
+                        (-> cider.enrich-classpath/cache-filename File. .delete))
                       (with-redefs [sut/wrap-try (fn [_ x _]
                                                    x)]
                         (t))))
