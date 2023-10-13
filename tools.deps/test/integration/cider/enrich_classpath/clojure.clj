@@ -1,10 +1,18 @@
 (ns integration.cider.enrich-classpath.clojure
   (:require
+   [cider.enrich-classpath]
    [cider.enrich-classpath.clojure :as sut]
    [cider.enrich-classpath.jdk :as jdk]
    [clojure.java.io :as io]
    [clojure.string :as string]
-   [clojure.test :refer [deftest is testing]]))
+   [clojure.test :refer [deftest is testing use-fixtures]])
+  (:import
+   (java.io File)))
+
+(use-fixtures :each (fn [t]
+                      (when-not (System/getenv "CI")
+                        (-> cider.enrich-classpath/cache-filename File. .delete))
+                      (t)))
 
 (deftest works
   (testing "`shorten?` set to `false`"
@@ -42,7 +50,7 @@
           (is (-> actual (.contains "src.zip")))
           (is (not (-> actual (.contains "-sources.jar"))))
           (is (not (-> actual (.contains "-javadoc.jar"))))
-          (is  (-> actual (.contains (str "mx.cider/enrich-classpath/" (jdk/digits-str)))))
+          (is (-> actual (.contains (str "mx.cider/enrich-classpath/" (jdk/digits-str)))))
           (when (re-find #"^1\.8\." (System/getProperty "java.version"))
             (is (-> actual (.contains "unzipped-jdk-sources"))))))))
 
@@ -119,6 +127,20 @@
         "Honors `:classpath-overrides`")
     (is (not (string/includes? cp "org/clojure/clojure"))
         "Honors `:classpath-overrides`")))
+
+(deftest bouncy-repro
+  (testing "A problematic real-world case doesn't throw exceptions"
+    (let [actual (sut/impl "clojure"
+                           "deps.edn"
+                           (str (io/file (System/getProperty "user.dir") "test-resources" "bouncy"))
+                           ["-A:test"]
+                           false)]
+      (is (-> actual (.contains "-sources.jar")))
+      (is (-> actual (.contains "-javadoc.jar")))
+      (is (-> actual (.contains "src.zip")))
+      (if (re-find #"^1\.8\." (System/getProperty "java.version"))
+        (is (-> actual (.contains "unzipped-jdk-sources")))
+        (is (-> actual (.contains "-J--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED")))))))
 
 (deftest eval-option
   (let [cp (sut/impl "clojure"
