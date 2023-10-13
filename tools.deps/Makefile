@@ -27,7 +27,7 @@ DEPS_MAIN_OPTS ?= "-M:dev:test"
 
 # The enrich-classpath version to be injected.
 # Feel free to upgrade this.
-ENRICH_CLASSPATH_VERSION="1.18.1"
+ENRICH_CLASSPATH_VERSION="1.18.2"
 
 # Create and cache a `java` command. project.clj is mandatory; the others are optional but are taken into account for cache recomputation.
 # It's important not to silence with step with @ syntax, so that Enrich progress can be seen as it resolves dependencies.
