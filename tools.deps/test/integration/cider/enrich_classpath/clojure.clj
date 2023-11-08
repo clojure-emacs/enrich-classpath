@@ -150,3 +150,13 @@
                      false)]
     (is (string/includes? cp "-e \"(println \\\"foo\\\")\"")
         "Escapes the -e value")))
+
+(deftest jvm-opts
+  (testing "https://github.com/clojure-emacs/enrich-classpath/issues/56"
+    (let [cp (sut/impl "clojure"
+                       "deps.edn"
+                       (str (io/file (System/getProperty "user.dir") "test-resources" "jvm-opts"))
+                       ["-M:foo"]
+                       false)]
+      (is (string/starts-with? cp "clojure \"-A:foo\" -Sforce -Srepro ")
+          "Replaces -M with -A so that the underlying :jvm opts will be honored"))))

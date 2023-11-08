@@ -17,20 +17,25 @@
 
 (defn impl ^String [clojure deps-edn-filename pwd args shorten?]
   {:pre [(vector? args)]} ;; for conj
-  (let [aliases (into #{}
-                      (comp (mapcat (fn [^String s]
-                                      (or (when (-> s (.startsWith "-A"))
-                                            (-> s
-                                                (string/replace #"-A:" "")
-                                                (string/replace #"-A" "")
-                                                (string/split #":")))
-                                          (when (-> s (.startsWith "-M"))
-                                            (-> s
-                                                (string/replace #"-M:" "")
-                                                (string/replace #"-M" "")
-                                                (string/split #":"))))))
-                            (map keyword))
-                      args)
+  (let [vanilla-aliases (into #{}
+                              (comp (mapcat (fn [^String s]
+                                              (when (-> s (.startsWith "-A"))
+                                                (-> s
+                                                    (string/replace #"-A:" "")
+                                                    (string/replace #"-A" "")
+                                                    (string/split #":")))))
+                                    (map keyword))
+                              args)
+        main-aliases (into #{}
+                           (comp (mapcat (fn [^String s]
+                                           (when (-> s (.startsWith "-M"))
+                                             (-> s
+                                                 (string/replace #"-M:" "")
+                                                 (string/replace #"-M" "")
+                                                 (string/split #":")))))
+                                 (map keyword))
+                           args)
+        aliases (into vanilla-aliases main-aliases)
         args-max-index (-> args count dec)
         [extra-flag extra-value] (reduce-kv (fn [acc ^long i x]
                                               (let [j (inc i)]
@@ -56,7 +61,19 @@
                       (tools.deps/create-basis {:aliases aliases
                                                 :project deps-filename
                                                 :extra (some-> extra-value edn/read-string)}))
+        ;; Replace -M with -A if possible, so that its :jvm-opts will be honored while not forcing a main program to run:
+        args (if (or (seq vanilla-aliases)
+                     (empty? main-aliases))
+               args
+               (mapv (fn [x]
+                       (cond-> x
+                         (and (string? x)
+                              (string/starts-with? x "-M"))
+                         (string/replace-first #"^-M" "-A")))
+                     args))
         args (into []
+                   ;; we remove the main opts because Enrich primarily produces a repl.
+                   ;; if users intend to run a program, one can explicitly pass "-m" "your.program" and it will be honored
                    (remove (hash-set main extra-flag extra-value))
                    args)
         main-opts (reduce-kv (fn [acc ^long i x]
