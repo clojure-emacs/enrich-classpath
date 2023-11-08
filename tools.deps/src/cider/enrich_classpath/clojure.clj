@@ -49,8 +49,8 @@
         deps-filename (str (io/file pwd deps-edn-filename))
         {original-deps :deps
          :keys [paths libs :mvn/repos]
-         calculated-jvm-opts :jvm-opts
-         {:keys [extra-paths main-opts classpath-overrides]} :argmap
+         {:keys [extra-paths main-opts classpath-overrides]
+          calculated-jvm-opts :jvm-opts} :argmap
          :as basis} (with-dir deps-dir
                       ;; `with-dir` allows us to use relative directories unrelated to the JVM's CWD.
                       (tools.deps/create-basis {:aliases aliases
@@ -208,6 +208,10 @@
                       (jdk/jdk8?))
                 []
                 [(str "-J" jdk/javac-code-opens)]))
+        (into (if-not main
+                []
+                (mapv (partial str "-J")
+                      calculated-jvm-opts)))
         (into (if (seq main-opts)
                 main-opts
                 []))
