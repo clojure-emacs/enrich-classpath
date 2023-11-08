@@ -150,3 +150,28 @@
                      false)]
     (is (string/includes? cp "-e \"(println \\\"foo\\\")\"")
         "Escapes the -e value")))
+
+(deftest jvm-opts
+  (testing "https://github.com/clojure-emacs/enrich-classpath/issues/56"
+    (let [cp (sut/impl "clojure"
+                       "deps.edn"
+                       (str (io/file (System/getProperty "user.dir") "test-resources" "jvm-opts"))
+                       ["-M:foo"]
+                       false)]
+      (is (not (string/includes? cp "-M"))
+          "Removes -M")
+
+      (assert (pos? (long (string/index-of cp "-J--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED"))))
+      (is (= (string/index-of cp "-J--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED")
+             (string/last-index-of cp "-J--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED"))
+          "Doesn't add this flag twice")
+
+      (assert (pos? (long (string/index-of cp "-J--add-opens=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED"))))
+      (is (= (string/index-of cp "-J--add-opens=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED")
+             (string/last-index-of cp "-J--add-opens=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED"))
+          "Doesn't add this flag twice")
+
+      (is (string/ends-with? cp (str "-J--add-opens=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED "
+                                     "-J--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED "
+                                     "-J-XstartOnFirstThread"))
+          "Adds -J-XstartOnFirstThread as derived from -M, using the same format as other -J options"))))
