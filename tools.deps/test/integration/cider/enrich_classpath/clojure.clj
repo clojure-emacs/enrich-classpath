@@ -151,6 +151,22 @@
     (is (string/includes? cp "-e \"(println \\\"foo\\\")\"")
         "Escapes the -e value")))
 
+(deftest path-aliases
+  (let [cp (sut/impl "clojure"
+                     "deps.edn"
+                     (str (io/file (System/getProperty "user.dir") "test-resources" "path-aliases"))
+                     []
+                     true)]
+    (is (string/includes? cp "the-main-source-path")
+        "Resolves `:paths` defined as aliases"))
+  (let [cp (sut/impl "clojure"
+                     "deps.edn"
+                     (str (io/file (System/getProperty "user.dir") "test-resources" "path-aliases"))
+                     ["-A:cljc-paths"]
+                     true)]
+    (is (string/includes? cp "the-main-source-path:the-other-source-path")
+        "CLI aliases can use `:paths` aliases too")))
+
 (when-not (jdk/jdk8?)
   (deftest jvm-opts
     (testing "https://github.com/clojure-emacs/enrich-classpath/issues/56"

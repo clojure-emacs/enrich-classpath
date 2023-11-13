@@ -1,0 +1,5 @@
+{:paths [:clj-paths]
+ :deps {}
+ :aliases {:clj-paths ["the-main-source-path"]
+           :cljs-paths ["the-other-source-path"]
+           :cljc-paths {:extra-paths [:cljs-paths]}}}
