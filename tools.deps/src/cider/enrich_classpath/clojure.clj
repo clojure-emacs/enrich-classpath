@@ -110,6 +110,12 @@
                                    mv))
                          libs)
         paths (into paths extra-paths)
+        paths (into []
+                    (mapcat (fn [path]
+                              (if (keyword? path)
+                                (get-in basis [:aliases path] path)
+                                (vector path))))
+                    paths)
         original-paths-set (set paths)
         original-deps-set (->> original-deps (map first) set)
         shortened-jar-signature (string/join File/separator
