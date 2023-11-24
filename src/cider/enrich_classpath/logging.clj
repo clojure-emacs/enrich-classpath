@@ -30,7 +30,7 @@
       (println x))))
 
 (defn warn [x]
-  (if lein?
-    (locking warn-lock
+  (locking warn-lock
+    (if lein?
       (-> 'leiningen.core.main/warn ^IFn (resolve) (.invoke x))
       (println x))))
