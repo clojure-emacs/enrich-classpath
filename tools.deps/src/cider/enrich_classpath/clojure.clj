@@ -59,6 +59,25 @@
         args (into []
                    (remove (hash-set main extra-flag extra-value))
                    args)
+        eval-option (atom [])
+        args (reduce-kv (fn [acc ^long i x]
+                          (let [j (dec i)]
+                            (cond
+                              (#{"-e" (pr-str "-e")} x)
+                              (do
+                                (swap! eval-option conj x)
+                                acc)
+
+                              (and (>= j 0)
+                                   (#{"-e" (pr-str "-e")} (nth args j)))
+                              (do
+                                (swap! eval-option conj (pr-str x))
+                                acc)
+
+                              :else
+                              (conj acc x))))
+                        []
+                        args)
         main-opts (reduce-kv (fn [acc ^long i x]
                                (let [j (dec i)]
                                  (conj acc (cond-> x
@@ -218,6 +237,7 @@
                 []
                 (mapv (partial str "-J")
                       calculated-jvm-opts)))
+        (into @eval-option)
         (into (if (seq main-opts)
                 main-opts
                 []))

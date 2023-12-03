@@ -149,7 +149,19 @@
                      ["-A:eval"]
                      false)]
     (is (string/includes? cp "-e \"(println \\\"foo\\\")\"")
-        "Escapes the -e value")))
+        "Escapes the -e value"))
+
+  (testing "https://github.com/clojure-emacs/enrich-classpath/issues/58"
+    (let [^String cp (sut/impl "clojure"
+                               "deps.edn"
+                               (str (io/file (System/getProperty "user.dir") "test-resources" "eval"))
+                               ["-e" "\"(+ 311 2)\""]
+                               false)]
+      (is (string/ends-with? cp "-e \"\\\"(+ 311 2)\\\"\"")
+          "Honors a user-provided `-e`, placing it at the correct position")
+      (is (= (.indexOf cp "311")
+             (.lastIndexOf cp "311"))
+          "`-e` is effectively moved, so that it's not emitted twice"))))
 
 (deftest path-aliases
   (let [cp (sut/impl "clojure"
