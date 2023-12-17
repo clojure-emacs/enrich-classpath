@@ -25,6 +25,9 @@ This is the set of things that `enrich-classpath` can add to the classpath, when
 As a quick example of you can do with it: 
 
 ```clj
+(require '[clojure.java.io :as io])
+(require '[clojure.string :as string])
+
 (defn class->source [class-object]
   {:pre [(class? class-object)]}
   (-> class-object pr-str munge (string/replace "." "/") (str ".java") (io/resource) slurp))
