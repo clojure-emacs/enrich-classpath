@@ -105,7 +105,7 @@
                                "clojure -Sforce -Srepro -J-XX:-OmitStackTraceInFastThrow -J-Dclojure.main.report=stderr -Scp")
           "Looks like a well-formed `clojure` invocation")
       (is (string/ends-with? v
-                             "-m nrepl.cmdline --middleware [refactor-nrepl.middleware/wrap-refactor,cider.nrepl/cider-middleware]")
+                             "-M -m nrepl.cmdline --middleware [refactor-nrepl.middleware/wrap-refactor,cider.nrepl/cider-middleware]")
           "Adds cider-nrepl's --main program based on the -Sdeps and -M args")
       (is (string/includes? v
                             ".m2/repository/cider/cider-nrepl/0.36.0/cider-nrepl-0.36.0.jar")
