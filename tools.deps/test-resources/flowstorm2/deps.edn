@@ -1,0 +1,6 @@
+;; Adding a dependency that contains clojure 1.11.1 as a transitive
+{:deps {io.github.nubank/morse {:git/tag "v2023.10.06.02" :git/sha "88b5ff7"}}
+ :aliases
+ ;; let's swap the Clojure compiler by ClojureStorm
+ {:storm {:classpath-overrides {org.clojure/clojure nil} ;; for disabling the official compiler
+          :deps                {com.github.flow-storm/clojure {:mvn/version "1.12.0-alpha9_4"}}}}}

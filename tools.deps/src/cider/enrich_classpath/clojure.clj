@@ -162,7 +162,9 @@
                                                                               (when (seq (select-keys m [:git/url :git/sha :git/tag :sha :tag
                                                                                                          :local/root]))
                                                                                 ;; use m (and not the select-keys result) to honor `:exclusions`:
-                                                                                [dep m])))
+                                                                                [dep (-> m
+                                                                                         (update :exclusions into classpath-overrides-vector)
+                                                                                         (update :exclusions vec))])))
                                                                       (into {})))})
         ;; Avoids
         ;; `WARNING: Use of :paths external to the project has been deprecated, please remove: ...`:
