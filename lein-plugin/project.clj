@@ -4,6 +4,11 @@
                            "RELEASE")))
 
 (defproject mx.cider/lein-enrich-classpath project-version
+  :description "mx.cider/enrich-classpath with dependencies specific to tools.deps usage."
+  :url "https://github.com/clojure-emacs/enrich-classpath"
+  :license {:name "EPL-2.0"
+            :url  "https://www.eclipse.org/legal/epl-2.0/"}
+
   :dependencies [[mx.cider/enrich-classpath ~project-version]
                  [org.clojure/clojure "1.11.1"]]
   :pedantic? ~(if (System/getenv "CI")
