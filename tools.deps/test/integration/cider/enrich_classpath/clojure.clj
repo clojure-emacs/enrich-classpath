@@ -128,6 +128,17 @@
     (is (not (string/includes? cp "org/clojure/clojure"))
         "Honors `:classpath-overrides`")))
 
+(deftest classpath-overrides-git-deps
+  (let [cp (sut/impl "clojure"
+                     "deps.edn"
+                     (str (io/file (System/getProperty "user.dir") "test-resources" "flowstorm2"))
+                     ["-A:storm"]
+                     false)]
+    (is (string/includes? cp "com/github/flow-storm/clojure/1.12.0-alpha9_4/clojure-1.12.0-alpha9_4.jar")
+        "Honors `:classpath-overrides`")
+    (is (not (string/includes? cp "org/clojure/clojure"))
+        "Honors `:classpath-overrides`")))
+
 (deftest bouncy-repro
   (testing "A problematic real-world case doesn't throw exceptions"
     (let [actual (sut/impl "clojure"
