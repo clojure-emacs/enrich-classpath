@@ -213,5 +213,6 @@
 
         (is (string/ends-with? cp (str "-J--add-opens=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED "
                                        "-J--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED "
-                                       "-J-XstartOnFirstThread"))
+                                       "-J-XstartOnFirstThread "
+                                       "-J-Dflowstorm.jarEditorCommand=\"emacsclient <<FILE>>\""))
             "Adds -J-XstartOnFirstThread as derived from -M, using the same format as other -J options")))))

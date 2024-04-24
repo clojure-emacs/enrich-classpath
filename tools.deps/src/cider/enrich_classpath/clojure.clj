@@ -237,7 +237,12 @@
                 [(str "-J" jdk/javac-code-opens)]))
         (into (if-not main
                 []
-                (mapv (partial str "-J")
+                (mapv (fn [opt-str]
+                        (if (and (string/starts-with? opt-str "-D")
+                                 (string/index-of opt-str "="))
+                          (let [[opt-name opt-val] (string/split opt-str #"=")]
+                            (format "-J%s=\"%s\"" opt-name opt-val))
+                          (str "-J" opt-str)))
                       calculated-jvm-opts)))
         (into @eval-option)
         (into (if (seq main-opts)
