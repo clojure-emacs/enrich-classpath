@@ -15,6 +15,19 @@
        (apply vector clojure)
        (string/join " ")))
 
+(defn- prepend-arg
+  "Returns udpated `args` vector where `prepend-with` is inserted before
+  `arg` if `arg` exists, otherwise returns the original `args`
+  vector."
+  [arg prepend-with args]
+  (when (seq args)
+    (let [args-vec (vec args)
+          idx      (.indexOf args arg)]
+      (if-not (neg? idx)
+        (into (conj (subvec args-vec 0 idx) prepend-with)
+              (subvec args-vec idx))
+        args-vec))))
+
 (defn impl ^String [clojure deps-edn-filename pwd args shorten?]
   {:pre [(vector? args)]} ;; for conj
   (let [aliases (into #{}
@@ -78,15 +91,16 @@
                               (conj acc x))))
                         []
                         args)
-        main-opts (reduce-kv (fn [acc ^long i x]
-                               (let [j (dec i)]
-                                 (conj acc (cond-> x
-                                             (and (>= j 0)
-                                                  (#{"-e" (pr-str "-e")} (nth main-opts j))
-                                                  x)
-                                             pr-str))))
-                             []
-                             main-opts)
+        main-opts (->> main-opts
+                       (prepend-arg "-m" "-M")
+                       (reduce-kv (fn [acc ^long i x]
+                                    (let [j (dec i)]
+                                      (conj acc (cond-> x
+                                                  (and (>= j 0)
+                                                       (#{"-e" (pr-str "-e")} (nth main-opts j))
+                                                       x)
+                                                  pr-str))))
+                                  []))
         classpath-overrides-keys (-> classpath-overrides keys set)
         classpath-overrides-vector (vec classpath-overrides-keys)
         ;; a dep like `incanter` with :exclusions can expand to :children like `incanter-<blah>` without inheriting those :exclusions.
