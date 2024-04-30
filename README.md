@@ -32,6 +32,22 @@ As a quick example of you can do with it:
 ;; Usage: (-> Thread class->source println)
 ```
 
+For Java >= 9 with the module system it would be:
+
+```clj
+(require '[clojure.java.io :as io])
+(require '[clojure.string :as string])
+
+(defn class->source-with-module [class-object]
+  {:pre [(class? class-object)]}
+  (let [module (.getName (.getModule Thread))
+        java-file (-> Thread pr-str munge (string/replace "." "/") (str ".java"))]
+    (->
+     (str module "/" java-file)
+     (io/resource)
+     slurp)))
+;; Usage: (-> Thread class->source println)
+```
 All what the plugin does is placing a source (and/or javadoc) `.jar` in the classpath, so that `(io/resource)` will return it (else it would return `nil`).
 
 A great real-world lib that would be enhanced by this program is Orchard's [source-info](https://github.com/clojure-emacs/orchard/blob/f8a85feb613501be0896c3683c8ff7b0bd404061/src/orchard/java/parser.clj#L290).
